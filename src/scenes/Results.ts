@@ -1,0 +1,7 @@
+import type { GameResult, MatchOptions } from "../shared/contracts/GameModule";
+import { icons } from "../shared/components/icons";
+export function resultsContent(result: GameResult, options?:MatchOptions) {
+  const draw = result.winner === "draw",
+    name = result.winner === 1 ? "Orange" : "Blue";
+  return `<div class="result-confetti"><i></i><i></i><i></i><i></i><i></i><i></i></div><span class="result-emblem ${draw ? "draw" : name.toLowerCase()}">${draw ? "=" : icons.cup}</span><div class="eyebrow">${draw ? "GREAT MINDS THINK ALIKE" : "A LITTLE VICTORY DANCE?"}</div><h2 id="dialog-title">${draw ? "Evenly matched." : `${name}${options?.mode==='ai'&&result.winner===2?' AI':''} takes it!`}</h2><p>${draw ? "A worthy opponent, indeed." : "One more for the friendly scoreboard."}</p><div class="result-score"><span>${result.scores[0]}</span><small>—</small><span>${result.scores[1]}</span></div><button class="primary-button" data-action="rematch">Rematch ${icons.arrow}</button><button class="text-button" data-action="menu">Back to all games</button>`;
+}
