@@ -23,17 +23,32 @@ export class GolfRenderer {
     this.maskShape.fillStyle(0xffffff).fillRect(r.x, r.y, r.w, r.h);
     this.mask = this.maskShape.createGeometryMask();
     this.g.setMask(this.mask);
-
   }
-  draw(world: GolfPhysics, aim: Point | null) {
+  draw(world: GolfPhysics, aim: Point | null, rival?: Point) {
     const g = this.g,
       c = world.course,
       d = world.dynamics,
       s = this.view.scale;
-    const bounds = this.view.bounds, origin = this.view.project({x:0,y:0});
-    this.maskShape.clear().fillStyle(0xffffff).fillRect(bounds.x,bounds.y,bounds.w,bounds.h);
-    this.frame.clear().lineStyle(3,theme.ink).strokeRoundedRect(bounds.x-1,bounds.y-1,bounds.w+2,bounds.h+2,8);
-    g.clear().setPosition(origin.x,origin.y).setRotation(this.view.angle).setScale(s);
+    const bounds = this.view.bounds,
+      origin = this.view.project({ x: 0, y: 0 });
+    this.maskShape
+      .clear()
+      .fillStyle(0xffffff)
+      .fillRect(bounds.x, bounds.y, bounds.w, bounds.h);
+    this.frame
+      .clear()
+      .lineStyle(3, theme.ink)
+      .strokeRoundedRect(
+        bounds.x - 1,
+        bounds.y - 1,
+        bounds.w + 2,
+        bounds.h + 2,
+        8,
+      );
+    g.clear()
+      .setPosition(origin.x, origin.y)
+      .setRotation(this.view.angle)
+      .setScale(s);
     const rect = (r: Rect, color: number, line = 3) => {
       g.fillStyle(color).fillRect(r.x, r.y, r.w, r.h);
       if (line) g.lineStyle(line, theme.ink).strokeRect(r.x, r.y, r.w, r.h);
@@ -247,6 +262,10 @@ export class GolfRenderer {
             4,
           );
       }
+    }
+    if (rival) {
+      g.lineStyle(3, theme.blue, 0.85).strokeCircle(rival.x, rival.y, 19);
+      circle(rival, 7, theme.blue, 2);
     }
     // The halo enlarges visibility, not the physical collision radius.
     g.lineStyle(3, theme.orange, 0.8).strokeCircle(

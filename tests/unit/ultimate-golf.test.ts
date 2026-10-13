@@ -130,10 +130,10 @@ describe("Ultimate Golf native port", () => {
     expect(w.ball.vx).toBeLessThan(-99);
     expect(w.dynamics.portalCooldown).toBe(0.5);
   });
-  it("UFO lifts once, drops onto a legal platform and releases controls", () => {
+  it("UFO lift drops onto a legal platform and releases controls", () => {
     const w = new GolfPhysics(courses[2], 1, () => 0.1);
     const u = w.dynamics.ufo;
-    Object.assign(u, { active: true, done: true, x: 140, y: 990, hover: 0.79 });
+    Object.assign(u, { active: true, done: true, x: 140, y: 990, hover: 0.99 });
     w.tick(0.02);
     expect(u.carry).toBeGreaterThan(0);
     expect(w.shootable).toBe(false);
@@ -174,6 +174,7 @@ describe("Ultimate Golf native port", () => {
   });
   it("rotation/inverse transforms and power are resolution-independent in 9:16 and focus views", () => {
     const v = new GolfView();
+    v.configure({ x: 16, y: 64, w: 288, h: 512 });
     expect(v.bounds.w / v.bounds.h).toBe(9 / 16);
     for (const zoom of [1, 2.5]) {
       v.zoom = zoom;

@@ -1,6 +1,6 @@
 # Architecture
 
-Pocket Rivals has one persistent Phaser instance and one reusable host scene. The DOM owns scrolling menus and accessible modal controls; Phaser owns gameplay and its HUD. Logical coordinates are 420×760, fitted to the viewport and rendered at up to 2× device resolution.
+Pocket Rivals has one persistent Phaser instance and one reusable host scene. The DOM owns scrolling menus and accessible modal controls; Phaser owns gameplay and its HUD. Default logical coordinates are 420×760, fitted to the viewport and rendered at up to 2× device resolution. Modules may declare responsive custom presentation (Golf), own accessible DOM controls, and receive viewport resize notifications.
 
 | Area                                                        | Responsibility                                                                         |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
@@ -44,7 +44,7 @@ Pong/Hockey use predictive decisions plus an acceleration-limited movement contr
 
 Shooter projectiles use a fixed pool of 80. Impact effects are bounded. Scene graphics are retained. Additional games add metadata/thumbnail bytes to the shell, but their implementation and worker chunks stay lazy. The built-in Phaser runtime remains the dominant shared payload.
 
-Ultimate Golf uses a 240 Hz custom simulation and a clockwise 9:16 view, with exact inverse pointer transforms. Its course data, obstacle dynamics, collision, rendering, input, records and progression live under `games/mini-golf/ultimate`; the existing registry ID is preserved. It is solo Arcade, so no tournament or AI adapter is forced onto its original rules.
+Ultimate Golf uses a 240 Hz shared simulation and responsive, uniformly scaled portrait/landscape camera with exact inverse pointer transforms. Its `modes/` controllers isolate casual records, seeded hot-seat races and real worker-planned AI races. Physics, data, rendering and input remain shared under `games/mini-golf/ultimate`; the registry ID is unchanged. It has its own single/multi-course competition and remains excluded from global duel tournaments.
 
 Development-only `?diagnostics` displays FPS, smoothed frame time, initialization times, active scenes, texture count, heap where available, AI search time and loaded module IDs. `window.__POCKET__` exposes read-only development snapshots for automated tests. Neither diagnostic UI nor snapshot access is enabled in production.
 

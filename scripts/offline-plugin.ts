@@ -17,11 +17,15 @@ export function offlinePlugin(): Plugin {
         if (initial.has("./" + name)) return;
         initial.add("./" + name);
         const chunk = bundle[name];
-        if (chunk?.type === "chunk") chunk.imports.forEach(visit);
+        if (chunk?.type === "chunk") {
+          chunk.imports.forEach(visit);
+          const css=(chunk as typeof chunk & {viteMetadata?:{importedCss:Set<string>}}).viteMetadata?.importedCss;
+          css?.forEach(file=>initial.add("./"+file));
+        }
       };
       for (const item of Object.values(bundle)) {
         if (item.type === "chunk" && item.isEntry) visit(item.fileName);
-        if (/\.(css|woff2?)$/.test(item.fileName))
+        if (/\/(nunito-sans|fredoka)-.*\.woff2$/.test(item.fileName))
           initial.add("./" + item.fileName);
       }
       const version = createHash("sha256")

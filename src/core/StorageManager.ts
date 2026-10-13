@@ -1,7 +1,8 @@
 export interface SavedData {
   version: 1;
   sound: boolean;
-  music: boolean;
+  music: boolean; // Legacy field retained for saved-data compatibility; no music is played.
+  volume: number;
   wins: [number, number];
   draws: number;
   rounds: number;
@@ -10,6 +11,7 @@ const defaults = (): SavedData => ({
   version: 1,
   sound: true,
   music: false,
+  volume: 0.75,
   wins: [0, 0],
   draws: 0,
   rounds: 0,
@@ -33,7 +35,11 @@ export class StorageManager {
           this.data = {
             version: 1,
             sound: typeof d.sound === "boolean" ? d.sound : true,
-            music: d.music === true,
+            music: false,
+            volume:
+              typeof d.volume === "number" && Number.isFinite(d.volume)
+                ? Math.max(0, Math.min(1, d.volume))
+                : 0.75,
             wins: [count(d.wins?.[0]), count(d.wins?.[1])],
             draws: count(d.draws),
             rounds: count(d.rounds),

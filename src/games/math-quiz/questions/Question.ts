@@ -1,0 +1,3 @@
+export interface MathQuestion {id:string;topic:string;difficulty:'easy'|'medium'|'hard';questionLatex:string;optionsLatex:[string,string,string];correctIndex:0|1|2;explanationLatex:string;estimatedSeconds:number}
+export function shuffled<T>(items:readonly T[],random=Math.random){const a=[...items];for(let i=a.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+export function shuffleAnswers(q:MathQuestion,random=Math.random):MathQuestion {const order=shuffled([0,1,2],random);return {...q,optionsLatex:order.map(i=>q.optionsLatex[i]) as MathQuestion['optionsLatex'],correctIndex:order.indexOf(q.correctIndex) as 0|1|2};}

@@ -1,6 +1,16 @@
 import { p, r, type Course } from "./types";
 export const horizon: Course = {
   id: "horizon",
+  ufo: {
+    first: 11.5,
+    interval: 28,
+    warning: 1.5,
+    speed: 170,
+    duration: 13,
+    hover: 1,
+    carry: 0.8,
+    cooldown: 8,
+  },
   name: "Event Horizon",
   subtitle: "A little putt. A giant leap.",
   tip: "Stay on the platforms. Paired portals are shortcuts; the UFO can relocate a resting ball.",
@@ -72,6 +82,6 @@ export const horizon: Course = {
   portals: [
     { from: p(1840, 700), to: p(1300, 340), angle: 180 },
     { from: p(700, 600), to: p(1170, 600), angle: 0 },
-    { from: p(1300, 810), to: p(960, 250), angle: 90 },
+    { from: p(1300, 810), to: p(960, 310), angle: 90 },
   ],
 };

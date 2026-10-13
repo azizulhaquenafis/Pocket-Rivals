@@ -1,0 +1,1402 @@
+[
+  {
+    "id": "log-chain-2",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}\\ln(1+2x)\\right|_{x=0}",
+    "optionsLatex": [
+      "2",
+      "3",
+      "1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{2}{1+2x}\\bigg|_{0}=2",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "power-at-one-2",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}x^{2}\\right|_{x=1}",
+    "optionsLatex": [
+      "3",
+      "2",
+      "1"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "2x^{1}\\big|_1=2",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-curvature-2",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d^2}{dx^2}e^{2x}\\right|_{x=0}",
+    "optionsLatex": [
+      "3",
+      "5",
+      "4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "2^2e^{2x}\\big|_0=4",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "sine-chain-2",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}\\sin(2x)\\right|_{x=0}",
+    "optionsLatex": [
+      "2",
+      "3",
+      "1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "2\\cos(0)=2",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "product-log-2",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}(x^{2}\\ln x)\\right|_{x=1}",
+    "optionsLatex": [
+      "2",
+      "1",
+      "0"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\ln1=0,\\quad x^{k-1}|_1=1",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "cosine-limit-2",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}\\frac{1-\\cos(2x)}{x^2}",
+    "optionsLatex": [
+      "1",
+      "3",
+      "2"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "1-\\cos(2x)\\sim\\frac{4x^2}{2}",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "exp-sine-limit-2",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{e^{2x}-1}{\\sin x}",
+    "optionsLatex": [
+      "2",
+      "3",
+      "1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "e^{2x}-1\\sim2x,\\quad\\sin x\\sim x",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "root-limit-2",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{\\sqrt{1+2x}-1}{x}",
+    "optionsLatex": [
+      "2",
+      "1",
+      "0"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\frac{2}{\\sqrt{1+2x}+1}\\to\\frac{2}{2}",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "exponential-limit-2",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}(1+2x)^{1/x}",
+    "optionsLatex": [
+      "e^{3}",
+      "e",
+      "e^{2}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\ln L=\\lim_{x\\to0}\\frac{\\ln(1+2x)}{x}=2",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "odd-integral-2",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_{-2}^{2}\\frac{x^3}{1+x^2}\\,dx",
+    "optionsLatex": [
+      "0",
+      "1",
+      "-1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\text{Odd function on a symmetric interval: }0",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "sine-square-2",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^\\pi\\sin^2(2x)\\,dx",
+    "optionsLatex": [
+      "\\pi",
+      "\\frac{\\pi}{2}",
+      "2 \\pi"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\sin^2 u=\\frac{1-\\cos2u}{2}",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "power-integral-2",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_0^12x^{1}\\,dx",
+    "optionsLatex": [
+      "0",
+      "2",
+      "1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "[x^{2}]_0^1=1",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-integral-2",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^{\\ln 2}e^x\\,dx",
+    "optionsLatex": [
+      "1",
+      "2",
+      "0"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "e^{\\ln 2}-e^0=2-1",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "reciprocal-square-2",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}x\\in\\mathbb R\\setminus\\{0\\},\\ x+\\frac1x=2\\\\x^2+\\frac1{x^2}=?\\end{gathered}",
+    "optionsLatex": [
+      "3",
+      "2",
+      "1"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "(x+1/x)^2-2=2",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "vieta-square-2",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\alpha,\\beta:\\ x^2-2x+1=0\\\\\\alpha^2+\\beta^2=?\\end{gathered}",
+    "optionsLatex": [
+      "1",
+      "3",
+      "2"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "(\\alpha+\\beta)^2-2\\alpha\\beta=2^2-2",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "geometric-series-2",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\sum_{n=1}^\\infty\\left(\\frac1{2}\\right)^n",
+    "optionsLatex": [
+      "1",
+      "2",
+      "0"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{1/2}{1-1/2}=\\frac1{1}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "log-power-2",
+    "topic": "Algebra",
+    "difficulty": "easy",
+    "questionLatex": "\\log_{2}\\left(2^{3}\\right)",
+    "optionsLatex": [
+      "4",
+      "3",
+      "2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\log_a(a^m)=m=3",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "det-difference-2",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}2&1\\\\3&1\\end{pmatrix}",
+    "optionsLatex": [
+      "-2",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "2-(3)=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "det-scalar-2",
+    "topic": "Matrices",
+    "difficulty": "hard",
+    "questionLatex": "\\begin{gathered}A\\in\\mathbb R^{2\\times2},\\ \\det A=2\\\\\\det(2A)=?\\end{gathered}",
+    "optionsLatex": [
+      "8",
+      "9",
+      "7"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\det(2A)=2^2\\det A=8",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "det-triangle-2",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}2&2\\\\0&3\\end{pmatrix}",
+    "optionsLatex": [
+      "7",
+      "6",
+      "5"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "2\\cdot3-0=6",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "i-cycle-2",
+    "topic": "Complex numbers",
+    "difficulty": "easy",
+    "questionLatex": "i^2=-1.\\quad i^{10}=?",
+    "optionsLatex": [
+      "-2",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "i^{4m+2}=i^2=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "modulus-square-2",
+    "topic": "Complex numbers",
+    "difficulty": "medium",
+    "questionLatex": "i^2=-1.\\quad|2+2i|^2=?",
+    "optionsLatex": [
+      "8",
+      "9",
+      "7"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "2^2+2^2=8",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "complex-real-2",
+    "topic": "Complex numbers",
+    "difficulty": "hard",
+    "questionLatex": "i^2=-1.\\quad\\operatorname{Re}(1+i)^{2}=?",
+    "optionsLatex": [
+      "1",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "(1+i)^2=2i,\\quad\\operatorname{Re}(2i)^{1}=0",
+    "estimatedSeconds": 22
+  },
+  {
+    "id": "coin-one-head-2",
+    "topic": "Probability",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\text{2 fair independent coin flips}\\\\P(\\text{exactly 1 head})=?\\end{gathered}",
+    "optionsLatex": [
+      "\\frac{1}{4}",
+      "\\frac{3}{4}",
+      "\\frac{1}{2}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\binom{2}1/2^{2}=\\frac{1}{2}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "choose-pair-2",
+    "topic": "Probability",
+    "difficulty": "easy",
+    "questionLatex": "\\binom{4}2",
+    "optionsLatex": [
+      "6",
+      "7",
+      "5"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{4\\cdot3}2=6",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "log-chain-3",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}\\ln(1+3x)\\right|_{x=0}",
+    "optionsLatex": [
+      "4",
+      "3",
+      "2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\frac{3}{1+3x}\\bigg|_{0}=3",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "power-at-one-3",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}x^{3}\\right|_{x=1}",
+    "optionsLatex": [
+      "2",
+      "4",
+      "3"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "3x^{2}\\big|_1=3",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-curvature-3",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d^2}{dx^2}e^{3x}\\right|_{x=0}",
+    "optionsLatex": [
+      "9",
+      "10",
+      "8"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "3^2e^{3x}\\big|_0=9",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "sine-chain-3",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}\\sin(3x)\\right|_{x=0}",
+    "optionsLatex": [
+      "4",
+      "3",
+      "2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "3\\cos(0)=3",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "product-log-3",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}(x^{3}\\ln x)\\right|_{x=1}",
+    "optionsLatex": [
+      "0",
+      "2",
+      "1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\ln1=0,\\quad x^{k-1}|_1=1",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "cosine-limit-3",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}\\frac{1-\\cos(3x)}{x^2}",
+    "optionsLatex": [
+      "\\frac{9}{2}",
+      "\\frac{11}{2}",
+      "\\frac{7}{2}"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "1-\\cos(3x)\\sim\\frac{9x^2}{2}",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "exp-sine-limit-3",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{e^{3x}-1}{\\sin x}",
+    "optionsLatex": [
+      "4",
+      "3",
+      "2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "e^{3x}-1\\sim3x,\\quad\\sin x\\sim x",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "root-limit-3",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{\\sqrt{1+3x}-1}{x}",
+    "optionsLatex": [
+      "\\frac{1}{2}",
+      "\\frac{5}{2}",
+      "\\frac{3}{2}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\frac{3}{\\sqrt{1+3x}+1}\\to\\frac{3}{2}",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "exponential-limit-3",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}(1+3x)^{1/x}",
+    "optionsLatex": [
+      "e^{3}",
+      "e^{2}",
+      "e^{4}"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\ln L=\\lim_{x\\to0}\\frac{\\ln(1+3x)}{x}=3",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "odd-integral-3",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_{-3}^{3}\\frac{x^3}{1+x^2}\\,dx",
+    "optionsLatex": [
+      "1",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\text{Odd function on a symmetric interval: }0",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "sine-square-3",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^\\pi\\sin^2(3x)\\,dx",
+    "optionsLatex": [
+      "2 \\pi",
+      "\\pi",
+      "\\frac{\\pi}{2}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\sin^2 u=\\frac{1-\\cos2u}{2}",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "power-integral-3",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_0^13x^{2}\\,dx",
+    "optionsLatex": [
+      "1",
+      "2",
+      "0"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "[x^{3}]_0^1=1",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-integral-3",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^{\\ln 3}e^x\\,dx",
+    "optionsLatex": [
+      "3",
+      "2",
+      "1"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "e^{\\ln 3}-e^0=3-1",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "reciprocal-square-3",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}x\\in\\mathbb R\\setminus\\{0\\},\\ x+\\frac1x=3\\\\x^2+\\frac1{x^2}=?\\end{gathered}",
+    "optionsLatex": [
+      "6",
+      "8",
+      "7"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "(x+1/x)^2-2=7",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "vieta-square-3",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\alpha,\\beta:\\ x^2-3x+1=0\\\\\\alpha^2+\\beta^2=?\\end{gathered}",
+    "optionsLatex": [
+      "7",
+      "8",
+      "6"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "(\\alpha+\\beta)^2-2\\alpha\\beta=3^2-2",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "geometric-series-3",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\sum_{n=1}^\\infty\\left(\\frac1{3}\\right)^n",
+    "optionsLatex": [
+      "\\frac{3}{2}",
+      "\\frac{1}{2}",
+      "- \\frac{1}{2}"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\frac{1/3}{1-1/3}=\\frac1{2}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "log-power-3",
+    "topic": "Algebra",
+    "difficulty": "easy",
+    "questionLatex": "\\log_{3}\\left(3^{4}\\right)",
+    "optionsLatex": [
+      "3",
+      "5",
+      "4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\log_a(a^m)=m=4",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "det-difference-3",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}3&1\\\\4&1\\end{pmatrix}",
+    "optionsLatex": [
+      "-1",
+      "0",
+      "-2"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "3-(4)=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "det-scalar-3",
+    "topic": "Matrices",
+    "difficulty": "hard",
+    "questionLatex": "\\begin{gathered}A\\in\\mathbb R^{2\\times2},\\ \\det A=3\\\\\\det(2A)=?\\end{gathered}",
+    "optionsLatex": [
+      "13",
+      "12",
+      "11"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\det(2A)=2^2\\det A=12",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "det-triangle-3",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}3&2\\\\0&4\\end{pmatrix}",
+    "optionsLatex": [
+      "11",
+      "13",
+      "12"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "3\\cdot4-0=12",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "i-cycle-3",
+    "topic": "Complex numbers",
+    "difficulty": "easy",
+    "questionLatex": "i^2=-1.\\quad i^{14}=?",
+    "optionsLatex": [
+      "-1",
+      "0",
+      "-2"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "i^{4m+2}=i^2=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "modulus-square-3",
+    "topic": "Complex numbers",
+    "difficulty": "medium",
+    "questionLatex": "i^2=-1.\\quad|3+3i|^2=?",
+    "optionsLatex": [
+      "19",
+      "18",
+      "17"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "3^2+3^2=18",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "complex-real-3",
+    "topic": "Complex numbers",
+    "difficulty": "hard",
+    "questionLatex": "i^2=-1.\\quad\\operatorname{Re}(1+i)^{4}=?",
+    "optionsLatex": [
+      "-5",
+      "-3",
+      "-4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "(1+i)^2=2i,\\quad\\operatorname{Re}(2i)^{2}=-4",
+    "estimatedSeconds": 22
+  },
+  {
+    "id": "coin-one-head-3",
+    "topic": "Probability",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\text{3 fair independent coin flips}\\\\P(\\text{exactly 1 head})=?\\end{gathered}",
+    "optionsLatex": [
+      "\\frac{3}{8}",
+      "\\frac{1}{2}",
+      "\\frac{1}{4}"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\binom{3}1/2^{3}=\\frac{3}{8}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "choose-pair-3",
+    "topic": "Probability",
+    "difficulty": "easy",
+    "questionLatex": "\\binom{5}2",
+    "optionsLatex": [
+      "11",
+      "10",
+      "9"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\frac{5\\cdot4}2=10",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "log-chain-4",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}\\ln(1+4x)\\right|_{x=0}",
+    "optionsLatex": [
+      "3",
+      "5",
+      "4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\frac{4}{1+4x}\\bigg|_{0}=4",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "power-at-one-4",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}x^{4}\\right|_{x=1}",
+    "optionsLatex": [
+      "4",
+      "5",
+      "3"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "4x^{3}\\big|_1=4",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-curvature-4",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d^2}{dx^2}e^{4x}\\right|_{x=0}",
+    "optionsLatex": [
+      "17",
+      "16",
+      "15"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "4^2e^{4x}\\big|_0=16",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "sine-chain-4",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}\\sin(4x)\\right|_{x=0}",
+    "optionsLatex": [
+      "3",
+      "5",
+      "4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "4\\cos(0)=4",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "product-log-4",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}(x^{4}\\ln x)\\right|_{x=1}",
+    "optionsLatex": [
+      "1",
+      "2",
+      "0"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\ln1=0,\\quad x^{k-1}|_1=1",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "cosine-limit-4",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}\\frac{1-\\cos(4x)}{x^2}",
+    "optionsLatex": [
+      "9",
+      "8",
+      "7"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "1-\\cos(4x)\\sim\\frac{16x^2}{2}",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "exp-sine-limit-4",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{e^{4x}-1}{\\sin x}",
+    "optionsLatex": [
+      "3",
+      "5",
+      "4"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "e^{4x}-1\\sim4x,\\quad\\sin x\\sim x",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "root-limit-4",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{\\sqrt{1+4x}-1}{x}",
+    "optionsLatex": [
+      "2",
+      "3",
+      "1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{4}{\\sqrt{1+4x}+1}\\to\\frac{4}{2}",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "exponential-limit-4",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}(1+4x)^{1/x}",
+    "optionsLatex": [
+      "e^{3}",
+      "e^{4}",
+      "e^{5}"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\ln L=\\lim_{x\\to0}\\frac{\\ln(1+4x)}{x}=4",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "odd-integral-4",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_{-4}^{4}\\frac{x^3}{1+x^2}\\,dx",
+    "optionsLatex": [
+      "-1",
+      "1",
+      "0"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\text{Odd function on a symmetric interval: }0",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "sine-square-4",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^\\pi\\sin^2(4x)\\,dx",
+    "optionsLatex": [
+      "\\frac{\\pi}{2}",
+      "\\pi",
+      "2 \\pi"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\sin^2 u=\\frac{1-\\cos2u}{2}",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "power-integral-4",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_0^14x^{3}\\,dx",
+    "optionsLatex": [
+      "2",
+      "1",
+      "0"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "[x^{4}]_0^1=1",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-integral-4",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^{\\ln 4}e^x\\,dx",
+    "optionsLatex": [
+      "2",
+      "4",
+      "3"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "e^{\\ln 4}-e^0=4-1",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "reciprocal-square-4",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}x\\in\\mathbb R\\setminus\\{0\\},\\ x+\\frac1x=4\\\\x^2+\\frac1{x^2}=?\\end{gathered}",
+    "optionsLatex": [
+      "14",
+      "15",
+      "13"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "(x+1/x)^2-2=14",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "vieta-square-4",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\alpha,\\beta:\\ x^2-4x+1=0\\\\\\alpha^2+\\beta^2=?\\end{gathered}",
+    "optionsLatex": [
+      "15",
+      "14",
+      "13"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "(\\alpha+\\beta)^2-2\\alpha\\beta=4^2-2",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "geometric-series-4",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\sum_{n=1}^\\infty\\left(\\frac1{4}\\right)^n",
+    "optionsLatex": [
+      "- \\frac{2}{3}",
+      "\\frac{4}{3}",
+      "\\frac{1}{3}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\frac{1/4}{1-1/4}=\\frac1{3}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "log-power-4",
+    "topic": "Algebra",
+    "difficulty": "easy",
+    "questionLatex": "\\log_{4}\\left(4^{5}\\right)",
+    "optionsLatex": [
+      "5",
+      "6",
+      "4"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\log_a(a^m)=m=5",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "det-difference-4",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}4&1\\\\5&1\\end{pmatrix}",
+    "optionsLatex": [
+      "0",
+      "-1",
+      "-2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "4-(5)=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "det-scalar-4",
+    "topic": "Matrices",
+    "difficulty": "hard",
+    "questionLatex": "\\begin{gathered}A\\in\\mathbb R^{2\\times2},\\ \\det A=4\\\\\\det(2A)=?\\end{gathered}",
+    "optionsLatex": [
+      "15",
+      "17",
+      "16"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\det(2A)=2^2\\det A=16",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "det-triangle-4",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}4&2\\\\0&5\\end{pmatrix}",
+    "optionsLatex": [
+      "20",
+      "21",
+      "19"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "4\\cdot5-0=20",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "i-cycle-4",
+    "topic": "Complex numbers",
+    "difficulty": "easy",
+    "questionLatex": "i^2=-1.\\quad i^{18}=?",
+    "optionsLatex": [
+      "0",
+      "-1",
+      "-2"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "i^{4m+2}=i^2=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "modulus-square-4",
+    "topic": "Complex numbers",
+    "difficulty": "medium",
+    "questionLatex": "i^2=-1.\\quad|4+4i|^2=?",
+    "optionsLatex": [
+      "31",
+      "33",
+      "32"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "4^2+4^2=32",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "complex-real-4",
+    "topic": "Complex numbers",
+    "difficulty": "hard",
+    "questionLatex": "i^2=-1.\\quad\\operatorname{Re}(1+i)^{6}=?",
+    "optionsLatex": [
+      "0",
+      "1",
+      "-1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "(1+i)^2=2i,\\quad\\operatorname{Re}(2i)^{3}=0",
+    "estimatedSeconds": 22
+  },
+  {
+    "id": "coin-one-head-4",
+    "topic": "Probability",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\text{4 fair independent coin flips}\\\\P(\\text{exactly 1 head})=?\\end{gathered}",
+    "optionsLatex": [
+      "\\frac{5}{16}",
+      "\\frac{1}{4}",
+      "\\frac{3}{16}"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\binom{4}1/2^{4}=\\frac{1}{4}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "choose-pair-4",
+    "topic": "Probability",
+    "difficulty": "easy",
+    "questionLatex": "\\binom{6}2",
+    "optionsLatex": [
+      "14",
+      "16",
+      "15"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\frac{6\\cdot5}2=15",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "log-chain-5",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}\\ln(1+5x)\\right|_{x=0}",
+    "optionsLatex": [
+      "5",
+      "6",
+      "4"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{5}{1+5x}\\bigg|_{0}=5",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "power-at-one-5",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}x^{5}\\right|_{x=1}",
+    "optionsLatex": [
+      "6",
+      "5",
+      "4"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "5x^{4}\\big|_1=5",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-curvature-5",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d^2}{dx^2}e^{5x}\\right|_{x=0}",
+    "optionsLatex": [
+      "24",
+      "26",
+      "25"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "5^2e^{5x}\\big|_0=25",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "sine-chain-5",
+    "topic": "Derivatives",
+    "difficulty": "easy",
+    "questionLatex": "\\left.\\frac{d}{dx}\\sin(5x)\\right|_{x=0}",
+    "optionsLatex": [
+      "5",
+      "6",
+      "4"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "5\\cos(0)=5",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "product-log-5",
+    "topic": "Derivatives",
+    "difficulty": "medium",
+    "questionLatex": "\\left.\\frac{d}{dx}(x^{5}\\ln x)\\right|_{x=1}",
+    "optionsLatex": [
+      "2",
+      "1",
+      "0"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\ln1=0,\\quad x^{k-1}|_1=1",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "cosine-limit-5",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}\\frac{1-\\cos(5x)}{x^2}",
+    "optionsLatex": [
+      "\\frac{23}{2}",
+      "\\frac{27}{2}",
+      "\\frac{25}{2}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "1-\\cos(5x)\\sim\\frac{25x^2}{2}",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "exp-sine-limit-5",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{e^{5x}-1}{\\sin x}",
+    "optionsLatex": [
+      "5",
+      "6",
+      "4"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "e^{5x}-1\\sim5x,\\quad\\sin x\\sim x",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "root-limit-5",
+    "topic": "Limits",
+    "difficulty": "medium",
+    "questionLatex": "\\lim_{x\\to0}\\frac{\\sqrt{1+5x}-1}{x}",
+    "optionsLatex": [
+      "\\frac{7}{2}",
+      "\\frac{5}{2}",
+      "\\frac{3}{2}"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\frac{5}{\\sqrt{1+5x}+1}\\to\\frac{5}{2}",
+    "estimatedSeconds": 16
+  },
+  {
+    "id": "exponential-limit-5",
+    "topic": "Limits",
+    "difficulty": "hard",
+    "questionLatex": "\\lim_{x\\to0}(1+5x)^{1/x}",
+    "optionsLatex": [
+      "e^{6}",
+      "e^{4}",
+      "e^{5}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\ln L=\\lim_{x\\to0}\\frac{\\ln(1+5x)}{x}=5",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "odd-integral-5",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_{-5}^{5}\\frac{x^3}{1+x^2}\\,dx",
+    "optionsLatex": [
+      "0",
+      "1",
+      "-1"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\text{Odd function on a symmetric interval: }0",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "sine-square-5",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^\\pi\\sin^2(5x)\\,dx",
+    "optionsLatex": [
+      "\\pi",
+      "\\frac{\\pi}{2}",
+      "2 \\pi"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\sin^2 u=\\frac{1-\\cos2u}{2}",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "power-integral-5",
+    "topic": "Integrals",
+    "difficulty": "easy",
+    "questionLatex": "\\int_0^15x^{4}\\,dx",
+    "optionsLatex": [
+      "0",
+      "2",
+      "1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "[x^{5}]_0^1=1",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "exp-integral-5",
+    "topic": "Integrals",
+    "difficulty": "medium",
+    "questionLatex": "\\int_0^{\\ln 5}e^x\\,dx",
+    "optionsLatex": [
+      "4",
+      "5",
+      "3"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "e^{\\ln 5}-e^0=5-1",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "reciprocal-square-5",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}x\\in\\mathbb R\\setminus\\{0\\},\\ x+\\frac1x=5\\\\x^2+\\frac1{x^2}=?\\end{gathered}",
+    "optionsLatex": [
+      "24",
+      "23",
+      "22"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "(x+1/x)^2-2=23",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "vieta-square-5",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\alpha,\\beta:\\ x^2-5x+1=0\\\\\\alpha^2+\\beta^2=?\\end{gathered}",
+    "optionsLatex": [
+      "22",
+      "24",
+      "23"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "(\\alpha+\\beta)^2-2\\alpha\\beta=5^2-2",
+    "estimatedSeconds": 18
+  },
+  {
+    "id": "geometric-series-5",
+    "topic": "Algebra",
+    "difficulty": "medium",
+    "questionLatex": "\\sum_{n=1}^\\infty\\left(\\frac1{5}\\right)^n",
+    "optionsLatex": [
+      "\\frac{1}{4}",
+      "\\frac{5}{4}",
+      "- \\frac{3}{4}"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{1/5}{1-1/5}=\\frac1{4}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "log-power-5",
+    "topic": "Algebra",
+    "difficulty": "easy",
+    "questionLatex": "\\log_{5}\\left(5^{6}\\right)",
+    "optionsLatex": [
+      "7",
+      "6",
+      "5"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "\\log_a(a^m)=m=6",
+    "estimatedSeconds": 8
+  },
+  {
+    "id": "det-difference-5",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}5&1\\\\6&1\\end{pmatrix}",
+    "optionsLatex": [
+      "-2",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "5-(6)=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "det-scalar-5",
+    "topic": "Matrices",
+    "difficulty": "hard",
+    "questionLatex": "\\begin{gathered}A\\in\\mathbb R^{2\\times2},\\ \\det A=5\\\\\\det(2A)=?\\end{gathered}",
+    "optionsLatex": [
+      "20",
+      "21",
+      "19"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\det(2A)=2^2\\det A=20",
+    "estimatedSeconds": 20
+  },
+  {
+    "id": "det-triangle-5",
+    "topic": "Matrices",
+    "difficulty": "easy",
+    "questionLatex": "\\det\\begin{pmatrix}5&2\\\\0&6\\end{pmatrix}",
+    "optionsLatex": [
+      "31",
+      "30",
+      "29"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "5\\cdot6-0=30",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "i-cycle-5",
+    "topic": "Complex numbers",
+    "difficulty": "easy",
+    "questionLatex": "i^2=-1.\\quad i^{22}=?",
+    "optionsLatex": [
+      "-2",
+      "0",
+      "-1"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "i^{4m+2}=i^2=-1",
+    "estimatedSeconds": 10
+  },
+  {
+    "id": "modulus-square-5",
+    "topic": "Complex numbers",
+    "difficulty": "medium",
+    "questionLatex": "i^2=-1.\\quad|5+5i|^2=?",
+    "optionsLatex": [
+      "50",
+      "51",
+      "49"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "5^2+5^2=50",
+    "estimatedSeconds": 12
+  },
+  {
+    "id": "complex-real-5",
+    "topic": "Complex numbers",
+    "difficulty": "hard",
+    "questionLatex": "i^2=-1.\\quad\\operatorname{Re}(1+i)^{8}=?",
+    "optionsLatex": [
+      "17",
+      "16",
+      "15"
+    ],
+    "correctIndex": 1,
+    "explanationLatex": "(1+i)^2=2i,\\quad\\operatorname{Re}(2i)^{4}=16",
+    "estimatedSeconds": 22
+  },
+  {
+    "id": "coin-one-head-5",
+    "topic": "Probability",
+    "difficulty": "medium",
+    "questionLatex": "\\begin{gathered}\\text{5 fair independent coin flips}\\\\P(\\text{exactly 1 head})=?\\end{gathered}",
+    "optionsLatex": [
+      "\\frac{1}{8}",
+      "\\frac{3}{16}",
+      "\\frac{5}{32}"
+    ],
+    "correctIndex": 2,
+    "explanationLatex": "\\binom{5}1/2^{5}=\\frac{5}{32}",
+    "estimatedSeconds": 15
+  },
+  {
+    "id": "choose-pair-5",
+    "topic": "Probability",
+    "difficulty": "easy",
+    "questionLatex": "\\binom{7}2",
+    "optionsLatex": [
+      "21",
+      "22",
+      "20"
+    ],
+    "correctIndex": 0,
+    "explanationLatex": "\\frac{7\\cdot6}2=21",
+    "estimatedSeconds": 10
+  }
+]

@@ -39,7 +39,18 @@ export interface Portal {
   to: Point;
   angle: number;
 }
+export interface UFOConfig {
+  first: number;
+  interval: number;
+  warning: number;
+  speed: number;
+  duration: number;
+  hover: number;
+  carry: number;
+  cooldown: number;
+}
 export interface Course {
+  ufo?: UFOConfig;
   id: string;
   name: string;
   subtitle: string;

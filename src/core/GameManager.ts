@@ -176,7 +176,10 @@ export class GameManager {
     const rect = document.querySelector("#game-stage")!.getBoundingClientRect();
     const width = responsive ? Math.max(1, rect.width) : 420;
     const height = responsive ? Math.max(1, rect.height) : 760;
-    this.game.scale.setGameSize(width * this.renderScale, height * this.renderScale);
+    this.game.scale.setGameSize(
+      width * this.renderScale,
+      height * this.renderScale,
+    );
     this.game.scale.getParentBounds();
     this.game.scale.refresh();
     this.host.module?.resize?.(width, height);
@@ -370,6 +373,7 @@ export class GameManager {
   }
   toggleSound() {
     this.storage.data.sound = !this.storage.data.sound;
+    this.audio.syncSettings();
     this.storage.save();
     this.audio.play("tap");
   }

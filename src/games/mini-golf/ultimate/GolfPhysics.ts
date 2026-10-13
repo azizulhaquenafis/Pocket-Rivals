@@ -29,14 +29,22 @@ export class GolfPhysics {
   impacts = 0;
   recoveries = 0;
   private accumulator = 0;
+  readonly seed?: number;
+  private motionWindow = { time: 0, x: 0, y: 0, range: 0, impacts: 0 };
   constructor(
     readonly course: Course,
     readonly difficulty: GolfDifficulty = 1,
-    random: () => number = Math.random,
+    random: (() => number) | number = Math.random,
   ) {
     this.ball = { ...course.start, vx: 0, vy: 0 };
     this.lastShot = { ...course.start };
-    this.dynamics = new GolfDynamics(course, difficulty, random);
+    this.seed = typeof random === "number" ? random : undefined;
+    this.dynamics = new GolfDynamics(
+      course,
+      difficulty,
+      typeof random === "function" ? random : Math.random,
+      this.seed,
+    );
   }
   get limit() {
     return strokeLimit(this.course, this.difficulty);
@@ -69,6 +77,7 @@ export class GolfPhysics {
     this.ball.vy = vy;
     cap(this.ball);
     this.strokes++;
+    this.motionWindow.time = 0;
     return true;
   }
   advance(seconds: number) {
@@ -245,6 +254,30 @@ export class GolfPhysics {
     for (let pass = 0; pass < 2; pass++)
       for (const r of c.walls) impact = hitRect(b, r) || impact;
     if (impact) this.impacts++;
+    const window = this.motionWindow;
+    if (window.time === 0) {
+      window.x = b.x;
+      window.y = b.y;
+      window.impacts = this.impacts;
+      window.range = 0;
+    }
+    window.time += dt;
+    window.range = Math.max(
+      window.range,
+      Math.hypot(b.x - window.x, b.y - window.y),
+    );
+    if (window.time >= 8) {
+      if (
+        !this.stopped &&
+        window.range < 55 &&
+        this.impacts - window.impacts > 24
+      ) {
+        this.recover("Trapped ball recovered");
+        window.time = 0;
+        return;
+      }
+      window.time = 0;
+    }
     if (
       !Number.isFinite(b.x + b.y + b.vx + b.vy) ||
       b.x < -100 ||
@@ -259,6 +292,38 @@ export class GolfPhysics {
       Object.assign(b, c.hole, { vx: 0, vy: 0 });
       this.status = "won";
     } else if (this.strokes >= this.limit && this.stopped) this.status = "lost";
+  }
+  exportState() {
+    const d = this.dynamics;
+    return {
+      course: this.course.id,
+      difficulty: this.difficulty,
+      seed: this.seed,
+      ball: { ...this.ball },
+      lastShot: { ...this.lastShot },
+      strokes: this.strokes,
+      status: this.status,
+      dynamics: {
+        time: d.time,
+        gate: d.gate,
+        plates: [...d.plates],
+        doors: [...d.doors],
+        doorVelocity: [...d.doorVelocity],
+        planks: [...d.planks],
+        sink: d.sink,
+        portalCooldown: d.portalCooldown,
+        ufo: { ...d.ufo },
+      },
+    };
+  }
+  restoreSimulation(state: ReturnType<GolfPhysics["exportState"]>) {
+    this.resetAccumulator();
+    this.motionWindow.time = 0;
+    Object.assign(this.ball, state.ball);
+    this.lastShot = { ...state.lastShot };
+    this.strokes = state.strokes;
+    this.status = state.status;
+    Object.assign(this.dynamics, structuredClone(state.dynamics));
   }
   preview(velocity: Point): Point[] {
     const seconds = difficulties[this.difficulty].preview;

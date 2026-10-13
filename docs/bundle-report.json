@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-BtUIpWXg.js",
-      "bytes": 51853,
-      "gzip": 16993
+      "file": "assets/index-DhOy7XKy.js",
+      "bytes": 61734,
+      "gzip": 19857
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -25,10 +25,16 @@
       "gzip": 715
     },
     {
-      "module": "_drawing-DlhSQ46l.js",
-      "file": "assets/drawing-DlhSQ46l.js",
-      "bytes": 969,
-      "gzip": 529
+      "module": "_ThemeManager-DRa-1XQR.js",
+      "file": "assets/ThemeManager-DRa-1XQR.js",
+      "bytes": 213,
+      "gzip": 189
+    },
+    {
+      "module": "_drawing-Dz1znLUz.js",
+      "file": "assets/drawing-Dz1znLUz.js",
+      "bytes": 812,
+      "gzip": 425
     }
   ],
   "lazyGames": [
@@ -36,9 +42,14 @@
     "src/arcade/space-shooter/index.ts",
     "src/games/air-hockey/index.ts",
     "src/games/connect-four/index.ts",
+    "src/games/dots-and-boxes/index.ts",
+    "src/games/fruit-duel/index.ts",
+    "src/games/hammer-hit/index.ts",
+    "src/games/light-fingers/index.ts",
+    "src/games/math-quiz/index.ts",
     "src/games/mini-golf/index.ts",
     "src/games/pong/index.ts",
     "src/games/tic-tac-toe/index.ts"
   ],
-  "totalInitialGzip": 351630
+  "totalInitialGzip": 354579
 }

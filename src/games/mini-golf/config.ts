@@ -15,5 +15,5 @@ export default {
   tournament: false,
   presentation: "custom",
   responsive: true,
-  supportedModes: ["single-player"],
+  supportedModes: ["single-player", "local-two-player"],
 } satisfies GameMetadata;

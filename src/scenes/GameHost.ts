@@ -43,6 +43,7 @@ export class GameHost extends Phaser.Scene {
     this.ready = false;
     this.ended = false;
     this.alive = true;
+    this.texts = [];
     this.generation++;
   }
   create() {
@@ -55,59 +56,59 @@ export class GameHost extends Phaser.Scene {
       .setZoom(this.app.renderScale)
       .setScroll(0, 0);
     if (meta.presentation !== "custom") {
-    const g = this.add.graphics();
-    rounded(g, 18, 14, 44, 42, 13, theme.white, 2);
-    rounded(g, 358, 14, 44, 42, 13, theme.white, 2);
-    g.lineStyle(3, theme.ink)
-      .lineBetween(44, 27, 35, 35)
-      .lineBetween(35, 35, 44, 43)
-      .lineBetween(35, 35, 49, 35);
-    g.fillStyle(theme.ink)
-      .fillRoundedRect(373, 27, 4, 16, 2)
-      .fillRoundedRect(382, 27, 4, 16, 2);
-    label(this, 210, 28, meta.name, 24);
-    label(
-      this,
-      210,
-      51,
-      this.options.variant
-        ? this.options.variant.toUpperCase()
-        : "POCKET RIVALS",
-      10,
-      "#7d8583",
-    );
-    this.add
-      .zone(40, 35, 50, 48)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerup", () => this.app.pause("leave"));
-    this.add
-      .zone(380, 35, 50, 48)
-      .setInteractive({ useHandCursor: true })
-      .on("pointerup", () => this.app.pause());
-    if (meta.category !== "arcade") {
-      rounded(g, 141, 70, 138, 32, 12, theme.blue, 2);
-      rounded(g, 141, 674, 138, 32, 12, theme.orange, 2);
-      this.texts = [
-        label(this, 210, 690, "ORANGE   0", 18),
-        label(
-          this,
-          210,
-          86,
-          this.options.mode === "ai" ? "BLUE AI   0" : "BLUE   0",
-          18,
-        ).setRotation(this.options.mode === "ai" ? 0 : Math.PI),
-      ];
-    } else {
-      rounded(g, 80, 70, 260, 32, 12, theme.blue, 2);
-      this.texts = [
-        label(this, 210, 86, "SCORE  0", 18),
-        label(this, 210, 690, "", 15),
-      ];
-    }
-    this.clockText = label(this, 73, 86, "", 18);
-    this.hint = label(this, 210, 733, "", 11, "#697474");
-    if (meta.category !== "arcade")
-      label(this, 210, 714, "PLAYER 1", 9, "#8a8d84");
+      const g = this.add.graphics();
+      rounded(g, 18, 14, 44, 42, 13, theme.white, 2);
+      rounded(g, 358, 14, 44, 42, 13, theme.white, 2);
+      g.lineStyle(3, theme.ink)
+        .lineBetween(44, 27, 35, 35)
+        .lineBetween(35, 35, 44, 43)
+        .lineBetween(35, 35, 49, 35);
+      g.fillStyle(theme.ink)
+        .fillRoundedRect(373, 27, 4, 16, 2)
+        .fillRoundedRect(382, 27, 4, 16, 2);
+      label(this, 210, 28, meta.name, 24);
+      label(
+        this,
+        210,
+        51,
+        this.options.variant
+          ? this.options.variant.toUpperCase()
+          : "POCKET RIVALS",
+        10,
+        "#7d8583",
+      );
+      this.add
+        .zone(40, 35, 50, 48)
+        .setInteractive({ useHandCursor: true })
+        .on("pointerup", () => this.app.pause("leave"));
+      this.add
+        .zone(380, 35, 50, 48)
+        .setInteractive({ useHandCursor: true })
+        .on("pointerup", () => this.app.pause());
+      if (meta.category !== "arcade") {
+        rounded(g, 141, 70, 138, 32, 12, theme.blue, 2);
+        rounded(g, 141, 674, 138, 32, 12, theme.orange, 2);
+        this.texts = [
+          label(this, 210, 690, "ORANGE   0", 18),
+          label(
+            this,
+            210,
+            86,
+            this.options.mode === "ai" ? "BLUE AI   0" : "BLUE   0",
+            18,
+          ).setRotation(this.options.mode === "ai" ? 0 : Math.PI),
+        ];
+      } else {
+        rounded(g, 80, 70, 260, 32, 12, theme.blue, 2);
+        this.texts = [
+          label(this, 210, 86, "SCORE  0", 18),
+          label(this, 210, 690, "", 15),
+        ];
+      }
+      this.clockText = label(this, 73, 86, "", 18);
+      this.hint = label(this, 210, 733, "", 11, "#697474");
+      if (meta.category !== "arcade")
+        label(this, 210, 714, "PLAYER 1", 9, "#8a8d84");
     }
     this.controls = new InputManager(this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
@@ -133,7 +134,10 @@ export class GameHost extends Phaser.Scene {
             this.app.finishArcade(score, detail, this.run);
           },
           scene: this,
-          navigation: { pause: () => this.app.pause(), exit: () => this.app.pause("leave") },
+          navigation: {
+            pause: () => this.app.pause(),
+            exit: () => this.app.pause("leave"),
+          },
           options: this.options,
           restoredState: this.restoredState,
           saveState: (state) => this.app.checkpoint(this.run, state),

@@ -14,6 +14,11 @@ export class GolfDynamics {
   ufo = {
     active: false,
     done: false,
+    warning: false,
+    event: -1,
+    next: 11.5,
+    started: 0,
+    cooldown: 0,
     x: -120,
     y: 990,
     direction: 1,
@@ -26,7 +31,18 @@ export class GolfDynamics {
     readonly course: Course,
     readonly difficulty: GolfDifficulty,
     private random: () => number = Math.random,
+    readonly seed?: number,
   ) {}
+  private eventRandom(salt: number) {
+    if (this.seed === undefined) return this.random();
+    let n =
+      (this.seed ^
+        Math.imul(this.ufo.event + 1, 0x9e3779b9) ^
+        Math.imul(salt, 0x85ebca6b)) >>>
+      0;
+    n = Math.imul(n ^ (n >>> 16), 0x21f0aaad);
+    return ((n ^ (n >>> 15)) >>> 0) / 4294967296;
+  }
   mover(i: number) {
     const m = this.course.movers[i];
     let offset = 0;
@@ -114,33 +130,44 @@ export class GolfDynamics {
   }
   private updateUfo(dt: number, b: Ball, lastShot: Point) {
     const u = this.ufo;
-    if (!u.done && this.time >= 11.5) {
+    const config = this.course.ufo!;
+    const next = u.event < 0 ? config.first : u.next;
+    u.warning =
+      !u.active && this.time >= next - config.warning && this.time < next;
+    u.cooldown = Math.max(0, u.cooldown - dt);
+    if ((!u.done || u.event >= 0) && !u.active && this.time >= next) {
+      u.event++;
+      u.next = next + config.interval;
+      u.started = this.time;
+      u.warning = false;
+      u.used = false;
+      u.hover = 0;
       u.done = true;
       u.active = true;
-      u.direction = this.random() < 0.5 ? 1 : -1;
+      u.direction = this.eventRandom(1) < 0.5 ? 1 : -1;
       u.x = u.direction === 1 ? -120 : 2040;
       const lane =
-        this.course.ground![[0, 2, 4, 6][Math.floor(this.random() * 4)]];
+        this.course.ground![[0, 2, 4, 6][Math.floor(this.eventRandom(2) * 4)]];
       u.y = lane.y + lane.h / 2;
     }
     if (!u.active) return;
-    u.x += u.direction * 170 * dt;
+    u.x += u.direction * config.speed * dt;
     if (u.carry > 0) {
       u.carry -= dt;
       b.x = u.x;
       b.y = u.y;
       b.vx = b.vy = 0;
       if (u.carry <= 0) {
-        let section = u.section + (this.random() < 0.5 ? -1 : 1);
+        let section = u.section + (this.eventRandom(3) < 0.5 ? -1 : 1);
         if (section < 0) section = 1;
         if (section > 10) section = 9;
-        if (section === 9) section = this.random() < 0.5 ? 8 : 10;
+        if (section === 9) section = this.eventRandom(4) < 0.5 ? 8 : 10;
         const r = this.course.ground![section];
         let target: Point | null = null;
         for (let n = 0; n < 30; n++) {
           const p = {
-            x: r.x + 20 + this.random() * (r.w - 40),
-            y: r.y + 20 + this.random() * (r.h - 40),
+            x: r.x + 20 + this.eventRandom(10 + n * 2) * (r.w - 40),
+            y: r.y + 20 + this.eventRandom(11 + n * 2) * (r.h - 40),
           };
           if (this.dropSafe(p)) {
             target = p;
@@ -153,17 +180,28 @@ export class GolfDynamics {
       }
       return;
     }
-    if (!u.used && b.vx === 0 && b.vy === 0 && distance(b, u) < 80) {
+    if (
+      !u.used &&
+      u.cooldown === 0 &&
+      b.vx === 0 &&
+      b.vy === 0 &&
+      distance(b, u) < 80
+    ) {
       u.hover += dt;
-      if (u.hover >= 0.8) {
+      if (u.hover >= config.hover) {
         u.used = true;
-        u.carry = 1;
+        u.carry = config.carry;
+        u.cooldown = config.cooldown;
         this.course.ground!.forEach((r, i) => {
           if (inside(b, r)) u.section = i;
         });
       }
     } else u.hover = 0;
-    if (u.x > 2040 || u.x < -120) u.active = false;
+    if (
+      u.carry <= 0 &&
+      (u.x > 2040 || u.x < -120 || this.time - u.started >= config.duration)
+    )
+      u.active = false;
   }
   private dropSafe(p: Point) {
     const c = this.course;

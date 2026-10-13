@@ -1,0 +1,3 @@
+# Lumberjack
+
+Rules owns identical seeded segment streams, each player's chop index, side, idle budget and three-round totals. Adjacent segments never carry branches on opposite sides, ensuring a legal choice exists. Check both current/next branches before a chop. Defaults: 20-second round cap, 85ms input cooldown, idle allowance falls from 1.5s to 0.32s; ties add rounds until cumulative scores differ. These are documented balancing choices, not reference-PDF claims. AI reads visible segments and uses the same chop API. Game draws two independent trees and flips Blue for opposite-side local play.
