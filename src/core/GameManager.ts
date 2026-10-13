@@ -81,8 +81,7 @@ export class GameManager {
     });
     const resize = new ResizeObserver(() => {
       if (this.game.isBooted) {
-        this.game.scale.getParentBounds();
-        this.game.scale.refresh();
+        this.resizeGame();
         this.host.controls?.clear();
       }
     });
@@ -163,7 +162,7 @@ export class GameManager {
     if (!token && !restoredState) this.storage.writeRecord(MATCH_KEY, null);
     this.transition.hidden = false;
     this.game.loop.wake();
-    this.game.scale.refresh();
+    this.resizeGame();
     if (this.game.scene.isActive("GameHost")) this.game.scene.stop("GameHost");
     this.game.scene.start("GameHost", {
       id,
@@ -171,6 +170,16 @@ export class GameManager {
       restoredState,
       run: this.run,
     });
+  }
+  private resizeGame() {
+    const responsive = this.active && getGame(this.active.gameId).responsive;
+    const rect = document.querySelector("#game-stage")!.getBoundingClientRect();
+    const width = responsive ? Math.max(1, rect.width) : 420;
+    const height = responsive ? Math.max(1, rect.height) : 760;
+    this.game.scale.setGameSize(width * this.renderScale, height * this.renderScale);
+    this.game.scale.getParentBounds();
+    this.game.scale.refresh();
+    this.host.module?.resize?.(width, height);
   }
   onReady(run: number) {
     if (run !== this.run) return;

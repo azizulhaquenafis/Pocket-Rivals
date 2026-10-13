@@ -260,6 +260,30 @@ export class GolfPhysics {
       this.status = "won";
     } else if (this.strokes >= this.limit && this.stopped) this.status = "lost";
   }
+  preview(velocity: Point): Point[] {
+    const seconds = difficulties[this.difficulty].preview;
+    if (!seconds || !this.shootable) return [];
+    const ghost = new GolfPhysics(this.course, this.difficulty, () => 0.5);
+    Object.assign(ghost.ball, this.ball);
+    ghost.lastShot = { ...this.lastShot };
+    ghost.dynamics.time = this.dynamics.time;
+    ghost.dynamics.portalCooldown = this.dynamics.portalCooldown;
+    ghost.dynamics.ufo.done = true;
+    if (!ghost.shoot(velocity.x, velocity.y)) return [];
+    const points: Point[] = [];
+    for (let i = 0; i < seconds * 240; i++) {
+      ghost.tick(1 / 240);
+      if (
+        ghost.impacts ||
+        ghost.recoveries ||
+        ghost.dynamics.portalCooldown > this.dynamics.portalCooldown ||
+        ghost.status !== "playing"
+      )
+        break;
+      if (i % 4 === 0) points.push({ x: ghost.ball.x, y: ghost.ball.y });
+    }
+    return points;
+  }
   snapshot() {
     return {
       course: this.course.id,

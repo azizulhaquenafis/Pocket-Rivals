@@ -11,3 +11,5 @@ All dependencies are resolved in `package-lock.json`. Preserve their full licens
 | Vite, TypeScript, Vitest, Playwright, Prettier | Their bundled licenses    | Development/build/test tools; not app services |
 
 Full runtime license text is included in `docs/licenses/`. The fonts are self-hosted. No Google Fonts API is used at runtime. The game contains no copied reference-game images or sounds.
+
+Ultimate Golf mechanics/course provenance and upstream licensing status are documented in [ULTIMATE_GOLF.md](ULTIMATE_GOLF.md). The port imports no upstream art, audio or executable.

@@ -13,5 +13,7 @@ export default {
   tag: "A LITTLE ADVENTURE",
   category: "arcade",
   tournament: false,
+  presentation: "custom",
+  responsive: true,
   supportedModes: ["single-player"],
 } satisfies GameMetadata;

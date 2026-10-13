@@ -32,6 +32,8 @@ export interface GameMetadata {
   tag: string;
   category?: "duel" | "arcade";
   tournament?: boolean;
+  presentation?: "custom";
+  responsive?: boolean;
   supportedModes: readonly ("local-two-player" | "single-player")[];
   variants?: readonly GameVariant[];
 }
@@ -41,6 +43,7 @@ export interface GameContext {
   setArcadeHUD: (score: number, detail: string) => void;
   finishArcade: (score: number, detail: string) => void;
   scene: Phaser.Scene;
+  navigation?: { pause: () => void; exit: () => void };
   input: InputManager;
   audio: AudioManager;
   options: MatchOptions;
@@ -57,6 +60,7 @@ export interface MiniGame {
   pause(): void;
   resume(): void;
   dispose(): void;
+  resize?(width: number, height: number): void;
   snapshot?(): unknown;
 }
 export type GameFactory = (

@@ -1,3 +1,4 @@
+import { golfSolutions } from "../fixtures/golf-solutions";
 import { test, expect, type Page } from "@playwright/test";
 const state = (p: Page) => p.evaluate(() => (window as any).__POCKET__);
 async function point(p: Page, x: number, y: number) {
@@ -49,6 +50,18 @@ test("Ultimate Golf touch controls, cancel, pause, focus and all four 9:16 cours
       .toBe("playing");
     await page.waitForTimeout(100);
     const before = (await state(page)).scene.game;
+    expect(before.course).toBe(
+      ["foundry", "shoreline", "horizon", "temple"][i],
+    );
+    if (i === 0) {
+      await tap(page, 384, 607);
+      expect((await state(page)).scene.game.phase).toBe("help");
+      const help = (await state(page)).scene.game;
+      await page.waitForTimeout(100);
+      expect((await state(page)).scene.game).toEqual(help);
+      await tap(page, 210, 505);
+      expect((await state(page)).scene.game.phase).toBe("playing");
+    }
     expect(before.view.bounds.w / before.view.bounds.h).toBe(9 / 16);
     await gesture(page, true);
     expect((await state(page)).scene.game.strokes).toBe(0);
@@ -91,7 +104,9 @@ test("Ultimate Golf mouse aiming, narrow screens, landscape and repeated cleanup
     await page.setViewportSize(size);
     await page.waitForTimeout(180);
     await tap(page, 210, 204);
-    await expect.poll(async () => (await state(page)).scene.game.course).toBe("foundry");
+    await expect
+      .poll(async () => (await state(page)).scene.game.course)
+      .toBe("foundry");
     await page.waitForTimeout(80);
     const a = await point(page, 210, 360),
       b = await point(page, 175, 360);
@@ -117,4 +132,89 @@ test("Ultimate Golf mouse aiming, narrow screens, landscape and repeated cleanup
   await expect
     .poll(async () => (await state(page)).scene.game.view.zoom)
     .toBe(1);
+});
+
+test("a complete Temple run uses real touch shots, banks its score and persists its record", async ({
+  page,
+}) => {
+  test.setTimeout(60000);
+  await open(page);
+  await page.clock.install();
+  await page.clock.pauseAt(new Date(Date.now() + 100));
+  await tap(page, 80, 606);
+  await page.clock.runFor(32);
+  await tap(page, 210, 486);
+  expect((await state(page)).scene.game.course).toBe("temple");
+  const cdp = await page.context().newCDPSession(page);
+  async function shot(vx: number, vy: number) {
+    const start = await point(page, 210, 380),
+      end = await point(
+        page,
+        210 + (vy / 3.125) * (512 / 1920),
+        380 - (vx / 3.125) * (512 / 1920),
+      );
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchStart",
+      touchPoints: [{ ...start, id: 1 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ ...end, id: 1 }],
+    });
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchEnd",
+      touchPoints: [],
+    });
+    for (let frame = 0; frame < 750; frame++) {
+      await page.clock.runFor(16);
+      const s = (await state(page)).scene.game;
+      if (s.shootable || s.phase === "result") return;
+    }
+    throw Error("Shot did not settle");
+  }
+  for (const [wait, vx, vy] of golfSolutions[3]) {
+    await page.clock.runFor(Math.round(wait * 1000));
+    await shot(vx, vy);
+    if ((await state(page)).scene.game.phase === "result") break;
+  }
+  // Real browser frames can advance a few extra simulation steps after a ball settles.
+  // Aim the final three legal putts from the measured resting position.
+  for (const [x, y] of [
+    [1745, 690],
+    [1745, 570],
+    [1560, 575],
+  ]) {
+    const s = (await state(page)).scene.game;
+    if (s.phase === "result") break;
+    const distance = Math.hypot(x - s.ball.x, y - s.ball.y),
+      speed = Math.sqrt(220 * distance);
+    await shot(
+      ((x - s.ball.x) / distance) * speed,
+      ((y - s.ball.y) / distance) * speed,
+    );
+  }
+  const result = (await state(page)).scene.game;
+  expect(result.status).toBe("won");
+  expect(result.recoveries).toBe(0);
+  expect(result.progress[3]).toBeGreaterThan(0);
+  await page.clock.resume();
+  await page.waitForTimeout(100);
+  await page.screenshot({ path: "docs/golf-browser-completion.png" });
+  await tap(page, 210, 494);
+  await expect(
+    page.getByRole("button", { name: "Play again →" }),
+  ).toBeVisible();
+  expect((await state(page)).saved.rounds).toBe(0);
+  await page.getByRole("button", { name: "Back to Arcade" }).click();
+  await page.reload();
+  await page
+    .getByRole("button", { name: "1 Player Arcade", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Play Ultimate Golf", exact: true })
+    .click();
+  await expect
+    .poll(async () => (await state(page)).scene.game?.progress?.[3])
+    .toBe(result.progress[3]);
+  await cdp.detach();
 });

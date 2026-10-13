@@ -54,6 +54,7 @@ export class GameHost extends Phaser.Scene {
       .setOrigin(0, 0)
       .setZoom(this.app.renderScale)
       .setScroll(0, 0);
+    if (meta.presentation !== "custom") {
     const g = this.add.graphics();
     rounded(g, 18, 14, 44, 42, 13, theme.white, 2);
     rounded(g, 358, 14, 44, 42, 13, theme.white, 2);
@@ -107,6 +108,7 @@ export class GameHost extends Phaser.Scene {
     this.hint = label(this, 210, 733, "", 11, "#697474");
     if (meta.category !== "arcade")
       label(this, 210, 714, "PLAYER 1", 9, "#8a8d84");
+    }
     this.controls = new InputManager(this);
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.cleanup());
     void loadGame(this.id, this.options)
@@ -119,10 +121,10 @@ export class GameHost extends Phaser.Scene {
           reportAI: (ms) => this.app.diagnostics.computation(ms),
           bestScore: this.app.arcade.best(this.id),
           setArcadeHUD: (score, detail) => {
-            this.texts[0].setText(
+            this.texts[0]?.setText(
               `SCORE  ${score}    BEST  ${Math.max(score, this.app.arcade.best(this.id))}`,
             );
-            this.texts[1].setText(detail);
+            this.texts[1]?.setText(detail);
           },
           finishArcade: (score, detail) => {
             if (this.ended) return;
@@ -131,6 +133,7 @@ export class GameHost extends Phaser.Scene {
             this.app.finishArcade(score, detail, this.run);
           },
           scene: this,
+          navigation: { pause: () => this.app.pause(), exit: () => this.app.pause("leave") },
           options: this.options,
           restoredState: this.restoredState,
           saveState: (state) => this.app.checkpoint(this.run, state),
@@ -138,10 +141,10 @@ export class GameHost extends Phaser.Scene {
           audio: this.app.audio,
           setClock: (text, urgent) =>
             this.clockText
-              .setText(text)
+              ?.setText(text)
               .setColor(urgent ? "#b2462c" : "#697474"),
           setScore: (a, b) => this.setScore(a, b),
-          setHint: (text) => this.hint.setText(text),
+          setHint: (text) => this.hint?.setText(text),
           finish: (result) => this.finish(result),
         });
         this.ready = true;

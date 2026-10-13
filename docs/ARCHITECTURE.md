@@ -2,19 +2,19 @@
 
 Pocket Rivals has one persistent Phaser instance and one reusable host scene. The DOM owns scrolling menus and accessible modal controls; Phaser owns gameplay and its HUD. Logical coordinates are 420×760, fitted to the viewport and rendered at up to 2× device resolution.
 
-| Area | Responsibility |
-| --- | --- |
-| `core/GameRegistry`, `GameLoader` | Eager metadata discovery; lazy module factories from both game roots |
-| `core/GameManager` | Navigation, foreground/background lifecycle, current-run guards, native back button |
-| `scenes/GameHost` | Module context, monotonic elapsed time, HUD, initialization/shutdown generation guards |
-| `core/InputManager` | Pointer ownership, scene-local taps/drags/keys, cancellation and cleanup |
-| `core/TournamentManager` | Serializable state machine, attempt tokens, checkpoints and one-time scoring |
-| `tournament/TournamentScene` | Metadata-driven setup, progress, champion and rematch UI |
-| `core/StorageManager`, `ScoreManager`, `ArcadeScoreManager` | Validated local data, session fallback, separate duel and arcade scoring |
-| `core/AudioManager` | Small procedural Web Audio effects, persisted preferences |
-| `shared/contracts` | Module, result and AI contracts; no game-specific rules |
-| `shared/physics`, `rules`, `utilities` | Fixed-step accumulator, stable motion, match clock, cancellable worker tasks |
-| `games/*`, `arcade/*` | Independently maintained rules, rendering, AI, assets, metadata and state |
+| Area                                                        | Responsibility                                                                         |
+| ----------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `core/GameRegistry`, `GameLoader`                           | Eager metadata discovery; lazy module factories from both game roots                   |
+| `core/GameManager`                                          | Navigation, foreground/background lifecycle, current-run guards, native back button    |
+| `scenes/GameHost`                                           | Module context, monotonic elapsed time, HUD, initialization/shutdown generation guards |
+| `core/InputManager`                                         | Pointer ownership, scene-local taps/drags/keys, cancellation and cleanup               |
+| `core/TournamentManager`                                    | Serializable state machine, attempt tokens, checkpoints and one-time scoring           |
+| `tournament/TournamentScene`                                | Metadata-driven setup, progress, champion and rematch UI                               |
+| `core/StorageManager`, `ScoreManager`, `ArcadeScoreManager` | Validated local data, session fallback, separate duel and arcade scoring               |
+| `core/AudioManager`                                         | Small procedural Web Audio effects, persisted preferences                              |
+| `shared/contracts`                                          | Module, result and AI contracts; no game-specific rules                                |
+| `shared/physics`, `rules`, `utilities`                      | Fixed-step accumulator, stable motion, match clock, cancellable worker tasks           |
+| `games/*`, `arcade/*`                                       | Independently maintained rules, rendering, AI, assets, metadata and state              |
 
 ## Lifecycle and navigation
 

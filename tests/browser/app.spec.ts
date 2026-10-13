@@ -28,7 +28,7 @@ test.beforeEach(async ({ page }) => {
     page.getByRole("heading", { name: "Pick your play" }),
   ).toBeVisible();
 });
-test("five illustrated games, mobile scrolling and persistent sound controls", async ({
+test("four illustrated rivalry games, mobile scrolling and persistent sound controls", async ({
   page,
 }) => {
   await expect(page.locator("[data-game]")).toHaveCount(4);

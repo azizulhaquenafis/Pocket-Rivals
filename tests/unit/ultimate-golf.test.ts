@@ -1,4 +1,5 @@
-import { describe, it, expect } from "vitest";
+import { GolfProgress } from "../../src/games/mini-golf/ultimate/GolfProgress";
+import { describe, it, expect, vi } from "vitest";
 import { courses } from "../../src/games/mini-golf/ultimate/courses";
 import { GolfPhysics } from "../../src/games/mini-golf/ultimate/GolfPhysics";
 import {
@@ -184,6 +185,37 @@ describe("Ultimate Golf native port", () => {
       expect(
         shotVector(v.unproject(v.project(a)), v.unproject(v.project(b))).x,
       ).toBeCloseTo(-312.5);
+    }
+  });
+  it("bounds the space preview and never mutates live state", () => {
+    const w = new GolfPhysics(courses[2], 0);
+    const before = w.snapshot();
+    expect(w.preview({ x: 450, y: 0 }).length).toBeLessThanOrEqual(36);
+    expect(w.preview({ x: 450, y: 0 }).length).toBeGreaterThan(0);
+    expect(w.snapshot()).toEqual(before);
+    expect(new GolfPhysics(courses[2], 2).preview({ x: 450, y: 0 })).toEqual(
+      [],
+    );
+  });
+  it("persists per-course bests and rejects malformed records", () => {
+    const data = new Map<string, string>();
+    vi.stubGlobal("localStorage", {
+      getItem: (key: string) => data.get(key) ?? null,
+      setItem: (key: string, value: string) => data.set(key, value),
+    });
+    try {
+      const progress = new GolfProgress();
+      progress.record(0, 500);
+      progress.record(0, 400);
+      progress.record(3, 650);
+      expect(new GolfProgress().total).toBe(1150);
+      data.set(
+        "pocket-rivals.ultimate-golf.v1",
+        JSON.stringify({ version: 1, best: [-1, "oops", Infinity, 600] }),
+      );
+      expect(new GolfProgress().best).toEqual([0, 0, 0, 600]);
+    } finally {
+      vi.unstubAllGlobals();
     }
   });
   it("survives prolonged moving-obstacle simulation at every difficulty", () => {

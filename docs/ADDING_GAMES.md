@@ -10,15 +10,21 @@ No edits to registry, router, score manager, menu or another game are needed. Th
 ## Metadata
 
 ```ts
-import type { GameMetadata } from '../../shared/contracts/GameModule';
-import preview from './assets/preview.svg?raw';
+import type { GameMetadata } from "../../shared/contracts/GameModule";
+import preview from "./assets/preview.svg?raw";
 export default {
-  id: 'tap-duel', name: 'Tap Duel',
-  description: 'A little race for your thumbs.',
-  instructions: 'Tap your own half. First to ten wins.',
-  color: '#f3bdab', accent: '#fffdf5', preview,
-  order: 20, tag: 'QUICK FINGERS', category: 'duel', tournament: true,
-  supportedModes: ['local-two-player'],
+  id: "tap-duel",
+  name: "Tap Duel",
+  description: "A little race for your thumbs.",
+  instructions: "Tap your own half. First to ten wins.",
+  color: "#f3bdab",
+  accent: "#fffdf5",
+  preview,
+  order: 20,
+  tag: "QUICK FINGERS",
+  category: "duel",
+  tournament: true,
+  supportedModes: ["local-two-player"],
 } satisfies GameMetadata;
 ```
 

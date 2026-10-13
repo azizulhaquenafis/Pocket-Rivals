@@ -31,12 +31,7 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
   await expect(
     page.getByRole("heading", { name: "Pick your play" }),
   ).toBeVisible();
-  for (const name of [
-    "Pong",
-    "Air Hockey",
-    "Tic-Tac-Toe",
-    "Connect Four",
-  ]) {
+  for (const name of ["Pong", "Air Hockey", "Tic-Tac-Toe", "Connect Four"]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })
       .click();

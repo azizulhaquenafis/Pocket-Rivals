@@ -52,11 +52,11 @@ export const shoreline: Course = {
     ].map((v) => ({ ...p(v[0], v[1]), r: 24, bounce: 1.3 })),
   ],
   movers: [
-  { from: p(140, 625), to: p(266, 625), seconds: 126 / 110, w: 44, h: 30 },
-  { from: p(1010, 125), to: p(1356, 125), seconds: 346 / 130, w: 44, h: 30 },
-  { from: p(1250, 290), to: p(880, 290), seconds: 370 / 130, w: 44, h: 30 },
-  { from: p(1450, 745), to: p(1816, 745), seconds: 366 / 150, w: 44, h: 30 },
-],
+    { from: p(140, 625), to: p(266, 625), seconds: 126 / 110, w: 44, h: 30 },
+    { from: p(1010, 125), to: p(1356, 125), seconds: 346 / 130, w: 44, h: 30 },
+    { from: p(1250, 290), to: p(880, 290), seconds: 370 / 130, w: 44, h: 30 },
+    { from: p(1450, 745), to: p(1816, 745), seconds: 366 / 150, w: 44, h: 30 },
+  ],
   fields: [
     { ...p(730, 820), r: 125, strength: 380 },
     { ...p(1450, 560), r: 130, strength: 380 },

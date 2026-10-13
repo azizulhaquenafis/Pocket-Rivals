@@ -22,11 +22,11 @@ Build before running browser or bundle tests. Browser tests use installed Google
 
 ## Play
 
-| Collection | Games |
-| --- | --- |
-| 2 Player Games | Pong, Air Hockey, Classic/Ultimate Tic-Tac-Toe, Connect Four |
-| 1 Player Arcade | Ultimate Golf, Classic Snake, Star Patrol |
-| Tournament | Any eligible rivalry game/variant; random or selected pool; local or AI |
+| Collection      | Games                                                                   |
+| --------------- | ----------------------------------------------------------------------- |
+| 2 Player Games  | Pong, Air Hockey, Classic/Ultimate Tic-Tac-Toe, Connect Four            |
+| 1 Player Arcade | Ultimate Golf, Classic Snake, Star Patrol                               |
+| Tournament      | Any eligible rivalry game/variant; random or selected pool; local or AI |
 
 Every rivalry game offers Medium, Hard and Impossible AI. Classic Impossible cannot be beaten with legal play; Ultimate and Connect Four use strong bounded searches, **not a mathematical optimality guarantee**. Blue is AI in single-player games. For local games, orange plays from the bottom and blue across the phone.
 

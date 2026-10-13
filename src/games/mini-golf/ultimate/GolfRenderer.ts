@@ -6,6 +6,8 @@ import type { Point, Rect } from "./courses";
 import { oil } from "./courses/foundry";
 import { difficulties } from "./GolfRules";
 export class GolfRenderer {
+  private lastAim: Point | null = null;
+  private previewPoints: Point[] = [];
   private g: Phaser.GameObjects.Graphics;
   private frame: Phaser.GameObjects.Graphics;
   private maskShape: Phaser.GameObjects.Graphics;
@@ -21,19 +23,17 @@ export class GolfRenderer {
     this.maskShape.fillStyle(0xffffff).fillRect(r.x, r.y, r.w, r.h);
     this.mask = this.maskShape.createGeometryMask();
     this.g.setMask(this.mask);
-    this.frame
-      .lineStyle(4, theme.ink)
-      .strokeRoundedRect(r.x - 2, r.y - 2, r.w + 4, r.h + 4, 5);
+
   }
   draw(world: GolfPhysics, aim: Point | null) {
     const g = this.g,
       c = world.course,
       d = world.dynamics,
       s = this.view.scale;
-    g.clear()
-      .setPosition(210 + this.view.center.y * s, 379 - this.view.center.x * s)
-      .setRotation(Math.PI / 2)
-      .setScale(s);
+    const bounds = this.view.bounds, origin = this.view.project({x:0,y:0});
+    this.maskShape.clear().fillStyle(0xffffff).fillRect(bounds.x,bounds.y,bounds.w,bounds.h);
+    this.frame.clear().lineStyle(3,theme.ink).strokeRoundedRect(bounds.x-1,bounds.y-1,bounds.w+2,bounds.h+2,8);
+    g.clear().setPosition(origin.x,origin.y).setRotation(this.view.angle).setScale(s);
     const rect = (r: Rect, color: number, line = 3) => {
       g.fillStyle(color).fillRect(r.x, r.y, r.w, r.h);
       if (line) g.lineStyle(line, theme.ink).strokeRect(r.x, r.y, r.w, r.h);
@@ -228,7 +228,17 @@ export class GolfRenderer {
         b.x - aim.x / 3.125,
         b.y - aim.y / 3.125,
       );
-      if (preview && speed) {
+      if (c.id === "horizon" && preview && speed) {
+        if (this.lastAim !== aim) {
+          this.previewPoints = world.preview(aim);
+          this.lastAim = aim;
+        }
+        this.previewPoints.forEach((p, i) =>
+          g
+            .fillStyle(theme.white, 1 - i / (this.previewPoints.length + 4))
+            .fillCircle(p.x, p.y, 4),
+        );
+      } else if (preview && speed) {
         const len = speed * preview - 55 * preview * preview;
         for (let i = 1; i <= 12; i++)
           g.fillStyle(theme.white, 1 - i / 15).fillCircle(
