@@ -1,10 +1,14 @@
-import type {GameManager} from "../core/GameManager";
-import {icons} from "../shared/components/icons";
-export class Settings {constructor(private app:GameManager){}
+import { downloadCollection } from "../core/OfflineManager";
+import type { GameManager } from "../core/GameManager";
+import { icons } from "../shared/components/icons";
+export class Settings {
+  constructor(private app: GameManager) {}
+  private offlineStatus = "";
+  private downloading = false;
   show() {
     const d = this.app.storage.data;
     this.app.modal.show(
-      `<button class="modal-close icon-button" data-action="close" aria-label="Close settings">${icons.close}</button><div class="eyebrow">MAKE YOURSELF AT HOME</div><h2 id="dialog-title">The little details.</h2><div class="settings-rows"><button class="setting-row" data-action="sound" role="switch" aria-checked="${d.sound}"><span><b>Sound effects</b><small>A little pop with every play</small></span><span class="toggle ${d.sound ? "on" : ""}"></span></button><button class="setting-row" data-action="music" role="switch" aria-checked="${d.music}"><span><b>Music</b><small>No soundtrack in this collection yet</small></span><span class="toggle ${d.music ? "on" : ""}"></span></button></div><p class="settings-note">One phone. Two people. No internet, ads, or accounts. Scores stay on this device.${this.app.storage.persistent ? "" : " Storage is unavailable; scores last for this session."}</p><button class="secondary-button" data-action="reset">Reset the scoreboard</button><p class="version">POCKET RIVALS · v0.1.0</p>`,
+      `<button class="modal-close icon-button" data-action="close" aria-label="Close settings">${icons.close}</button><div class="eyebrow">MAKE YOURSELF AT HOME</div><h2 id="dialog-title">The little details.</h2><div class="settings-rows"><button class="setting-row" data-action="sound" role="switch" aria-checked="${d.sound}"><span><b>Sound effects</b><small>A little pop with every play</small></span><span class="toggle ${d.sound ? "on" : ""}"></span></button><button class="setting-row" data-action="music" role="switch" aria-checked="${d.music}"><span><b>Music</b><small>No soundtrack in this collection yet</small></span><span class="toggle ${d.music ? "on" : ""}"></span></button></div><p class="settings-note">One phone. Two people. No internet, ads, or accounts. Scores stay on this device.${this.app.storage.persistent ? "" : " Storage is unavailable; scores last for this session."}</p>${navigator.serviceWorker?.controller ? `<button class="secondary-button" data-action="offline" ${this.downloading ? "disabled" : ""}>${this.downloading ? "Saving games…" : "Save all games offline"}</button><p role="status" class="settings-note">${this.offlineStatus || "Games download when first played. Save the collection for a trip."}</p>` : ""}<button class="secondary-button" data-action="reset">Reset the scoreboard</button><p class="version">POCKET RIVALS · v0.3.0</p>`,
       {
         close: () => {
           this.app.modal.close();
@@ -18,6 +22,23 @@ export class Settings {constructor(private app:GameManager){}
           d.music = !d.music;
           this.app.storage.save();
           this.show();
+        },
+        offline: async () => {
+          this.downloading = true;
+          this.show();
+          try {
+            await downloadCollection();
+            this.offlineStatus = "All games saved. Ready to play offline.";
+          } catch {
+            this.offlineStatus =
+              "Couldn’t finish the download. Check your connection and try again.";
+          }
+          this.downloading = false;
+          if (
+            this.app.modal.isOpen &&
+            document.querySelector('[data-action="offline"]')
+          )
+            this.show();
         },
         reset: () => this.confirmReset(),
       },
@@ -36,5 +57,4 @@ export class Settings {constructor(private app:GameManager){}
       },
     );
   }
-
 }

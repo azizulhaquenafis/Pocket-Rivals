@@ -15,6 +15,7 @@ export class InputManager {
   ];
   private cleanups: (() => void)[] = [];
   private enabled = true;
+  private clearHandlers: (() => void)[] = [];
   constructor(private scene: Phaser.Scene) {}
   dragHalves() {
     const down = (p: Phaser.Input.Pointer) => {
@@ -70,11 +71,74 @@ export class InputManager {
       }
     });
   }
+  drag(
+    start: (x: number, y: number) => boolean,
+    move: (x: number, y: number) => void,
+    end: (x: number, y: number) => void,
+    cancel: () => void = () => {},
+  ) {
+    let id: number | null = null;
+    const point = (p: Phaser.Input.Pointer) =>
+      this.scene.cameras.main.getWorldPoint(p.x, p.y);
+    this.on("pointerdown", (p: Phaser.Input.Pointer) => {
+      if (!this.enabled || id !== null) return;
+      const v = point(p);
+      if (start(v.x, v.y)) id = p.id;
+    });
+    this.on("pointermove", (p: Phaser.Input.Pointer) => {
+      if (this.enabled && p.id === id) {
+        const v = point(p);
+        move(v.x, v.y);
+      }
+    });
+    const up = (p: Phaser.Input.Pointer) => {
+      if (p.id !== id) return;
+      id = null;
+      if (this.enabled) {
+        const v = point(p);
+        end(v.x, v.y);
+      }
+    };
+    this.on("pointerup", up);
+    this.on("pointerupoutside", up);
+    const clear = () => {
+      id = null;
+      cancel();
+    };
+    this.clearHandlers.push(clear);
+    this.scene.game.canvas.addEventListener("touchcancel", clear);
+    this.scene.game.canvas.addEventListener("pointercancel", clear);
+    this.cleanups.push(() => {
+      this.scene.game.canvas.removeEventListener("touchcancel", clear);
+      this.scene.game.canvas.removeEventListener("pointercancel", clear);
+    });
+  }
+  keys(codes: string[]) {
+    const held = new Set<string>(),
+      keyboard = this.scene.input.keyboard;
+    if (!keyboard) return held;
+    const down = (e: KeyboardEvent) => {
+        if (this.enabled && codes.includes(e.code)) {
+          e.preventDefault();
+          held.add(e.code);
+        }
+      },
+      up = (e: KeyboardEvent) => held.delete(e.code);
+    keyboard.on("keydown", down);
+    keyboard.on("keyup", up);
+    this.cleanups.push(() => {
+      keyboard.off("keydown", down);
+      keyboard.off("keyup", up);
+    });
+    this.clearHandlers.push(() => held.clear());
+    return held;
+  }
   private on(event: string, handler: (...args: any[]) => void) {
     this.scene.input.on(event, handler);
     this.cleanups.push(() => this.scene.input.off(event, handler));
   }
   clear() {
+    this.clearHandlers.forEach((fn) => fn());
     this.players.forEach((p) => {
       p.down = false;
       p.id = null;
@@ -91,6 +155,7 @@ export class InputManager {
   dispose() {
     this.pause();
     this.cleanups.splice(0).forEach((fn) => fn());
+    this.clearHandlers = [];
   }
   get listenerCount() {
     return this.cleanups.length;

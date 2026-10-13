@@ -1,3 +1,5 @@
+import { savePong, restorePong } from "./PongState";
+import { MatchClock } from "../../shared/rules/MatchClock";
 import { PongAI } from "./PongAI";
 import Phaser from "phaser";
 import type {
@@ -14,17 +16,19 @@ export class PingPong implements MiniGame {
   private ctx!: GameContext;
   private world!: PongWorld;
   private clock = new FixedStep();
+  private matchClock = new MatchClock();
   private graphics!: Phaser.GameObjects.Graphics;
   private bg!: Phaser.GameObjects.Graphics;
   private status!: Phaser.GameObjects.Text;
   private effects = new Impacts();
+  private sinceSave = 0;
   private paused = false;
-  private ai?:PongAI;
+  private ai?: PongAI;
   private trail = Array.from({ length: 8 }, () => ({ x: 210, y: 381 }));
   private trailAt = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
-    if(ctx.options.mode==="ai")this.ai=new PongAI(ctx.options.difficulty);
+    if (ctx.options.mode === "ai") this.ai = new PongAI(ctx.options.difficulty);
     ctx.input.dragHalves();
     ctx.setHint("DRAG YOUR HALF · FIRST TO 5");
     this.bg = ctx.scene.add.graphics();
@@ -45,7 +49,9 @@ export class PingPong implements MiniGame {
       },
       (p) => this.goal(p),
     );
-    ctx.setScore(0, 0);
+    restorePong(this.world, this.matchClock, ctx.restoredState);
+    ctx.setScore(...this.world.scores);
+    this.save();
   }
   private goal(p: Player) {
     this.ctx.setScore(...this.world.scores);
@@ -54,25 +60,44 @@ export class PingPong implements MiniGame {
       v.x = 210;
       v.y = 381;
     });
-    if (this.world.done)
-      this.ctx.finish({ winner: p, scores: [...this.world.scores] });
+    const winner = this.matchClock.score(this.world.scores);
+    if (winner !== null) {
+      this.world.done = true;
+      this.ctx.finish({ winner, scores: [...this.world.scores] });
+    }
   }
   update(dt: number) {
     if (this.paused) return;
     const w = this.world;
+    const winner = this.matchClock.advance(dt, w.scores);
+    this.ctx.setClock(this.matchClock.text, this.matchClock.remaining <= 10);
+    if (this.matchClock.overtime)
+      this.ctx.setHint("SUDDEN DEATH · NEXT POINT WINS");
+    if (winner !== null) {
+      w.done = true;
+      this.ctx.finish({ winner, scores: [...w.scores] });
+      return;
+    }
     this.clock.advance(dt, (step) => {
       w.step(step, [
         this.ctx.input.players[0].down
           ? this.ctx.input.players[0].x
           : w.paddles[0].x,
-        this.ai ? this.ai.update(step,w) : this.ctx.input.players[1].down
-          ? this.ctx.input.players[1].x
-          : w.paddles[1].x,
+        this.ai
+          ? this.ai.update(step, w)
+          : this.ctx.input.players[1].down
+            ? this.ctx.input.players[1].x
+            : w.paddles[1].x,
       ]);
       const t = this.trail[this.trailAt++ % 8];
       t.x = w.ball.x;
       t.y = w.ball.y;
     });
+    this.sinceSave += dt;
+    if (this.sinceSave >= 1) {
+      this.sinceSave = 0;
+      this.save();
+    }
     const g = this.graphics;
     g.clear();
     if (w.cooldown <= 0)
@@ -115,7 +140,12 @@ export class PingPong implements MiniGame {
       .setText(w.cooldown > 0.5 ? "READY?" : w.cooldown > 0 ? "GO!" : "")
       .setAlpha(w.cooldown > 0 ? 1 : 0);
   }
+  private save() {
+    if (!this.world.done)
+      this.ctx.saveState(savePong(this.world, this.matchClock));
+  }
   pause() {
+    this.save();
     this.paused = true;
     this.clock.reset();
   }
@@ -132,6 +162,10 @@ export class PingPong implements MiniGame {
     return {
       ball: { ...this.world.ball },
       paddles: this.world.paddles.map((p) => ({ ...p })),
+      timer: {
+        remaining: this.matchClock.remaining,
+        overtime: this.matchClock.overtime,
+      },
       scores: [...this.world.scores],
       cooldown: this.world.cooldown,
     };

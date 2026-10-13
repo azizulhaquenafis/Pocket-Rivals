@@ -3,7 +3,7 @@ const snapshot = (page: Page) =>
   page.evaluate(() => (window as any).__POCKET__);
 async function start(page: Page, name: string) {
   await page.getByRole("button", { name: `Play ${name}`, exact: true }).click();
-  await page.getByRole("button",{name:"Let’s play →"}).click();
+  await page.getByRole("button", { name: "Let’s play →" }).click();
   await expect.poll(async () => (await snapshot(page))?.scene.ready).toBe(true);
   await page.waitForTimeout(300);
 }
@@ -28,10 +28,10 @@ test.beforeEach(async ({ page }) => {
     page.getByRole("heading", { name: "Pick your play" }),
   ).toBeVisible();
 });
-test("three illustrated games, mobile scrolling and persistent sound controls", async ({
+test("five illustrated games, mobile scrolling and persistent sound controls", async ({
   page,
 }) => {
-  await expect(page.locator("[data-game]")).toHaveCount(3);
+  await expect(page.locator("[data-game]")).toHaveCount(5);
   await page.screenshot({ path: "docs/menu-mobile.png" });
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("switch", { name: /Sound effects/ }).click();

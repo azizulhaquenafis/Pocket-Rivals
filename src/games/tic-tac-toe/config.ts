@@ -11,6 +11,18 @@ export default {
   tag: "THINK AHEAD",
   order: 3,
   preview,
-  variants:[{id:'classic',name:'Classic — 3×3',description:'The familiar little rivalry.'},{id:'ultimate',name:'Ultimate — 9×9',description:'Nine boards. One big strategy.',hasTutorial:true}],
+  variants: [
+    {
+      id: "classic",
+      name: "Classic — 3×3",
+      description: "The familiar little rivalry.",
+    },
+    {
+      id: "ultimate",
+      name: "Ultimate — 9×9",
+      description: "Nine boards. One big strategy.",
+      hasTutorial: true,
+    },
+  ],
   supportedModes: ["local-two-player", "single-player"],
 } satisfies GameMetadata;

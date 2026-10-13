@@ -1,6 +1,9 @@
-import {classicMove} from "./ClassicAI";
+import { classicMove } from "./ClassicAI";
 import Phaser from "phaser";
-import type { GameContext, MiniGame } from "../../../shared/contracts/GameModule";
+import type {
+  GameContext,
+  MiniGame,
+} from "../../../shared/contracts/GameModule";
 import { theme } from "../../../core/ThemeManager";
 import { rounded, symbol, label } from "../../../shared/components/drawing";
 import { TicTacToeBoard } from "./ClassicRules";
@@ -15,11 +18,11 @@ export class TicTacToe implements MiniGame {
   private reported = false;
   private paused = false;
   private elapsed = 0;
-  private thinkFor=0;
+  private thinkFor = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
-    this.board=TicTacToeBoard.restore(ctx.restoredState);
-    this.ages=this.board.cells.map(p=>p?1:0);
+    this.board = TicTacToeBoard.restore(ctx.restoredState);
+    this.ages = this.board.cells.map((p) => (p ? 1 : 0));
     ctx.setScore(0, 0);
     ctx.setHint("TAKE TURNS · THREE IN A ROW");
     this.bg = ctx.scene.add.graphics();
@@ -35,7 +38,8 @@ export class TicTacToe implements MiniGame {
     this.graphics = ctx.scene.add.graphics();
     ctx.input.tap((x, y) => {
       if (
-        this.paused || (ctx.options.mode === "ai" && this.board.turn === 2) ||
+        this.paused ||
+        (ctx.options.mode === "ai" && this.board.turn === 2) ||
         this.elapsed < 0.2 ||
         x < 48 ||
         x >= 372 ||
@@ -47,13 +51,40 @@ export class TicTacToe implements MiniGame {
       this.place(cell);
     });
   }
-  private place(cell:number){if(!this.board.play(cell))return;this.ages[cell]=.001;this.thinkFor=0;this.ctx.audio.play('tap');this.ctx.saveState(this.board.save());this.refreshTurn();}
-  private refreshTurn(){this.turn.setText(this.board.winner?(this.board.winner==='draw'?'A PERFECT STANDOFF.':'THREE’S A CHARM!'):this.board.turn===1?'ORANGE’S TURN  ×':this.ctx.options.mode==='ai'?'BLUE IS THINKING…':'BLUE’S TURN  ○');}
+  private place(cell: number) {
+    if (!this.board.play(cell)) return;
+    this.ages[cell] = 0.001;
+    this.thinkFor = 0;
+    this.ctx.audio.play("tap");
+    this.ctx.saveState(this.board.save());
+    this.refreshTurn();
+  }
+  private refreshTurn() {
+    this.turn.setText(
+      this.board.winner
+        ? this.board.winner === "draw"
+          ? "A PERFECT STANDOFF."
+          : "THREE’S A CHARM!"
+        : this.board.turn === 1
+          ? "ORANGE’S TURN  ×"
+          : this.ctx.options.mode === "ai"
+            ? "BLUE IS THINKING…"
+            : "BLUE’S TURN  ○",
+    );
+  }
   update(dt: number) {
     if (this.paused) return;
     this.elapsed += dt;
     this.refreshTurn();
-    if(!this.board.winner&&this.ctx.options.mode==='ai'&&this.board.turn===2){this.thinkFor+=dt;if(this.thinkFor>.38)this.place(classicMove(this.board,this.ctx.options.difficulty));}
+    if (
+      !this.board.winner &&
+      this.ctx.options.mode === "ai" &&
+      this.board.turn === 2
+    ) {
+      this.thinkFor += dt;
+      if (this.thinkFor > 0.38)
+        this.place(classicMove(this.board, this.ctx.options.difficulty));
+    }
     const g = this.graphics;
     g.clear();
     this.board.cells.forEach((p, i) => {

@@ -1,49 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 180" fill="none">
-  <g stroke="#242b32" stroke-width="5" stroke-linejoin="round">
-    <path d="m58 20 123 24 20 129-147-25Z" fill="#86b776" />
-    <path d="m60 24 118 23 18 120-137-22Z" stroke="#fff9dd" stroke-width="2" />
-    <path d="m58 86 133 25" stroke="#fff9dd" stroke-width="3" />
-    <path d="m120 32 6 127" stroke="#fff9dd" stroke-width="2" />
-    <path d="m53 87 142 26" />
-    <path d="m54 80-1 14m140 11 2 15" />
-    <path d="m146 41 3-25 12 2-6 26" fill="#d68048" />
-    <ellipse
-      cx="150"
-      cy="49"
-      rx="24"
-      ry="28"
-      transform="rotate(15 150 49)"
-      fill="#f49b58"
+<svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
+  <g
+    transform="rotate(-13 110 105)"
+    stroke="#242b32"
+    stroke-width="5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <rect x="34" y="14" width="154" height="182" rx="18" fill="#8bbe78" />
+    <path
+      d="M45 105H177"
+      stroke="#fff9ee"
+      stroke-width="3"
+      stroke-dasharray="8 9"
     />
-    <path d="m93 133-15 22 11 8 15-23" fill="#3692b7" />
-    <ellipse
-      cx="105"
-      cy="128"
-      rx="26"
-      ry="29"
-      transform="rotate(35 105 128)"
-      fill="#58addb"
-    />
+    <rect x="86" y="33" width="76" height="15" rx="7.5" fill="#58addb" />
+    <rect x="48" y="163" width="76" height="15" rx="7.5" fill="#f49b58" />
+    <path d="M108 129l17-23m-27 15 12-17" stroke="#fff9ee" stroke-width="4" />
+    <circle cx="136" cy="84" r="12" fill="#fff9ee" />
+    <path d="M142 61l4-10m11 21 10-3" stroke-width="3" />
   </g>
-  <path
-    d="M95 62c-13 23 43 29 17 46"
-    stroke="#fffdf5"
-    stroke-width="8"
-    stroke-linecap="round"
-    opacity=".8"
-  />
-  <circle
-    cx="93"
-    cy="65"
-    r="9"
-    fill="#fffdf5"
-    stroke="#242b32"
-    stroke-width="4"
-  />
-  <path
-    d="m80 35 2 10m-18-5 8 7m105 89 10 2m-15 9 5 6"
-    stroke="#242b32"
-    stroke-width="3"
-    stroke-linecap="round"
-  />
 </svg>

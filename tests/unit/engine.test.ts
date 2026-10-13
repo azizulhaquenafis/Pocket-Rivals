@@ -1,7 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { PongWorld } from "../../src/games/pong/PongPhysics";
 import { HockeyWorld } from "../../src/games/air-hockey/AirHockeyPhysics";
-import { TicTacToeBoard, WIN_LINES } from "../../src/games/tic-tac-toe/classic/ClassicRules";
+import {
+  TicTacToeBoard,
+  WIN_LINES,
+} from "../../src/games/tic-tac-toe/classic/ClassicRules";
 import { FixedStep } from "../../src/shared/physics/FixedStep";
 import { StorageManager } from "../../src/core/StorageManager";
 import { ScoreManager } from "../../src/core/ScoreManager";

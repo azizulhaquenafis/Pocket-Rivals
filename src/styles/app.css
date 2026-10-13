@@ -263,8 +263,7 @@ button:active {
   transition:
     transform 0.13s,
     box-shadow 0.13s;
-  animation: card-in 0.35s both;
-  animation-delay: var(--delay);
+  animation: card-in 0.14s ease-out;
 }
 .game-card:hover {
   transform: translateY(-2px);
@@ -750,11 +749,9 @@ button:active {
 }
 @keyframes card-in {
   from {
-    opacity: 0;
-    translate: 0 8px;
+    translate: 0 3px;
   }
   to {
-    opacity: 1;
     translate: 0 0;
   }
 }
@@ -782,7 +779,6 @@ button:active {
     translate: 0 -20px;
   }
   to {
-    opacity: 1;
     translate: 0 0;
   }
 }
@@ -889,4 +885,336 @@ button:active {
   }
 }
 /* Phase 2 additions keep the original color, outline and typography system. */
-.collection-modes{display:flex;gap:8px;margin:0 0 21px}.collection-modes button{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:12px 8px;background:#fffdf5;border:2px solid var(--ink);border-radius:13px;font-size:12px;font-weight:900;box-shadow:0 2px 0 var(--ink)}.collection-modes button.selected{background:#f6d37f}.collection-modes svg{width:17px;height:17px}.resume-banner{display:flex;align-items:center;justify-content:space-between;width:100%;padding:13px 10px;border:2px solid var(--ink);border-radius:12px;background:#e0ebce;font-size:11px;margin:-5px 0 16px}.resume-banner b{font-size:9px}.segmented{display:flex;background:#e9e9da;border:2px solid var(--ink);border-radius:14px;padding:4px;gap:3px;margin:14px 0}.segmented button{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 4px;font-size:12px;font-weight:900;min-height:40px}.segmented button.selected{background:#fffdf5;box-shadow:0 2px 0 #242b3230}.segmented button small{display:block;font-size:9px;font-weight:700;color:#7e8678;margin-top:3px}.players button{padding:12px 4px}.difficulty button{font-size:10px}.choice-label{text-align:left;font-size:8px;letter-spacing:1px;font-weight:900;margin-top:20px}.modal .setup-note{font-size:11px;line-height:1.6;margin:17px 0 21px}.variant-choices{display:flex;gap:8px;margin:20px 0}.variant-choice{flex:1;min-height:75px;border:2px solid var(--ink);border-radius:13px;background:transparent;padding:10px 7px}.variant-choice.selected{background:var(--blue);box-shadow:0 3px 0 var(--ink)}.variant-choice b{font-size:12px;display:block}.variant-choice small{font-size:9px;display:block;margin-top:6px;line-height:1.3}.setup-modal .text-button{margin:0 7px}.round-control{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:900;margin:18px 0}.round-control select{width:67px;border:2px solid var(--ink);border-radius:10px;background:#fffdf5;padding:9px;font:inherit;color:inherit}.game-picks{display:grid;grid-template-columns:1fr 1fr;gap:6px}.game-picks button{border:2px solid #b4bdac;border-radius:10px;background:#fffdf5;text-align:left;font-size:10px;min-height:43px;padding:7px}.game-picks button.selected{border-color:var(--ink);background:#cfe3b7}.tournament-cup{display:grid;place-items:center;margin:0 auto 20px;background:#f6d37f;width:65px;height:65px;border-radius:21px;border:3px solid var(--ink);box-shadow:3px 4px 0 var(--ink);transform:rotate(-6deg)}.tournament-cup svg{width:35px;height:35px}.tournament-score{display:flex;align-items:center;justify-content:center;gap:25px;margin:20px 0}.tournament-score div small{display:block;font-size:9px;letter-spacing:1px}.tournament-score b{font:600 47px Fredoka}.tournament-score div:first-child b{color:#d57e3d}.tournament-score div:last-child b{color:#2f8bb9}.tournament-score>span{color:#a0a892}.round-dots{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;margin-bottom:14px}.round-dots i{width:9px;height:9px;border-radius:50%;background:#dde0d2}.round-dots i.done{background:#8aad74}.round-dots i.current{background:var(--orange);outline:2px solid var(--ink)}.round-history{max-height:100px;overflow-y:auto;text-align:left;margin:16px 0;font-size:10px}.round-history span{display:flex;justify-content:space-between;padding:6px 0;border-top:1px solid #d8decb}.tutorial-diagram{max-width:170px;margin:15px auto}.tutorial-route{display:flex;align-items:center;justify-content:center;gap:12px;margin:22px 0}.tutorial-route>svg{width:125px}.tutorial-cells{width:115px;display:grid;grid-template-columns:repeat(3,1fr);gap:3px}.tutorial-cells button{height:38px;border:2px solid var(--ink);border-radius:5px;background:#fffdf5;font-size:24px;line-height:1}.tutorial-cells button.selected{background:var(--orange)}button:disabled{opacity:.4;cursor:not-allowed;transform:none}.tournament-setup h2{font-size:29px}.tournament-results h2{font-size:29px}
+.collection-modes {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 21px;
+}
+.collection-modes button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 12px 8px;
+  background: #fffdf5;
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  font-size: 12px;
+  font-weight: 900;
+  box-shadow: 0 2px 0 var(--ink);
+}
+.collection-modes button.selected {
+  background: #f6d37f;
+}
+.collection-modes svg {
+  width: 17px;
+  height: 17px;
+}
+.resume-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 13px 10px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: #e0ebce;
+  font-size: 11px;
+  margin: -5px 0 16px;
+}
+.resume-banner b {
+  font-size: 9px;
+}
+.segmented {
+  display: flex;
+  background: #e9e9da;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  padding: 4px;
+  gap: 3px;
+  margin: 14px 0;
+}
+.segmented button {
+  flex: 1;
+  border: 0;
+  background: transparent;
+  border-radius: 9px;
+  padding: 10px 4px;
+  font-size: 12px;
+  font-weight: 900;
+  min-height: 40px;
+}
+.segmented button.selected {
+  background: #fffdf5;
+  box-shadow: 0 2px 0 #242b3230;
+}
+.segmented button small {
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  color: #7e8678;
+  margin-top: 3px;
+}
+.players button {
+  padding: 12px 4px;
+}
+.difficulty button {
+  font-size: 10px;
+}
+.choice-label {
+  text-align: left;
+  font-size: 8px;
+  letter-spacing: 1px;
+  font-weight: 900;
+  margin-top: 20px;
+}
+.modal .setup-note {
+  font-size: 11px;
+  line-height: 1.6;
+  margin: 17px 0 21px;
+}
+.variant-choices {
+  display: flex;
+  gap: 8px;
+  margin: 20px 0;
+}
+.variant-choice {
+  flex: 1;
+  min-height: 75px;
+  border: 2px solid var(--ink);
+  border-radius: 13px;
+  background: transparent;
+  padding: 10px 7px;
+}
+.variant-choice.selected {
+  background: var(--blue);
+  box-shadow: 0 3px 0 var(--ink);
+}
+.variant-choice b {
+  font-size: 12px;
+  display: block;
+}
+.variant-choice small {
+  font-size: 9px;
+  display: block;
+  margin-top: 6px;
+  line-height: 1.3;
+}
+.setup-modal .text-button {
+  margin: 0 7px;
+}
+.round-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 900;
+  margin: 18px 0;
+}
+.round-control select {
+  width: 67px;
+  border: 2px solid var(--ink);
+  border-radius: 10px;
+  background: #fffdf5;
+  padding: 9px;
+  font: inherit;
+  color: inherit;
+}
+.game-picks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.game-picks button {
+  border: 2px solid #b4bdac;
+  border-radius: 10px;
+  background: #fffdf5;
+  text-align: left;
+  font-size: 10px;
+  min-height: 43px;
+  padding: 7px;
+}
+.game-picks button.selected {
+  border-color: var(--ink);
+  background: #cfe3b7;
+}
+.tournament-cup {
+  display: grid;
+  place-items: center;
+  margin: 0 auto 20px;
+  background: #f6d37f;
+  width: 65px;
+  height: 65px;
+  border-radius: 21px;
+  border: 3px solid var(--ink);
+  box-shadow: 3px 4px 0 var(--ink);
+  transform: rotate(-6deg);
+}
+.tournament-cup svg {
+  width: 35px;
+  height: 35px;
+}
+.tournament-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 25px;
+  margin: 20px 0;
+}
+.tournament-score div small {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+}
+.tournament-score b {
+  font: 600 47px Fredoka;
+}
+.tournament-score div:first-child b {
+  color: #d57e3d;
+}
+.tournament-score div:last-child b {
+  color: #2f8bb9;
+}
+.tournament-score > span {
+  color: #a0a892;
+}
+.round-dots {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-bottom: 14px;
+}
+.round-dots i {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #dde0d2;
+}
+.round-dots i.done {
+  background: #8aad74;
+}
+.round-dots i.current {
+  background: var(--orange);
+  outline: 2px solid var(--ink);
+}
+.round-history {
+  max-height: 100px;
+  overflow-y: auto;
+  text-align: left;
+  margin: 16px 0;
+  font-size: 10px;
+}
+.round-history span {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-top: 1px solid #d8decb;
+}
+.tutorial-diagram {
+  max-width: 170px;
+  margin: 15px auto;
+}
+.tutorial-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+.tutorial-route > svg {
+  width: 125px;
+}
+.tutorial-cells {
+  width: 115px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3px;
+}
+.tutorial-cells button {
+  height: 38px;
+  border: 2px solid var(--ink);
+  border-radius: 5px;
+  background: #fffdf5;
+  font-size: 24px;
+  line-height: 1;
+}
+.tutorial-cells button.selected {
+  background: var(--orange);
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.tournament-setup h2 {
+  font-size: 29px;
+}
+.tournament-results h2 {
+  font-size: 29px;
+}
+.game-transition {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  background: #f8f5eb;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #697474;
+  font-size: 13px;
+}
+.game-transition[hidden] {
+  display: none;
+}
+.transition-mark {
+  font: 700 72px Fredoka;
+  color: #f49b58;
+  letter-spacing: -7px;
+}
+.transition-mark span {
+  color: #58addb;
+}
+.collection-modes button {
+  font-size: 12px;
+  min-height: 44px;
+}
+.collection-modes {
+  gap: 5px;
+}
+.arcade-dock {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 26px;
+  gap: 16px;
+}
+.arcade-dock strong {
+  font-family: Fredoka;
+  font-size: 20px;
+}
+.arcade-dock small {
+  color: #697474;
+}
+.diagnostics {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  max-width: 320px;
+  white-space: pre-wrap;
+  z-index: 100;
+  pointer-events: none;
+  font: 10px/1.4 monospace;
+  background: #242b32e8;
+  color: #fff9ee;
+  border-radius: 8px;
+  padding: 10px;
+}
+.arcade-result-score {
+  font: 700 80px Fredoka;
+  color: #58addb;
+  margin: 10px;
+}

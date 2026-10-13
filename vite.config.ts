@@ -5,6 +5,7 @@ export default defineConfig({
   base: "./",
   build: {
     target: "es2022",
+    manifest: true,
     rollupOptions: { output: { manualChunks: { phaser: ["phaser"] } } },
   },
   server: { port: 5173, strictPort: true },

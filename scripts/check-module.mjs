@@ -1,4 +1,12 @@
-import { realpath, mkdtemp, cp, symlink, readFile, readdir, rm } from "node:fs/promises";
+import {
+  realpath,
+  mkdtemp,
+  cp,
+  symlink,
+  readFile,
+  readdir,
+  rm,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { build } from "vite";
@@ -45,7 +53,7 @@ try {
     if (!code.includes(needle))
       throw Error(`Missing discovered module: ${needle}`);
   console.log(
-    "PASS: copied only a game folder; metadata and lazy implementation compiled automatically. Original three-game source unchanged.",
+    "PASS: copied only a game folder; metadata and lazy implementation compiled automatically. Existing source unchanged.",
   );
 } finally {
   await rm(temp, { recursive: true, force: true });

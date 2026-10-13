@@ -20,9 +20,11 @@ export class StorageManager {
   static key = "pocket-rivals.v1";
   data: SavedData = defaults();
   persistent = true;
+  private records = new Map<string, string>();
   constructor(
     private storage: Pick<Storage, "getItem" | "setItem"> | undefined,
   ) {
+    this.persistent = !!storage;
     try {
       const raw = storage?.getItem(StorageManager.key);
       if (raw) {
@@ -49,8 +51,23 @@ export class StorageManager {
       this.persistent = false;
     }
   }
-  readRecord(key:string):unknown {try{const raw=this.storage?.getItem(key);return raw?JSON.parse(raw):null;}catch{return null;}}
-  writeRecord(key:string,value:unknown){try{if(!this.storage)throw Error('unavailable');this.storage.setItem(key,JSON.stringify(value));}catch{this.persistent=false;}}
+  readRecord(key: string): unknown {
+    try {
+      const raw = this.records.get(key) ?? this.storage?.getItem(key);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+  writeRecord(key: string, value: unknown) {
+    this.records.set(key, JSON.stringify(value));
+    try {
+      if (!this.storage) throw Error("unavailable");
+      this.storage.setItem(key, JSON.stringify(value));
+    } catch {
+      this.persistent = false;
+    }
+  }
   resetScores() {
     this.data.wins = [0, 0];
     this.data.draws = 0;

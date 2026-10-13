@@ -1,3 +1,6 @@
+import { saveHockey, restoreHockey } from "./HockeyState";
+import { PossessionClock } from "./PossessionClock";
+import { MatchClock } from "../../shared/rules/MatchClock";
 import { AirHockeyAI } from "./AirHockeyAI";
 import Phaser from "phaser";
 import type {
@@ -14,15 +17,21 @@ export class AirHockey implements MiniGame {
   private ctx!: GameContext;
   private world!: HockeyWorld;
   private clock = new FixedStep();
+  private matchClock = new MatchClock();
   private graphics!: Phaser.GameObjects.Graphics;
   private bg!: Phaser.GameObjects.Graphics;
   private status!: Phaser.GameObjects.Text;
   private effects = new Impacts();
+  private possession = new PossessionClock();
+  private possessionLabel!: Phaser.GameObjects.Text;
+  private violation = false;
+  private sinceSave = 0;
   private paused = false;
-  private ai?:AirHockeyAI;
+  private ai?: AirHockeyAI;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
-    if(ctx.options.mode==="ai")this.ai=new AirHockeyAI(ctx.options.difficulty);
+    if (ctx.options.mode === "ai")
+      this.ai = new AirHockeyAI(ctx.options.difficulty);
     ctx.input.dragHalves();
     ctx.setHint("DRAG YOUR MALLET · FIRST TO 5");
     this.bg = ctx.scene.add.graphics();
@@ -37,6 +46,7 @@ export class AirHockey implements MiniGame {
     rounded(g, 147, 102, 126, 18, 7, theme.blue, 3);
     rounded(g, 147, 642, 126, 18, 7, theme.orange, 3);
     this.graphics = ctx.scene.add.graphics();
+    this.possessionLabel = label(ctx.scene, 340, 140, "", 12);
     this.status = label(ctx.scene, 210, 300, "READY?", 28);
     this.world = new HockeyWorld(
       (x, y) => {
@@ -45,27 +55,70 @@ export class AirHockey implements MiniGame {
       },
       (p) => this.goal(p),
     );
-    ctx.setScore(0, 0);
+    restoreHockey(
+      this.world,
+      this.matchClock,
+      this.possession,
+      ctx.restoredState,
+    );
+    ctx.setScore(...this.world.scores);
+    this.save();
   }
   private goal(p: Player) {
+    this.possession.reset();
+    this.ai?.reset();
     this.ctx.setScore(...this.world.scores);
     this.ctx.audio.play("goal");
-    if (this.world.done)
-      this.ctx.finish({ winner: p, scores: [...this.world.scores] });
+    const winner = this.matchClock.score(this.world.scores);
+    if (winner !== null) {
+      this.world.done = true;
+      this.ctx.finish({ winner, scores: [...this.world.scores] });
+    }
   }
   update(dt: number) {
     if (this.paused) return;
     const w = this.world;
-    this.clock.advance(dt, (step) =>
+    const winner = this.matchClock.advance(dt, w.scores);
+    this.ctx.setClock(this.matchClock.text, this.matchClock.remaining <= 10);
+    if (this.matchClock.overtime)
+      this.ctx.setHint("SUDDEN DEATH · NEXT POINT WINS");
+    if (winner !== null) {
+      w.done = true;
+      this.ctx.finish({ winner, scores: [...w.scores] });
+      return;
+    }
+    this.clock.advance(dt, (step) => {
       w.step(step, [
         this.ctx.input.players[0].down
           ? this.ctx.input.players[0]
           : w.mallets[0],
-        this.ai ? this.ai.update(step,w) : this.ctx.input.players[1].down
-          ? this.ctx.input.players[1]
-          : w.mallets[1],
-      ]),
-    );
+        this.ai
+          ? this.ai.update(step, w)
+          : this.ctx.input.players[1].down
+            ? this.ctx.input.players[1]
+            : w.mallets[1],
+      ]);
+      if (w.cooldown <= 0 && !w.done) {
+        const penalty = this.possession.advance(step, w.puck.y);
+        if (penalty) {
+          this.violation = true;
+          w.awardPoint(penalty);
+        }
+      }
+    });
+    if (w.cooldown <= 0) this.violation = false;
+    this.possessionLabel
+      .setText(
+        this.possession.side ? `${Math.ceil(this.possession.remaining)}s` : "",
+      )
+      .setPosition(348, this.possession.side === 1 ? 619 : 143)
+      .setColor(this.possession.remaining <= 5 ? "#ae432c" : "#62858b")
+      .setAlpha(this.possession.remaining <= 5 ? 1 : 0.7);
+    this.sinceSave += dt;
+    if (this.sinceSave >= 1) {
+      this.sinceSave = 0;
+      this.save();
+    }
     const g = this.graphics;
     g.clear();
     w.mallets.forEach((m, i) => {
@@ -83,10 +136,23 @@ export class AirHockey implements MiniGame {
     g.fillStyle(0x5b6770).fillCircle(w.puck.x - 2, w.puck.y - 3, 4);
     this.effects.draw(g, dt);
     this.status.setText(
-      w.cooldown > 0.5 ? "READY?" : w.cooldown > 0 ? "GO!" : "",
+      w.cooldown > 0.5
+        ? this.violation
+          ? "POSSESSION!"
+          : "READY?"
+        : w.cooldown > 0
+          ? "GO!"
+          : "",
     );
   }
+  private save() {
+    if (!this.world.done)
+      this.ctx.saveState(
+        saveHockey(this.world, this.matchClock, this.possession),
+      );
+  }
   pause() {
+    this.save();
     this.paused = true;
     this.clock.reset();
   }
@@ -98,11 +164,20 @@ export class AirHockey implements MiniGame {
     this.bg.destroy();
     this.graphics.destroy();
     this.status.destroy();
+    this.possessionLabel.destroy();
   }
   snapshot() {
     return {
+      possession: {
+        side: this.possession.side,
+        remaining: this.possession.remaining,
+      },
       puck: { ...this.world.puck },
       mallets: this.world.mallets.map((m) => ({ ...m })),
+      timer: {
+        remaining: this.matchClock.remaining,
+        overtime: this.matchClock.overtime,
+      },
       scores: [...this.world.scores],
     };
   }

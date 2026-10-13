@@ -1,0 +1,44 @@
+{
+  "initial": [
+    {
+      "module": "index.html",
+      "file": "assets/index-BW6nVQuj.js",
+      "bytes": 51788,
+      "gzip": 16991
+    },
+    {
+      "module": "_index-D1ZBgHxV.js",
+      "file": "assets/index-D1ZBgHxV.js",
+      "bytes": 8133,
+      "gzip": 3321
+    },
+    {
+      "module": "_phaser-DXXWZowi.js",
+      "file": "assets/phaser-DXXWZowi.js",
+      "bytes": 1208050,
+      "gzip": 330072
+    },
+    {
+      "module": "_preload-helper-PPVm8Dsz.js",
+      "file": "assets/preload-helper-PPVm8Dsz.js",
+      "bytes": 1232,
+      "gzip": 715
+    },
+    {
+      "module": "_drawing-DlhSQ46l.js",
+      "file": "assets/drawing-DlhSQ46l.js",
+      "bytes": 969,
+      "gzip": 529
+    }
+  ],
+  "lazyGames": [
+    "src/arcade/snake/index.ts",
+    "src/arcade/space-shooter/index.ts",
+    "src/games/air-hockey/index.ts",
+    "src/games/connect-four/index.ts",
+    "src/games/mini-golf/index.ts",
+    "src/games/pong/index.ts",
+    "src/games/tic-tac-toe/index.ts"
+  ],
+  "totalInitialGzip": 351628
+}

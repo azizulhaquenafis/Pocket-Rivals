@@ -1,6 +1,6 @@
 {
   "name": "pocket-rivals",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "android:debug": "npm run android:sync && cd android && ./gradlew assembleDebug",
     "android:release": "npm run android:sync && cd android && ./gradlew bundleRelease",
     "test:modules": "node scripts/check-module.mjs",
-    "format": "prettier --write \"src/**/*.{ts,css,svg}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"examples/**/*.{ts,svg}\" \"*.{ts,json,md}\" \"docs/*.md\""
+    "format": "prettier --write \"src/**/*.{ts,css,svg}\" \"tests/**/*.ts\" \"scripts/*.{ts,mjs}\" \"examples/**/*.{ts,svg}\" \"*.{ts,json,md}\" \"docs/*.md\"",
+    "test:bundle": "node scripts/bundle-report.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

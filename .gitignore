@@ -9,8 +9,3 @@ android/**/build/
 *.keystore
 keystore.properties
 .env*
-.env
-.env.*
-!.env.example
-build/
-.vercel/
