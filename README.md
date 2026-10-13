@@ -1,76 +1,61 @@
 # Pocket Rivals
 
-Three little games. One big rivalry. An original, offline, same-screen two-player collection built with TypeScript, Phaser 3, Vite, and Capacitor 8.
+An original offline game collection for one phone: four local/AI rivalry games, three solo arcade games, and persistent tournaments. TypeScript · Phaser 3 · Vite · Capacitor 8. The existing cream/pastel visual identity, local typography, bold outlines and illustrated cards are preserved.
 
-The app lives entirely in this folder; the surrounding workspace's grading files are unrelated and untouched.
+## Run
 
-## Play locally
-
-Requires Node **22.21.1+** (current LTS recommended), npm, and a modern browser.
+Requires Node 22.21.1+ and npm.
 
 ```sh
 npm ci
-npm run dev
+npm run dev             # http://127.0.0.1:5173/
+npm run build           # Strict TypeScript + production dist/
+npm run preview         # Production preview on port 4173
+npm test                # Pure rules, physics, AI and persistence
+npm run test:browser    # Installed Chrome, Pixel 7 emulation and CDP multi-touch
+npm run test:modules    # Folder-only automatic discovery proof
+npm run test:bundle     # Initial-payload budget and lazy-module verification
+node scripts/measure-performance.mjs # Running dev server required; desktop Chrome sample
 ```
 
-Open **http://127.0.0.1:5173/**. Use a touchscreen for simultaneous two-player control. On desktop, mouse input controls one player at a time. Escape opens/closes pause. The production web build caches all game chunks after its first successful online load; the Android package contains every asset from installation and needs no connection.
+Build before running browser or bundle tests. Browser tests use installed Google Chrome; alternatively install Playwright Chromium and remove the channel override in `playwright.config.ts`. Vercel configuration is included; nothing has been deployed.
 
-```sh
-npm run build       # Strict TypeScript check + optimized dist/
-npm run preview     # Serve the production build on port 4173
-npm test            # Simulation, game rules, persistence
-npm run test:browser # Chrome mobile emulation, CDP two-touch input, offline build
-npm run test:modules # Prove folder-only discovery with a temporary fourth game
-npm run format      # Format source and developer documentation
-```
+## Play
 
-Run `npm run build` before the browser tests: their production/offline scenario uses `dist/`. Browser tests use an installed Google Chrome; if unavailable, install Playwright Chromium and remove `launchOptions.channel` in `playwright.config.ts`. Tests start their own preview servers unless these ports are already serving this project.
+| Collection | Games |
+| --- | --- |
+| 2 Player Games | Pong, Air Hockey, Classic/Ultimate Tic-Tac-Toe, Connect Four |
+| 1 Player Arcade | Ultimate Golf, Classic Snake, Star Patrol |
+| Tournament | Any eligible rivalry game/variant; random or selected pool; local or AI |
 
-## The collection
+Every rivalry game offers Medium, Hard and Impossible AI. Classic Impossible cannot be beaten with legal play; Ultimate and Connect Four use strong bounded searches, **not a mathematical optimality guarantee**. Blue is AI in single-player games. For local games, orange plays from the bottom and blue across the phone.
 
-| Game        | Orange / Player 1     | Blue / Player 2       | Match          |
-| ----------- | --------------------- | --------------------- | -------------- |
-| Ping Pong   | Drag the lower half   | Drag the upper half   | First to 5     |
-| Air Hockey  | Move the lower mallet | Move the upper mallet | First to 5     |
-| Tic-Tac-Toe | ×; plays first        | ○; plays second       | Three in a row |
+- Pong/Hockey: first to five, or lead at two minutes. Regulation 0–0 draws; other ties get a 60-second sudden-death period, then draw. Hockey also awards a point against 15 seconds of continuous possession on one half.
+- Ultimate: legal boards are highlighted; optional focus enlarges the required board. The interactive tutorial is in setup.
+- Connect Four: tap a column.
+- Ultimate Golf: four source-faithful solo courses in a vertical 9:16 view. Pull back anywhere on the course and release; Focus enlarges the view, ? explains the course, R retries. Easy/Normal/Hard preserve the original obstacle speeds and stroke limits. [Port details](docs/ULTIMATE_GOLF.md).
+- Snake: direction pad, swipe, arrows or WASD. Star Patrol: drag the lower field to move/fire, or arrows/A–D plus Space.
+- Escape/back opens pause. Backgrounding pauses automatically. Settings retain sound/music preferences; no music track is included.
 
-Orange is always at the bottom and blue at the top. Blue's score faces the person across the phone. Touches are assigned at pointer-down and stay with that player until release or cancellation. Extra fingers do not steal an active control. Paddle/mallet movement remains in its permitted field.
+Completed duel scores, tournament progress, unfinished matches and arcade high scores are stored locally. Golf keeps per-course best scores; active Arcade runs restart after closure. No accounts, ads, analytics, backend or external AI.
 
-The menu includes a scrollable illustrated collection, sound/music preferences, persistent overall wins, round totals, and a confirmed scoreboard reset. Music preference is saved; **no music track is included**. Sound effects are synthesized locally with Web Audio. Rematches start a clean game. Draws count as completed matches but not wins; leaving or restarting an unfinished match does not change overall scores.
+Android packages the full collection offline. The production web version caches the shell and games as played; use **Settings → Save all games offline** while connected to make every game and AI worker available without a network. Browser site-data eviction can remove that cache.
 
-## Architecture
+## Development
 
-- `src/core/`: metadata discovery, lazy factory loading, lifecycle, pointer ownership, audio, storage and scores.
-- `src/scenes/MainMenu.ts`: accessible DOM menu with native scrolling; custom local SVG illustrations.
-- `src/scenes/GameHost.ts`: shared Phaser HUD and isolated module lifecycle.
-- `src/scenes/Results.ts`: consistent result presentation.
-- `src/games/*/`: independent metadata, factory, rules/physics, rendering, assets.
-- `src/shared/`: contract, fixed timestep, drawing primitives and bounded effects.
-- `examples/tap-duel/`: working extension example; **not installed in the collection**.
-- `android/`: generated, customized native project, Gradle wrapper, icon and splash assets.
+Open `/?diagnostics` in development for FPS/frame time, initialization timings, scenes, texture count, memory where supported, AI search time and loaded modules. The diagnostic UI and read-only test snapshots are disabled in production.
 
-Games expose `initialize / update / pause / resume / dispose`. The host owns input cleanup, navigation, and one-time result recording. No game imports another game. Vite eagerly discovers only metadata and preview SVGs; game factories are separate lazy chunks. Adding a folder plus rebuilding packages it for Android automatically. See [ADDING_GAMES.md](ADDING_GAMES.md).
-
-Pong and hockey run at a fixed 120 Hz. Hockey uses three collision substeps (360 Hz), capped velocities, collision projection, and a rail/mallet contact escape. Pong sweeps paddle contacts and derives reflection from impact position and paddle velocity. Catch-up is capped at 100 ms; backgrounding pauses the game and releases fingers instead of trying to replay hidden time. Graphics use up to 2× canvas resolution. Phaser owns the only render loop; no game starts a timer or requestAnimationFrame loop.
-
-The portrait playfield fits inside its container without distortion. Phones request portrait orientation natively; landscape browser windows and larger Android displays retain a centered portrait field. Capacitor's CSS safe-area values and browser `env()` insets protect cutouts. The menu uses HTML for accessible buttons, scrolling and modal focus; gameplay and HUD render in Phaser.
+Start with [architecture](docs/ARCHITECTURE.md), [adding games](docs/ADDING_GAMES.md), the root AGENTS.md and the target game's AGENTS.md. Each game owns its rules, physics, AI and assets. Only metadata is eager; implementations and workers are split into lazy chunks. The stable Pong ID remains `ping-pong`.
 
 ## Android
 
 ```sh
-npm run android:sync   # Build web + copy every chunk and asset into Android
-npm run android:open   # Open generated project in Android Studio
-npm run android:debug  # Sync + assembleDebug
-npm run android:release # Sync + signed bundleRelease; environment credentials required
+npm run android:sync    # Build and package all web assets
+npm run android:open    # Open Android Studio
+npm run android:debug   # Sync + assembleDebug
+npm run android:release # Sync + signed bundleRelease
 ```
 
-Expected debug output: `android/app/build/outputs/apk/debug/app-debug.apk`.
-Expected release output: `android/app/build/outputs/bundle/release/app-release.aab`.
+Debug output: `android/app/build/outputs/apk/debug/app-debug.apk`. Release output: `android/app/build/outputs/bundle/release/app-release.aab`. This workstation lacks a usable Java runtime and Android SDK; no APK/AAB or physical-device testing is claimed. Android is configured with min SDK 24, compile/target SDK 36, portrait mode and no app permissions. See [build/signing instructions](docs/ANDROID_RELEASE.md).
 
-This workstation has no usable Java runtime or Android SDK, so **no APK/AAB or Android-device validation is claimed**. The project is configured for minimum SDK 24, compile/target SDK 36, with no app permissions and no remote assets. See [Android release instructions](docs/ANDROID_RELEASE.md), [privacy documentation](docs/PRIVACY.md), and the [QA report](docs/QA.md).
-
-## Visual assets and licenses
-
-Pocket Rivals branding, preview illustrations, icon, and geometric game graphics were created for this project. The provided screenshots and [reference Play listing](https://play.google.com/store/apps/details?id=com.JindoBlu.TwoPlayerGamesChallenge&hl=en) informed the minimalist composition, black outlines, bold color, and shared-device interactions. No reference logos, illustration files, sounds, or branded text are packaged.
-
-Fredoka and Nunito Sans are bundled locally under the SIL Open Font License. See [third-party notices](docs/THIRD_PARTY_NOTICES.md). The proposed name and package ID still need the publisher's final availability/ownership review before the first public release.
+[QA and known limits](docs/QA.md) · [Privacy/data handling](docs/PRIVACY.md) · [Third-party licenses](docs/THIRD_PARTY_NOTICES.md). Branding and illustrations are original; fonts are bundled under their open licenses. Publisher identity/name/package availability and release signing remain the publisher's responsibility.

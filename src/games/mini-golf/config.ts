@@ -2,32 +2,16 @@ import type { GameMetadata } from "../../shared/contracts/GameModule";
 import preview from "./assets/preview.svg?raw";
 export default {
   id: "mini-golf",
-  name: "Mini Golf",
-  description: "A small course. A big finish.",
+  name: "Ultimate Golf",
+  description: "Four worlds. One little ball.",
   instructions:
-    "Drag back from your ball and release. Take turns; each rival plays their own ball. Lowest total strokes wins. After 12 strokes, pick up for 13.",
+    "Choose a course and challenge. Pull back anywhere on the course and release to putt. Avoid hazards and reach the flag before running out of strokes. Focus enlarges the view.",
   color: "#b8d998",
   accent: "#93c57f",
   preview,
   order: 5,
-  tag: "TAKE YOUR BEST SHOT",
-  supportedModes: ["local-two-player", "single-player"],
-  tournament: true,
-  variants: [
-    {
-      id: "five",
-      name: "Full tour — 5 holes",
-      description: "All five little courses",
-    },
-    {
-      id: "three",
-      name: "Short tour — 3 holes",
-      description: "A quick round together",
-    },
-    {
-      id: "one",
-      name: "Quick putt — 1 hole",
-      description: "One course. Every stroke counts.",
-    },
-  ],
+  tag: "A LITTLE ADVENTURE",
+  category: "arcade",
+  tournament: false,
+  supportedModes: ["single-player"],
 } satisfies GameMetadata;

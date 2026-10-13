@@ -79,53 +79,6 @@ test("Connect Four completes a gravity win, rematches, saves and runs worker AI"
   expect((await state(page)).diagnostics.aiMs).toBeGreaterThan(0);
   expect((await state(page)).scene.game.turn).toBe(1);
 });
-test("Mini Golf touch aiming, real physics, turns, tie and clean restart", async ({
-  page,
-}) => {
-  await page.addInitScript(() =>
-    localStorage.setItem(
-      "pocket-rivals.match.v1",
-      JSON.stringify({
-        version: 1,
-        spec: {
-          gameId: "mini-golf",
-          options: { mode: "local", difficulty: "medium", variant: "one" },
-        },
-        state: {
-          version: 1,
-          count: 1,
-          hole: 0,
-          turn: 1,
-          balls: [
-            { x: 260, y: 100, vx: 0, vy: 0, holed: false },
-            { x: 260, y: 100, vx: 0, vy: 0, holed: false },
-          ],
-          strokes: [0, 0],
-          totals: [0, 0],
-          history: [],
-        },
-      }),
-    ),
-  );
-  await page.goto("/");
-  await page.getByRole("button", { name: /Continue saved game/ }).click();
-  await expect.poll(async () => (await state(page)).state).toBe("playing");
-  await page.waitForTimeout(500);
-  await page.screenshot({ path: "docs/mini-golf.png" });
-  await drag(page, 300, 300, 300, 320);
-  await expect.poll(async () => (await state(page)).scene.game.turn).toBe(2);
-  expect((await state(page)).scene.game.strokes).toEqual([1, 0]);
-  await page.waitForTimeout(450);
-  await drag(page, 300, 300, 300, 320);
-  await expect(
-    page.getByRole("heading", { name: "Evenly matched." }),
-  ).toBeVisible();
-  expect((await state(page)).scene.game.totals).toEqual([1, 1]);
-  await page.getByRole("button", { name: /Rematch/ }).click();
-  await expect.poll(async () => (await state(page)).scene.game?.hole).toBe(0);
-  expect((await state(page)).scene.game.strokes).toEqual([0, 0]);
-  await leave(page);
-});
 test("Arcade has independent high scores, Snake controls, pause and game over", async ({
   page,
 }) => {
@@ -139,7 +92,7 @@ test("Arcade has independent high scores, Snake controls, pause and game over", 
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  await expect(page.locator("[data-game]")).toHaveCount(2);
+  await expect(page.locator("[data-game]")).toHaveCount(3);
   await page.screenshot({ path: "docs/arcade.png" });
   await page
     .getByRole("button", { name: "Play Classic Snake", exact: true })
@@ -233,11 +186,11 @@ test("new games are lazy, Arcade is excluded from tournaments, and navigation re
   expect((await state(page)).diagnostics.modules).toEqual([]);
   for (const name of [
     "Connect Four",
-    "Mini Golf",
+    "Air Hockey",
     "Pong",
     "Air Hockey",
     "Connect Four",
-    "Mini Golf",
+    "Air Hockey",
   ]) {
     await launch(page, name);
     expect((await state(page)).scene.children).toBeLessThan(25);
@@ -248,9 +201,9 @@ test("new games are lazy, Arcade is excluded from tournaments, and navigation re
   }
   await page.getByRole("button", { name: "Tournament", exact: true }).click();
   await page.getByRole("button", { name: "Choose games" }).click();
-  await expect(page.getByRole("checkbox")).toHaveCount(8);
+  await expect(page.getByRole("checkbox")).toHaveCount(5);
   await expect(
-    page.getByRole("checkbox", { name: /Snake|Star Patrol/ }),
+    page.getByRole("checkbox", { name: /Snake|Star Patrol|Ultimate Golf/ }),
   ).toHaveCount(0);
   expect(errors).toEqual([]);
 });

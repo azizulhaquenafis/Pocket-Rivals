@@ -1,0 +1,66 @@
+import { p, r, type Course } from "./types";
+export const shoreline: Course = {
+  id: "shoreline",
+  name: "Shoreline",
+  subtitle: "Read the tide. Ride the current.",
+  tip: "Pale bridges flood with the tide. Sand slows you; wet sand slides. Water returns your shot.",
+  baseLimit: 25,
+  color: 0xa9dce4,
+  start: p(130, 990),
+  hole: p(1560, 200),
+  walls: [],
+  ground: [
+    r(60, 760, 340, 270),
+    r(140, 330, 170, 440),
+    r(60, 110, 520, 230),
+    r(450, 640, 200, 390),
+    r(640, 920, 330, 110),
+    r(860, 330, 110, 600),
+    r(800, 110, 600, 230),
+    r(1310, 330, 70, 380),
+    r(1100, 700, 760, 330),
+    r(1480, 110, 380, 280),
+  ],
+  surfaces: [
+    ...[
+      [140, 470, 170, 90],
+      [1230, 820, 220, 150],
+      [1590, 230, 130, 110],
+      [860, 360, 110, 140],
+    ].map((v) => ({
+      ...r(v[0], v[1], v[2], v[3]),
+      kind: "sand" as const,
+      friction: 400,
+    })),
+    { ...r(360, 118, 210, 95), kind: "slick", friction: 20 },
+    { ...r(1600, 940, 250, 80), kind: "slick", friction: 20 },
+    { ...r(860, 520, 110, 220), kind: "ford", friction: 250, push: p(260, 0) },
+  ],
+  bridges: [r(470, 330, 100, 320), r(1700, 380, 110, 330)],
+  circles: [
+    ...[
+      [300, 930],
+      [220, 200],
+      [1180, 225],
+      [1790, 300],
+    ].map((v) => ({ ...p(v[0], v[1]), r: 14 })),
+    ...[
+      [330, 800],
+      [1000, 225],
+      [1700, 160],
+      [1545, 330],
+    ].map((v) => ({ ...p(v[0], v[1]), r: 24, bounce: 1.3 })),
+  ],
+  movers: [
+  { from: p(140, 625), to: p(266, 625), seconds: 126 / 110, w: 44, h: 30 },
+  { from: p(1010, 125), to: p(1356, 125), seconds: 346 / 130, w: 44, h: 30 },
+  { from: p(1250, 290), to: p(880, 290), seconds: 370 / 130, w: 44, h: 30 },
+  { from: p(1450, 745), to: p(1816, 745), seconds: 366 / 150, w: 44, h: 30 },
+],
+  fields: [
+    { ...p(730, 820), r: 125, strength: 380 },
+    { ...p(1450, 560), r: 130, strength: 380 },
+  ],
+  fans: [],
+  lasers: [],
+};

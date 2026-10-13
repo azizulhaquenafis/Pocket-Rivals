@@ -113,6 +113,18 @@ export class InputManager {
       this.scene.game.canvas.removeEventListener("pointercancel", clear);
     });
   }
+  press(codes: string[], callback: (code: string) => void) {
+    const keyboard = this.scene.input.keyboard;
+    if (!keyboard) return;
+    const handler = (event: KeyboardEvent) => {
+      if (this.enabled && !event.repeat && codes.includes(event.code)) {
+        event.preventDefault();
+        callback(event.code);
+      }
+    };
+    keyboard.on("keydown", handler);
+    this.cleanups.push(() => keyboard.off("keydown", handler));
+  }
   keys(codes: string[]) {
     const held = new Set<string>(),
       keyboard = this.scene.input.keyboard;

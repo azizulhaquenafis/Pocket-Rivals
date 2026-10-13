@@ -36,7 +36,6 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
     "Air Hockey",
     "Tic-Tac-Toe",
     "Connect Four",
-    "Mini Golf",
   ]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })
@@ -65,7 +64,7 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  for (const name of ["Classic Snake", "Star Patrol"]) {
+  for (const name of ["Ultimate Golf", "Classic Snake", "Star Patrol"]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })
       .click();
@@ -77,7 +76,7 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
   await page
     .getByRole("button", { name: "2 Player Games", exact: true })
     .click();
-  for (const name of ["Tic-Tac-Toe", "Connect Four", "Mini Golf"]) {
+  for (const name of ["Tic-Tac-Toe", "Connect Four"]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })
       .click();
@@ -95,34 +94,6 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
       );
     if (name === "Tic-Tac-Toe") await tap(90, 271);
     if (name === "Connect Four") await tap(210, 260);
-    if (name === "Mini Golf") {
-      const cdp = await context.newCDPSession(page);
-      await cdp.send("Input.dispatchTouchEvent", {
-        type: "touchStart",
-        touchPoints: [
-          {
-            id: 1,
-            x: box.x + (120 / 420) * box.width,
-            y: box.y + (540 / 760) * box.height,
-          },
-        ],
-      });
-      await cdp.send("Input.dispatchTouchEvent", {
-        type: "touchMove",
-        touchPoints: [
-          {
-            id: 1,
-            x: box.x + (120 / 420) * box.width,
-            y: box.y + (552 / 760) * box.height,
-          },
-        ],
-      });
-      await cdp.send("Input.dispatchTouchEvent", {
-        type: "touchEnd",
-        touchPoints: [],
-      });
-      await cdp.detach();
-    }
     await page.waitForTimeout(1500);
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Back to all games" }).click();

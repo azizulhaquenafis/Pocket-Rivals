@@ -39,7 +39,7 @@ After adding/changing games, repeat `npm run android:debug`; it rebuilds the web
 - Proposed application ID / Java namespace: `com.pocketrivals.games`.
 - Display name: **Pocket Rivals**.
 - Android minimum API: **24**; compile and target API: **36**.
-- Default Android versionCode: **1**; versionName: **0.1.0**.
+- Default Android versionCode: **1**; versionName: **0.3.0**.
 - Web package version: `package.json`.
 
 Before the first Play upload, confirm ownership/availability of the identity and name. If changing the ID, update `capacitor.config.ts`, `android/app/build.gradle`, strings `package_name` and `custom_url_scheme`, and the Java package declaration/directory under `android/app/src/main/java`. This identity becomes permanent for an existing Play listing.
@@ -90,7 +90,7 @@ The app pauses on `appStateChange`, browser visibility loss, and window blur. An
 
 - [ ] Install toolchain; build debug APK; install on at least two physical Android devices.
 - [ ] Test two real fingers from opposite ends: small/large phones, edge gestures, touch cancellation, and three simultaneous contacts.
-- [ ] Play all three games to completion; test goals near posts/rails, high-speed hits and repeated rematches.
+- [ ] Play all seven games to completion; test goals near posts/rails, high-speed hits and repeated rematches.
 - [ ] Measure frame times and touch responsiveness on a typical lower/mid-range Android device. The 60 FPS target is not a measured device guarantee yet.
 - [ ] Test Home/lock/unlock, system Back, interruptions, audio focus, screen rotation, notches, gesture/button navigation and tablets.
 - [ ] Test installation and full play in airplane mode. Verify scores after restart and after app update. Uninstall/clear-data intentionally removes scores.

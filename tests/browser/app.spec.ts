@@ -31,7 +31,7 @@ test.beforeEach(async ({ page }) => {
 test("five illustrated games, mobile scrolling and persistent sound controls", async ({
   page,
 }) => {
-  await expect(page.locator("[data-game]")).toHaveCount(5);
+  await expect(page.locator("[data-game]")).toHaveCount(4);
   await page.screenshot({ path: "docs/menu-mobile.png" });
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("switch", { name: /Sound effects/ }).click();

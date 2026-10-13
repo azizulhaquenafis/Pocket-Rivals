@@ -1,21 +1,13 @@
 <svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
-  <g
-    transform="rotate(-12 110 105)"
-    stroke="#242b32"
-    stroke-width="4"
-    stroke-linejoin="round"
-  >
-    <rect x="32" y="17" width="159" height="180" rx="20" fill="#93c57f" />
-    <rect x="32" y="96" width="100" height="23" rx="3" fill="#e8d9b9" />
-    <circle cx="148" cy="64" r="13" fill="#242b32" />
-    <path d="M148 64V23l33 13-33 12" fill="#fffdf5" />
-    <path
-      d="M92 164l56-18 11-41"
-      fill="none"
-      stroke="#fffdf5"
-      stroke-width="3"
-      stroke-dasharray="6 6"
-    />
-    <circle cx="75" cy="168" r="11" fill="#f49b58" />
-  </g>
+ <g transform="rotate(-10 110 105)" stroke="#242b32" stroke-width="4" stroke-linejoin="round">
+  <rect x="45" y="9" width="126" height="192" rx="18" fill="#b8d998"/>
+  <path d="M47 112h122v25H47" fill="#58addb"/>
+  <path d="M96 112h39v25H96z" fill="#edc689"/>
+  <path d="M109 113v22m13-22v22" stroke-width="2"/>
+  <rect x="45" y="72" width="70" height="15" rx="3" fill="#829478"/>
+  <circle cx="126" cy="52" r="11" fill="#242b32"/>
+  <path d="M126 51V18l30 12-30 9" fill="#f49b58"/>
+  <path d="M85 170l31-20v-46" stroke="#fffdf5" stroke-width="3" stroke-dasharray="5 6" fill="none"/>
+  <circle cx="80" cy="174" r="10" fill="#fffdf5"/>
+ </g>
 </svg>

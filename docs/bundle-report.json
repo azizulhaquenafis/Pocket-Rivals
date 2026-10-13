@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-BW6nVQuj.js",
-      "bytes": 51788,
-      "gzip": 16991
+      "file": "assets/index-n1HQl039.js",
+      "bytes": 51834,
+      "gzip": 16992
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -40,5 +40,5 @@
     "src/games/pong/index.ts",
     "src/games/tic-tac-toe/index.ts"
   ],
-  "totalInitialGzip": 351628
+  "totalInitialGzip": 351629
 }

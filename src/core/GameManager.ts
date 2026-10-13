@@ -211,7 +211,7 @@ export class GameManager {
         !["medium", "hard", "impossible"].includes(d.spec.options.difficulty)
       )
         return null;
-      getGame(d.spec.gameId);
+      if (getGame(d.spec.gameId).category === "arcade") return null;
       return d;
     } catch {
       return null;

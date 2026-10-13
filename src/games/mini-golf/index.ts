@@ -1,2 +1,2 @@
-import { MiniGolfGame } from "./MiniGolfGame";
-export default () => new MiniGolfGame();
+import { UltimateGolfGame } from "./ultimate/UltimateGolfGame";
+export default () => new UltimateGolfGame();
