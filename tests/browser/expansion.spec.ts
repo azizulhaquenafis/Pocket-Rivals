@@ -69,51 +69,65 @@ test("effects volume persists and no music control is presented", async ({
   await expect(volume).toHaveValue("35");
 });
 
-test("Hammer Hit accepts simultaneous touch, exactly three strikes and reports the average", async ({
+test("Hammer Hit alternates rotated turns, delays AI, and reports three-strike averages", async ({
   page,
 }) => {
   await open(page, "Hammer Hit");
-  const cdp = await page.context().newCDPSession(page),
-    b = (await page.locator("canvas").boundingBox())!;
-  await page.waitForTimeout(800);
-  for (let i = 0; i < 3; i++) {
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchStart",
-      touchPoints: [
-        { x: b.x + b.width / 2, y: b.y + (b.height * 270) / 760, id: 1 },
-        { x: b.x + b.width / 2, y: b.y + (b.height * 490) / 760, id: 2 },
-      ],
-    });
-    await cdp.send("Input.dispatchTouchEvent", {
-      type: "touchEnd",
-      touchPoints: [],
-    });
-    if (i < 2) await page.waitForTimeout(1300);
+  for (let n = 0; n < 6; n++) {
+    await expect
+      .poll(async () => (await state(page)).scene.game.turnWait)
+      .toBe(0);
+    await expect
+      .poll(async () => (await state(page)).scene.game.cooldowns[n % 2])
+      .toBe(0);
+    expect((await state(page)).scene.game.rotation).toBe(n % 2 ? Math.PI : 0);
+    await page.keyboard.press(n % 2 ? "Enter" : "Space");
+    await expect
+      .poll(async () => (await state(page)).scene.game.scores[n % 2].length)
+      .toBe(Math.floor(n / 2) + 1);
+    if (n < 5)
+      await expect
+        .poll(async () => (await state(page)).scene.game.turn)
+        .toBe((n + 1) % 2);
   }
   await expect(
     page.getByRole("button", { name: "Rematch", exact: true }),
   ).toBeVisible();
   const s = (await state(page)).scene.game;
-  expect(s.scores.map((a: number[]) => a.length)).toEqual([3, 3]);
   expect(s.averages).toEqual(s.totals.map((n: number) => n / 3));
-  await cdp.detach();
   await open(page, "Hammer Hit", true);
+  await expect
+    .poll(async () => (await state(page)).scene.game.cooldowns[0])
+    .toBe(0);
+  await page.keyboard.press("Space");
+  await expect.poll(async () => (await state(page)).scene.game.turn).toBe(1);
+  await page.waitForTimeout(500);
+  expect((await state(page)).scene.game.scores[1]).toHaveLength(0);
   await expect
     .poll(async () => (await state(page)).scene.game.scores[1].length, {
       timeout: 8000,
     })
-    .toBe(3);
+    .toBe(1);
 });
 
-test("Light Fingers false starts, pause and a complete first-to-five match", async ({
+test("Light Fingers cooldowns, legal steals, pause and a complete match", async ({
   page,
 }) => {
+  test.setTimeout(60000);
   await open(page, "Light Fingers");
+  await tap(page, 210, 575);
+  await expect
+    .poll(async () => (await state(page)).scene.game.cooldowns[0])
+    .toBeGreaterThan(0);
+  expect((await state(page)).scene.game.scores).toEqual([0, 0]);
   for (let i = 0; i < 5; i++) {
     await expect
-      .poll(async () => (await state(page)).scene.game.phase)
-      .toBe("waiting");
-    await tap(page, 210, 185);
+      .poll(async () => (await state(page)).scene.game.phase, { timeout: 7000 })
+      .toBe("active");
+    await expect
+      .poll(async () => (await state(page)).scene.game.cooldowns[0])
+      .toBe(0);
+    await tap(page, 210, 575);
     await expect
       .poll(async () => (await state(page)).scene.game.scores[0])
       .toBe(i + 1);
@@ -166,13 +180,97 @@ test("Fruit Duel completes ten legal target matches and AI responds after matchi
     .toBe(1);
 });
 
-test('Math Quiz renders formulas, validates all mobile widths and completes a real ten-answer match',async({page})=>{
- test.setTimeout(60000);await page.goto('/?diagnostics');await page.getByRole('button',{name:'Play Math Quiz',exact:true}).click();await page.getByRole('button',{name:/University Challenge/}).click();await page.getByRole('button',{name:/Let’s play/}).click();await expect(page.locator('.quiz-overlay')).toBeVisible();await page.setViewportSize({width:320,height:568});await page.waitForTimeout(200);await page.evaluate(()=>document.fonts.ready);
- const bad=await page.evaluate(async()=>{const {renderMath}=await import('/src/games/math-quiz/MathUI.ts' as string);const {university}=await import('/src/games/math-quiz/questions/Bank.ts' as string);const host=document.createElement('div');host.style.cssText='position:absolute;width:338px;font-size:18px;left:0;top:0';document.body.append(host);const bad:string[]=[];for(const q of university){renderMath(q.questionLatex,host);const math=host.querySelector('.katex') as HTMLElement;if(math.offsetWidth>450)bad.push(q.id);}host.remove();return bad;});expect(bad).toEqual([]);
- await page.screenshot({path:'docs/math-quiz-mobile.png'});
- for(let i=0;i<10;i++){await expect.poll(async()=>(await state(page)).scene.game.phase).toBe('active');const q=(await state(page)).scene.game.question;await page.getByRole('button',{name:`Orange answer ${q.correctIndex+1}`,exact:true}).click();await expect.poll(async()=>(await state(page)).scene.game.scores[0]).toBe(i+1);}
- await expect(page.getByRole('button',{name:'Rematch',exact:true})).toBeVisible();await page.getByRole('button',{name:'Back to all games',exact:true}).click();expect(await page.locator('.quiz-overlay').count()).toBe(0);
- await open(page,'Math Quiz',true);await expect.poll(async()=>(await state(page)).scene.game.scores[1],{timeout:6000}).toBe(1);
+test("Math Quiz renders formulas, validates all mobile widths and completes a real ten-answer match", async ({
+  page,
+}) => {
+  test.setTimeout(60000);
+  await page.goto("/?diagnostics");
+  await page
+    .getByRole("button", { name: "Play Math Quiz", exact: true })
+    .click();
+  await page.getByRole("button", { name: /University Challenge/ }).click();
+  await page.getByRole("button", { name: /Let’s play/ }).click();
+  await expect(page.locator(".quiz-overlay")).toBeVisible();
+  await page.setViewportSize({ width: 320, height: 568 });
+  await page.waitForTimeout(200);
+  await page.evaluate(() => document.fonts.ready);
+  const bad = await page.evaluate(async () => {
+    const { renderMath } = await import(
+      "/src/games/math-quiz/MathUI.ts" as string
+    );
+    const { university } = await import(
+      "/src/games/math-quiz/questions/Bank.ts" as string
+    );
+    const host = document.createElement("div");
+    host.style.cssText =
+      "position:absolute;width:338px;font-size:18px;left:0;top:0";
+    document.body.append(host);
+    const bad: string[] = [];
+    for (const q of university) {
+      renderMath(q.questionLatex, host);
+      const math = host.querySelector(".katex") as HTMLElement;
+      if (math.offsetWidth > 450) bad.push(q.id);
+    }
+    host.remove();
+    return bad;
+  });
+  expect(bad).toEqual([]);
+  await page.screenshot({ path: "docs/math-quiz-mobile.png" });
+  for (let i = 0; i < 10; i++) {
+    await expect
+      .poll(async () => (await state(page)).scene.game.phase)
+      .toBe("active");
+    const q = (await state(page)).scene.game.question;
+    await page
+      .getByRole("button", {
+        name: `Orange answer ${q.correctIndex + 1}`,
+        exact: true,
+      })
+      .click();
+    await expect
+      .poll(async () => (await state(page)).scene.game.scores[0])
+      .toBe(i + 1);
+  }
+  await expect(
+    page.getByRole("button", { name: "Rematch", exact: true }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Back to all games", exact: true })
+    .click();
+  expect(await page.locator(".quiz-overlay").count()).toBe(0);
+  await open(page, "Math Quiz", true);
+  await expect
+    .poll(async () => (await state(page)).scene.game.scores[1], {
+      timeout: 6000,
+    })
+    .toBe(1);
 });
 
-test('Lumberjack real controls, seeded trees, three rounds and a result',async({page})=>{await open(page,'Lumberjack');for(let round=1;round<=3;round++){await expect.poll(async()=>(await state(page)).scene.game.round).toBe(round);await page.keyboard.press('KeyA');await expect.poll(async()=>(await state(page)).scene.game.players[0].score).toBe(1);if(round<3)await expect.poll(async()=>(await state(page)).scene.game.phase,{timeout:4000}).toBe('between');}await expect(page.getByRole('button',{name:'Rematch',exact:true})).toBeVisible();expect((await state(page)).scene.game.totals).toEqual([3,0]);await open(page,'Lumberjack',true);await expect.poll(async()=>(await state(page)).scene.game.players[1].score).toBeGreaterThan(2);});
+test("Lumberjack real controls, seeded trees, three rounds and a result", async ({
+  page,
+}) => {
+  await open(page, "Lumberjack");
+  for (let round = 1; round <= 3; round++) {
+    await expect
+      .poll(async () => (await state(page)).scene.game.round)
+      .toBe(round);
+    await page.keyboard.press("KeyA");
+    await expect
+      .poll(async () => (await state(page)).scene.game.players[0].score)
+      .toBe(1);
+    if (round < 3)
+      await expect
+        .poll(async () => (await state(page)).scene.game.phase, {
+          timeout: 4000,
+        })
+        .toBe("between");
+  }
+  await expect(
+    page.getByRole("button", { name: "Rematch", exact: true }),
+  ).toBeVisible();
+  expect((await state(page)).scene.game.totals).toEqual([3, 0]);
+  await open(page, "Lumberjack", true);
+  await expect
+    .poll(async () => (await state(page)).scene.game.players[1].score)
+    .toBeGreaterThan(2);
+});

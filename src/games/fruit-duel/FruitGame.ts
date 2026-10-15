@@ -1,3 +1,4 @@
+import { MatchRandom, mixSeed } from "../../shared/ai/MatchRandom";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { theme } from "../../core/ThemeManager";
@@ -29,6 +30,10 @@ export class FruitGame implements MiniGame {
     ];
     if (ctx.options.mode === "ai")
       this.ai = new FruitAI(ctx.options.difficulty);
+    if (this.ai)
+      this.m = new FruitMatch(
+        new MatchRandom(mixSeed(this.ai.personality.seed, 42)).next,
+      );
     ctx.input.tap((x, y) => {
       if (x > 24 && x < 396 && y > 112 && y < 650) this.tap(y < 380 ? 1 : 0);
     });
@@ -91,6 +96,7 @@ export class FruitGame implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai?.snapshot(),
       phase: this.m.phase,
       target: this.m.target,
       current: this.m.current,

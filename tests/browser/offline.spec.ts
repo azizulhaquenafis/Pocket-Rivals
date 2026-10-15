@@ -57,9 +57,16 @@ test("packaged build reloads and lazy-loads all seven games and AI workers witho
     await page.getByRole("button", { name: "Back to all games" }).click();
   }
   await page
+    .getByRole("button", { name: "Play Ultimate Golf", exact: true })
+    .click();
+  await page.waitForTimeout(500);
+  await expect(page.locator("canvas")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Back to all games" }).click();
+  await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  for (const name of ["Ultimate Golf", "Classic Snake", "Star Patrol"]) {
+  for (const name of ["Classic Snake", "Star Patrol"]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })
       .click();

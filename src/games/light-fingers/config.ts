@@ -5,7 +5,7 @@ export default {
   name: "Light Fingers",
   description: "Hold your nerve. Grab the gem.",
   instructions:
-    "Wait until the diamond appears, then tap your side. First response wins; an early tap gives your opponent a point. Simultaneous taps replay the round. First to five. Orange: Space. Blue: Enter.",
+    "Wait until the diamond appears, then tap your side. First response steals the gem. Early or unsuccessful grabs impose a short cooldown, never a score penalty. Simultaneous grabs leave the gem available after both cooldowns. First to five. Orange: Space. Blue: Enter.",
   color: "#d4e7d8",
   accent: "#9dbbaa",
   preview,

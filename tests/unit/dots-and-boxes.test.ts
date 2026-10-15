@@ -71,4 +71,40 @@ describe("Dots and Boxes", () => {
       ]);
     }
   });
+  it("supports 4x4, 5x5, and 6x6 board sizes with exact geometry and AI compatibility", () => {
+    for (const size of [4, 5, 6] as const) {
+      const b = new DotsBoard(size);
+      const expectedBoxes = size * size;
+      const expectedEdges = 2 * (size + 1) * size;
+      expect(b.totalBoxes).toBe(expectedBoxes);
+      expect(b.totalEdges).toBe(expectedEdges);
+      expect(b.edges.length).toBe(expectedEdges);
+      expect(b.owners.length).toBe(expectedBoxes);
+
+      // Verify touch target mapping for every edge on this board size
+      for (let i = 0; i < expectedEdges; i++) {
+        const p = edgeEnds(i, size);
+        expect(pickEdge((p.x + p.x2) / 2, (p.y + p.y2) / 2, size)).toBe(i);
+      }
+
+      // Play edges until the game finishes
+      for (let e = 0; e < expectedEdges; e++) b.play(e);
+      expect(b.scores[0] + b.scores[1]).toBe(expectedBoxes);
+      expect(b.owners.every(Boolean)).toBe(true);
+      expect(b.winner).not.toBeNull();
+
+      // Serialization and restore preserve size
+      const restored = DotsBoard.restore(b.save());
+      expect(restored.size).toBe(size);
+      expect(restored.totalBoxes).toBe(expectedBoxes);
+      expect(restored.totalEdges).toBe(expectedEdges);
+      expect(restored).toEqual(b);
+
+      // AI plays legal moves on new board sizes
+      const fresh = new DotsBoard(size);
+      fresh.play(0);
+      const move = chooseEdge(fresh, "medium");
+      expect(fresh.legal()).toContain(move.edge);
+    }
+  });
 });

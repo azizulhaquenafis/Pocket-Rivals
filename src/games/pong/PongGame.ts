@@ -1,3 +1,4 @@
+import { restoredAISeed } from "../../shared/ai/MatchRandom";
 import { savePong, restorePong } from "./PongState";
 import { MatchClock } from "../../shared/rules/MatchClock";
 import { PongAI } from "./PongAI";
@@ -8,7 +9,7 @@ import type {
   Player,
 } from "../../shared/contracts/GameModule";
 import { theme, FIELD } from "../../core/ThemeManager";
-import { FixedStep } from "../../shared/physics/FixedStep";
+import { FixedStep, clamp } from "../../shared/physics/FixedStep";
 import { circle, rounded, label } from "../../shared/components/drawing";
 import { Impacts } from "../../shared/effects/Impacts";
 import { PongWorld } from "./PongPhysics";
@@ -24,13 +25,19 @@ export class PingPong implements MiniGame {
   private sinceSave = 0;
   private paused = false;
   private ai?: PongAI;
+  private keys = new Set<string>();
   private trail = Array.from({ length: 8 }, () => ({ x: 210, y: 381 }));
   private trailAt = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
-    if (ctx.options.mode === "ai") this.ai = new PongAI(ctx.options.difficulty);
+    if (ctx.options.mode === "ai")
+      this.ai = new PongAI(
+        ctx.options.difficulty,
+        restoredAISeed(ctx.restoredState),
+      );
     ctx.input.dragHalves();
-    ctx.setHint("DRAG YOUR HALF · FIRST TO 5");
+    this.keys = ctx.input.keys(["KeyA", "KeyD", "ArrowLeft", "ArrowRight"]);
+    ctx.setHint("");
     this.bg = ctx.scene.add.graphics();
     const g = this.bg;
     rounded(g, 24, 112, 372, 538, 17, theme.green, 4);
@@ -80,24 +87,44 @@ export class PingPong implements MiniGame {
     }
     this.clock.advance(dt, (step) => {
       w.step(step, [
-        this.ctx.input.players[0].down
-          ? this.ctx.input.players[0].x
-          : w.paddles[0].x,
-        this.ai
-          ? this.ai.update(step, w)
-          : this.ctx.input.players[1].down
-            ? this.ctx.input.players[1].x
-            : w.paddles[1].x,
+        this.paddleTarget(0, step),
+        this.ai ? this.ai.update(step, w) : this.paddleTarget(1, step),
       ]);
-      const t = this.trail[this.trailAt++ % 8];
-      t.x = w.ball.x;
-      t.y = w.ball.y;
     });
     this.sinceSave += dt;
     if (this.sinceSave >= 1) {
       this.sinceSave = 0;
       this.save();
     }
+    const rem = w.cooldown <= 0 && !w.done ? this.clock.remainder : 0;
+    const renderBallX = clamp(
+      w.ball.x + w.ball.vx * rem,
+      FIELD.left + w.ball.r,
+      FIELD.right - w.ball.r,
+    );
+    const renderBallY = clamp(
+      w.ball.y + w.ball.vy * rem,
+      FIELD.top - w.ball.r * 2,
+      FIELD.bottom + w.ball.r * 2,
+    );
+    if (w.cooldown <= 0 && !w.done) {
+      const t = this.trail[this.trailAt++ % 8];
+      t.x = renderBallX;
+      t.y = renderBallY;
+    }
+    const renderPaddles = w.paddles.map((p, i) => {
+      if (w.done) return p.x;
+      const target =
+        i === 0
+          ? this.paddleTarget(0, rem)
+          : this.ai
+            ? w.paddles[1].x
+            : this.paddleTarget(1, rem);
+      let rx = p.x + p.vx * rem;
+      if (p.vx > 0 && rx > target) rx = Math.max(p.x, target);
+      if (p.vx < 0 && rx < target) rx = Math.min(p.x, target);
+      return clamp(rx, FIELD.left + 44, FIELD.right - 44);
+    });
     const g = this.graphics;
     g.clear();
     if (w.cooldown <= 0)
@@ -110,16 +137,11 @@ export class PingPong implements MiniGame {
         );
       }
     w.paddles.forEach((p, i) => {
-      g.fillStyle(theme.ink, 0.15).fillRoundedRect(
-        p.x - 44,
-        p.y - 3,
-        88,
-        14,
-        7,
-      );
+      const px = renderPaddles[i];
+      g.fillStyle(theme.ink, 0.15).fillRoundedRect(px - 44, p.y - 3, 88, 14, 7);
       rounded(
         g,
-        p.x - 44,
+        px - 44,
         p.y - 7,
         88,
         14,
@@ -128,21 +150,45 @@ export class PingPong implements MiniGame {
         3,
       );
       g.lineStyle(2, theme.white, 0.7).lineBetween(
-        p.x - 28,
+        px - 28,
         p.y - 3,
-        p.x + 28,
+        px + 28,
         p.y - 3,
       );
     });
-    circle(g, w.ball.x, w.ball.y, 9, theme.white, 3);
+    circle(g, renderBallX, renderBallY, 9, theme.white, 3);
     this.effects.draw(g, dt);
     this.status
       .setText(w.cooldown > 0.5 ? "READY?" : w.cooldown > 0 ? "GO!" : "")
       .setAlpha(w.cooldown > 0 ? 1 : 0);
   }
+  private paddleTarget(player: 0 | 1, step: number) {
+    const pointer = this.ctx.input.players[player];
+    if (pointer.down) return pointer.x;
+    const arrows = player === 1 || !!this.ai;
+    const left =
+      (player === 0 && this.keys.has("KeyA")) ||
+      (arrows && this.keys.has("ArrowLeft"));
+    const right =
+      (player === 0 && this.keys.has("KeyD")) ||
+      (arrows && this.keys.has("ArrowRight"));
+    // Keep the opening feel, then scale with rally speed up to the physics limit.
+    const ball = this.world.ball;
+    const speed = Math.min(
+      1800,
+      480 * Math.max(1, Math.hypot(ball.vx, ball.vy) / Math.hypot(110, 340)),
+    );
+    return (
+      this.world.paddles[player].x +
+      (Number(right) - Number(left)) * speed * step
+    );
+  }
   private save() {
     if (!this.world.done)
-      this.ctx.saveState(savePong(this.world, this.matchClock));
+      this.ctx.saveState({
+        ...savePong(this.world, this.matchClock),
+        ai: this.ai?.snapshot(),
+      });
   }
   pause() {
     this.save();
@@ -160,6 +206,7 @@ export class PingPong implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai?.snapshot(),
       ball: { ...this.world.ball },
       paddles: this.world.paddles.map((p) => ({ ...p })),
       timer: {

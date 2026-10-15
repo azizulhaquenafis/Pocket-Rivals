@@ -1,8 +1,10 @@
+import { MatchRandom, replayMode } from "../../../../shared/ai/MatchRandom";
 import { WorkerTask } from "../../../../shared/utilities/WorkerTask";
 import type { Difficulty } from "../../../../shared/contracts/AIController";
 import type { GolfPhysics } from "../GolfPhysics";
 import type { PlanInput, ShotPlan } from "./ShotPlanner";
 export class GolfAI {
+  readonly personality: MatchRandom;
   private task: WorkerTask<PlanInput, ShotPlan>;
   private busy = false;
   private generation = 0;
@@ -11,10 +13,13 @@ export class GolfAI {
   private time = 0;
   private waypoint = 0;
   private origin = { x: 0, y: 0 };
+  accelerated = false;
   constructor(
     readonly difficulty: Difficulty,
     report: (ms: number) => void,
+    seed?: number,
   ) {
+    this.personality = new MatchRandom(seed);
     this.task = new WorkerTask(
       () =>
         new Worker(new URL("./planner.worker.ts", import.meta.url), {
@@ -41,8 +46,13 @@ export class GolfAI {
       return;
     }
     if (this.busy || this.plan || this.time < this.deadline) return;
-    const delay = { medium: 1.1, hard: 0.8, impossible: 0.65 }[this.difficulty],
-      token = this.generation;
+    const baseDelay =
+      { medium: 2.2, hard: 1.6, impossible: 1.2 }[this.difficulty] *
+      (0.9 + this.personality.tempo * 0.1);
+    const delay = this.accelerated
+      ? 0.25
+      : this.personality.sample(baseDelay, 0.15, 0.9);
+    const token = this.generation;
     this.busy = true;
     this.origin = { ...world.ball };
     this.deadline = this.time + delay;
@@ -52,6 +62,8 @@ export class GolfAI {
         difficulty: this.difficulty,
         waypoint: this.waypoint,
         delay,
+        seed: this.personality.seed,
+        replay: replayMode(),
       })
       .then((plan) => {
         if (token !== this.generation) return;
@@ -78,6 +90,7 @@ export class GolfAI {
   }
   snapshot() {
     return {
+      ...this.personality.snapshot(),
       thinking: this.busy,
       waypoint: this.waypoint,
       pending: !!this.plan,

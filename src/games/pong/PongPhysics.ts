@@ -18,7 +18,10 @@ export class PongWorld {
   step(dt: number, targets: [number, number]) {
     this.paddles.forEach((p, i) => {
       const old = p.x;
-      p.x += clamp(targets[i] - p.x, -1800 * dt, 1800 * dt);
+      const delta = targets[i] - p.x;
+      const motion =
+        Math.abs(delta) < 0.25 ? 0 : clamp(delta, -1800 * dt, 1800 * dt);
+      p.x += motion;
       p.x = clamp(p.x, FIELD.left + 44, FIELD.right - 44);
       p.vx = (p.x - old) / dt;
     });

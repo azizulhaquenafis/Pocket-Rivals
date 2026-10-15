@@ -83,3 +83,12 @@ npm run android:release # Requires local signing environment variables
 ```
 
 `test:bundle` discovers the expected folders automatically, verifies their lazy chunks and enforces an application-shell size budget. Review the report when adding games; no module-count expectation or application core change is needed. Android signing/build prerequisites are in `docs/ANDROID_RELEASE.md`.
+
+## Additional reference modules
+
+- `chicken-jump`: small fixed-step timing game, seeded AI and geometric landings.
+- `archery-duel`: debounced multi-step input and delayed, idempotent impact scoring.
+- `spike-attacks`: swept collisions, bounded per-wave path planning and independent arenas.
+- `car-duel`: custom rigid-body approximation and explicitly disposed multi-pointer controls.
+
+Declare timeout/tie rules in metadata. Test terminal guards, identical local conditions, input cancellation, pause/resume and actual scoring paths. Use a unique new test filename; preserve existing regression tests. Do not claim checkpoint support unless a module validates and restores its own state.

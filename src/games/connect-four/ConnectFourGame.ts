@@ -1,3 +1,9 @@
+import { turnBackground } from "../../shared/components/TurnView";
+import {
+  MatchRandom,
+  restoredAISeed,
+  replayMode,
+} from "../../shared/ai/MatchRandom";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { theme } from "../../core/ThemeManager";
@@ -12,9 +18,15 @@ export class ConnectFourGame implements MiniGame {
   private heading!: Phaser.GameObjects.Text;
   private hint!: Phaser.GameObjects.Text;
   private ai?: WorkerTask<
-    { state: unknown; difficulty: GameContext["options"]["difficulty"] },
+    {
+      state: unknown;
+      difficulty: GameContext["options"]["difficulty"];
+      seed: number;
+      replay: boolean;
+    },
     SearchResult
   >;
+  private personality!: MatchRandom;
   private pending = false;
   private paused = false;
   private disposed = false;
@@ -25,11 +37,12 @@ export class ConnectFourGame implements MiniGame {
   private reported = false;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
+    this.personality = new MatchRandom(restoredAISeed(ctx.restoredState));
     this.board = ConnectFourBoard.restore(ctx.restoredState);
     this.g = ctx.scene.add.graphics();
-    this.heading = label(ctx.scene, 210, 155, "", 22);
-    this.hint = label(ctx.scene, 210, 596, "TAP A COLUMN · CONNECT FOUR", 12);
-    ctx.setHint("FOUR IN A ROW. ONE LITTLE VICTORY.");
+    this.heading = label(ctx.scene, 210, 155, "", 12);
+    this.hint = label(ctx.scene, 210, 596, "", 12);
+    ctx.setHint("");
     ctx.setScore(0, 0);
     if (ctx.options.mode === "ai")
       this.ai = new WorkerTask(
@@ -60,7 +73,10 @@ export class ConnectFourGame implements MiniGame {
     this.last = at;
     this.age = 0;
     this.thinking = 0;
-    this.ctx.saveState(this.board.save());
+    this.ctx.saveState({
+      ...this.board.save(),
+      ai: this.personality.snapshot(),
+    });
     this.ctx.audio.play("tap");
   }
   update(dt: number) {
@@ -74,13 +90,15 @@ export class ConnectFourGame implements MiniGame {
       this.age > 0.32
     ) {
       this.thinking += dt;
-      if (this.thinking > 0.2) {
+      if (this.thinking > 0.75) {
         this.pending = true;
         const generation = this.generation;
         void this.ai
           .run({
             state: this.board.save(),
             difficulty: this.ctx.options.difficulty,
+            seed: this.personality.seed,
+            replay: replayMode(),
           })
           .then((result) => {
             if (this.disposed || generation !== this.generation) return;
@@ -96,14 +114,14 @@ export class ConnectFourGame implements MiniGame {
           ? "A PERFECT STANDOFF."
           : "FOUR OF A KIND!"
         : this.board.turn === 1
-          ? "ORANGE’S TURN"
+          ? ""
           : this.ai
-            ? "BLUE IS THINKING…"
-            : "BLUE’S TURN",
+            ? "…"
+            : "",
     );
     const g = this.g;
     g.clear();
-    rounded(g, 24, 112, 372, 538, 20, theme.ice, 4);
+    rounded(g, 24, 112, 372, 538, 20, turnBackground(this.board.turn), 4);
     rounded(g, 28, 210, 364, 332, 18, 0x82b4c3, 4);
     for (let i = 0; i < 42; i++) {
       const x = 60 + (i % 7) * 50,
@@ -157,6 +175,7 @@ export class ConnectFourGame implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai ? this.personality.snapshot() : undefined,
       cells: [...this.board.cells],
       turn: this.board.turn,
       winner: this.board.winner,

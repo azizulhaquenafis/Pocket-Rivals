@@ -1,21 +1,9 @@
-# Active development
+# Development status — 15 October 2026
 
-Work order: Ultimate Golf refinement/competition, then the 13-game expansion one game at a time. Specification: `specifications/13-games.md`. No deployment/push.
+The original AI refinement pass is complete. See AI_REFINEMENT.md for profiles, replay, audit data and limits. Math Quiz remains owned by Antigravity; no Math Quiz source was edited in this pass.
 
-## Golf refinement
+Formal review of Antigravity’s Water Guess and Perfect Timer found and repaired pause-time inflation, duplicate round resolution, invalid numeric input, numeric-keypad decimal handling, fixed timer-target order and artificial minimum AI errors. See ANTIGRAVITY_REVIEW.md.
 
-Implemented responsive compact HUD/footer, smooth uniform focus camera, safe portal exit, configurable recurring UFO, separate casual/hot-seat/AI controllers, seeded competitions and real bounded worker shot planning. Casual records preserved. All four legal completion fixtures pass; optional Impossible AI audit also completed all four with seed 123. Production build, 148 unit tests, 25 browser tests, module-discovery check, bundle check and Android sync passed. Physical Android/Safari and exhaustive seed testing remain unverified. See ULTIMATE_GOLF.md.
+All thirteen games in specifications/13-games.md are now present. The final seven are Chicken Jump, Archery Duel, Gravity Runner, Happy Birds, Spike Attacks, Flappy Jump and Car Duel. Each has isolated rules, AI, vector preview, input, lifecycle, targeted unit checks and browser coverage. No changes to registry/menu/tournament routing were necessary. See EXPANSION_COMPLETION.md for evidence and limits.
 
-## Expansion queue
-
-Foundation: procedural effects expanded, capped voices, persistent effects volume, unused music control removed. Unit/browser checks pass.
-
-Completed sequentially with builds and targeted unit/browser checks: Dots and Boxes, Hammer Hit, Light Fingers, Fruit Duel.
-
-Current: Math Quiz (implemented, validation/browser checks underway; 100-question SymPy-verified bank). Then Lumberjack → Chicken Jump → Archery Duel → Gravity Runner → Happy Birds → Spike Attacks → Flappy Jump → Car Duel.
-
-Finish/test/build each game before starting the next. Finally audit existing audio, full integration/performance checks and documentation. The referenced 23-page PDF is not supplied; written rules provide explicit defaults. Google Play reference inspected; original vector art only.
-
-## Environment
-
-Web/installed Chrome testing available. Android sync available; Java runtime/SDK unavailable for APK build. No physical Android tests. Unrelated grading workspace files must remain untouched.
+Final integration checks: 238 unit tests and 37 browser scenarios passed. Production build, bundle budget and automatic discovery passed. Cleaner fields use color-based turns; local Water/Hammer rotate with accurate input and AI preparation delays. Short runtime diagnostics are recorded in expansion-performance.json. No push/deploy. Android packaging remains supported, but Java/SDK/device testing is unavailable. The referenced 23-page PDF was never supplied; implementation follows the written rules with explicit balancing defaults.

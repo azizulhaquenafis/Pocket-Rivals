@@ -1,0 +1,2 @@
+# Spike Attacks
+Two independent copies of four immutable circular stones and the same seeded warning/wave. Swept segment-circle earliest contacts ensure a stone shields a player only when it is in front. 150-unit movement, fixed 120Hz steps, collision projection; 2.6-second warning allows legal travel between cover. AI chooses cover and corner detours. First to five rounds; same-step deaths replay, 240-second score cap. Input targets never teleport. No global resources.

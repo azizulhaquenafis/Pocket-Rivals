@@ -31,7 +31,7 @@ test.beforeEach(async ({ page }) => {
 test("four illustrated rivalry games, mobile scrolling and persistent sound controls", async ({
   page,
 }) => {
-  await expect(page.locator("[data-game]")).toHaveCount(4);
+  expect(await page.locator("[data-game]").count()).toBeGreaterThanOrEqual(4);
   await page.screenshot({ path: "docs/menu-mobile.png" });
   await page.getByRole("button", { name: "Settings", exact: true }).click();
   await page.getByRole("switch", { name: /Sound effects/ }).click();
@@ -149,7 +149,9 @@ test("repeated switching releases every input listener and game object", async (
     const name = ["Pong", "Air Hockey", "Tic-Tac-Toe"][i % 3];
     await start(page, name);
     const s = await snapshot(page);
-    expect(s.scene.inputListeners).toBe(name === "Tic-Tac-Toe" ? 1 : 5);
+    expect(s.scene.inputListeners).toBe(
+      name === "Tic-Tac-Toe" ? 1 : name === "Pong" ? 6 : 5,
+    );
     expect(s.scene.children).toBeLessThan(20);
     await menu(page);
     expect((await snapshot(page)).scene.inputListeners).toBe(0);

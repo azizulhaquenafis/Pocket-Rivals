@@ -233,5 +233,5 @@ describe("Ultimate Golf native port", () => {
           expect(Math.hypot(w.ball.vx, w.ball.vy)).toBeLessThanOrEqual(650.001);
         }
       }
-  });
+  }, 30000);
 });

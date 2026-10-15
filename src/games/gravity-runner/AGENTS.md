@@ -1,0 +1,2 @@
+# Gravity Runner
+Shared seeded floor/ceiling gaps, independent 900-unit gravity and 160ms flip cooldown. 120Hz integration, no jump teleports. Minimum 245-unit solid separation exceeds the maximum-speed floor/ceiling transit requirement. Same-step deaths replay; first to five, 100-second round replay and five-minute match cap prevent endless matches. AI reads upcoming visible geometry. Renderer depicts missing surfaces pink; keep hit boundaries aligned.

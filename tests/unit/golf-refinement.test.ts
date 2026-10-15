@@ -118,11 +118,13 @@ describe("Golf refinement", () => {
     expect(m.phase).toBe("complete");
     expect(m.winner).toBe("draw");
   });
-  it("compares completion, elapsed time, strokes and simultaneous finishes explicitly", () => {
+  it("compares completion, strokes, elapsed time and simultaneous finishes explicitly", () => {
     const a = { time: 25, strokes: 4, completed: true };
-    expect(winner(a, { ...a, time: 26, strokes: 2 })).toBe(1);
+    expect(winner(a, { ...a, time: 26, strokes: 2 })).toBe(2);
+    expect(winner(a, { ...a, time: 26, strokes: 5 })).toBe(1);
     expect(winner(a, { ...a, time: 25.05, strokes: 3 })).toBe(2);
-    expect(winner(a, { ...a, time: 25.05 })).toBe("draw");
+    expect(winner(a, { ...a, time: 26, strokes: 4 })).toBe(1);
+    expect(winner(a, { ...a, time: 25.05, strokes: 4 })).toBe("draw");
     expect(winner(a, { ...a, completed: false })).toBe(1);
     expect(winner({ ...a, completed: false }, { ...a, completed: false })).toBe(
       "draw",

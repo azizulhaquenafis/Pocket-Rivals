@@ -1,15 +1,16 @@
 import { it, expect } from "vitest";
 import { LightMatch } from "../../src/games/light-fingers/Rules";
 import { LightAI } from "../../src/games/light-fingers/AI";
-it("Light Fingers penalizes early taps once and rejects multi-tap exploits", () => {
+it("Light Fingers applies cooldown without changing scores for early taps and rejects multi-tap exploits", () => {
   const m = new LightMatch(() => 0);
   m.tap(0);
   m.tap(0);
   m.update(0.016);
-  expect(m.scores).toEqual([0, 1]);
-  m.tap(0);
+  expect(m.scores).toEqual([0, 0]);
+  expect(m.canTap(0)).toBe(false);
+  expect(m.tap(0)).toBe(false);
   m.update(0.1);
-  expect(m.scores).toEqual([0, 1]);
+  expect(m.scores).toEqual([0, 0]);
 });
 it("Light Fingers cannot accept a claim until the shared signal is presented", () => {
   const m = new LightMatch(() => 0);
@@ -23,16 +24,27 @@ it("Light Fingers cannot accept a claim until the shared signal is presented", (
   m.update(0.016);
   expect(m.scores).toEqual([1, 0]);
 });
-it("Light Fingers resolves simultaneous taps as a replay and ends at five", () => {
+it("simultaneous grabs cooldown both players and legal steals end at five", () => {
   const m = new LightMatch(() => 0);
+  m.update(1.5);
+  m.presentSignal();
   m.tap(0);
   m.tap(1);
   m.update(0.02);
   expect(m.scores).toEqual([0, 0]);
+  expect(m.phase).toBe("active");
+  expect(m.canTap(0)).toBe(false);
+  m.update(1.3);
   for (let i = 0; i < 5; i++) {
-    m.update(1.2);
-    m.tap(1);
+    m.presentSignal();
+    expect(m.tap(0)).toBe(true);
     m.update(0.02);
+    expect(m.capturedBy).toBe(0);
+    expect(m.tap(1)).toBe(false);
+    if (i < 4) {
+      m.update(1.2);
+      m.update(1.6);
+    }
   }
   expect(m.winner).toBe(1);
   m.tap(1);

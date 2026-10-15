@@ -7,7 +7,6 @@ async function center(p: Page) {
 }
 async function open(p: Page) {
   await p.goto("/?diagnostics");
-  await p.getByRole("button", { name: "1 Player Arcade", exact: true }).click();
   await p
     .getByRole("button", { name: "Play Ultimate Golf", exact: true })
     .click();
@@ -254,11 +253,8 @@ test("a complete Temple run uses real touch shots, banks its score and persists 
     page.getByRole("button", { name: "Play again →" }),
   ).toBeVisible();
   expect((await state(page)).saved.rounds).toBe(0);
-  await page.getByRole("button", { name: "Back to Arcade" }).click();
+  await page.getByRole("button", { name: "Back to all games" }).click();
   await page.reload();
-  await page
-    .getByRole("button", { name: "1 Player Arcade", exact: true })
-    .click();
   await page
     .getByRole("button", { name: "Play Ultimate Golf", exact: true })
     .click();

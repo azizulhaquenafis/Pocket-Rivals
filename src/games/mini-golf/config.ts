@@ -11,7 +11,7 @@ export default {
   preview,
   order: 5,
   tag: "A LITTLE ADVENTURE",
-  category: "arcade",
+  category: "duel",
   tournament: false,
   presentation: "custom",
   responsive: true,

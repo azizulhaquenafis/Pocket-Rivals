@@ -1,0 +1,2 @@
+# Happy Birds
+Independent birds, same seeded gates; 120Hz gravity (650) and flap impulse (-195), 140ms cooldown. Gates change center by at most 15 units, 260-unit spacing, 100-unit clear gap. Exact visible bounds define collisions. Same-step deaths replay; first to three rounds, five-minute cap. AI predicts altitude and uses legal flap actions at seeded reaction intervals. Resources/listeners belong to the host scene.

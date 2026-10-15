@@ -1,4 +1,6 @@
-import { classicMove } from "./ClassicAI";
+import { turnBackground } from "../../../shared/components/TurnView";
+import { restoredAISeed } from "../../../shared/ai/MatchRandom";
+import { ClassicAI } from "./ClassicAI";
 import Phaser from "phaser";
 import type {
   GameContext,
@@ -9,6 +11,7 @@ import { rounded, symbol, label } from "../../../shared/components/drawing";
 import { TicTacToeBoard } from "./ClassicRules";
 export class TicTacToe implements MiniGame {
   private ctx!: GameContext;
+  private ai?: ClassicAI;
   private board = new TicTacToeBoard();
   private graphics!: Phaser.GameObjects.Graphics;
   private bg!: Phaser.GameObjects.Graphics;
@@ -22,19 +25,16 @@ export class TicTacToe implements MiniGame {
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.board = TicTacToeBoard.restore(ctx.restoredState);
+    if (ctx.options.mode === "ai")
+      this.ai = new ClassicAI(
+        ctx.options.difficulty,
+        restoredAISeed(ctx.restoredState),
+      );
     this.ages = this.board.cells.map((p) => (p ? 1 : 0));
     ctx.setScore(0, 0);
-    ctx.setHint("TAKE TURNS · THREE IN A ROW");
+    ctx.setHint("");
     this.bg = ctx.scene.add.graphics();
-    rounded(this.bg, 24, 112, 372, 538, 20, theme.peach, 4);
-    rounded(this.bg, 48, 219, 324, 324, 18, theme.white, 3);
-    this.bg
-      .lineStyle(4, theme.ink)
-      .lineBetween(156, 234, 156, 528)
-      .lineBetween(264, 234, 264, 528)
-      .lineBetween(63, 327, 357, 327)
-      .lineBetween(63, 435, 357, 435);
-    this.turn = label(ctx.scene, 210, 172, "ORANGE’S TURN  ×", 23);
+    this.turn = label(ctx.scene, 210, 172, "", 12);
     this.graphics = ctx.scene.add.graphics();
     ctx.input.tap((x, y) => {
       if (
@@ -56,20 +56,29 @@ export class TicTacToe implements MiniGame {
     this.ages[cell] = 0.001;
     this.thinkFor = 0;
     this.ctx.audio.play("tap");
-    this.ctx.saveState(this.board.save());
+    this.ctx.saveState({ ...this.board.save(), ai: this.ai?.snapshot() });
     this.refreshTurn();
   }
   private refreshTurn() {
+    this.bg.clear();
+    rounded(this.bg, 24, 112, 372, 538, 20, turnBackground(this.board.turn), 4);
+    rounded(this.bg, 48, 219, 324, 324, 18, theme.white, 3);
+    this.bg
+      .lineStyle(4, theme.ink)
+      .lineBetween(156, 234, 156, 528)
+      .lineBetween(264, 234, 264, 528)
+      .lineBetween(63, 327, 357, 327)
+      .lineBetween(63, 435, 357, 435);
     this.turn.setText(
       this.board.winner
         ? this.board.winner === "draw"
           ? "A PERFECT STANDOFF."
           : "THREE’S A CHARM!"
         : this.board.turn === 1
-          ? "ORANGE’S TURN  ×"
+          ? ""
           : this.ctx.options.mode === "ai"
-            ? "BLUE IS THINKING…"
-            : "BLUE’S TURN  ○",
+            ? "…"
+            : "",
     );
   }
   update(dt: number) {
@@ -82,8 +91,8 @@ export class TicTacToe implements MiniGame {
       this.board.turn === 2
     ) {
       this.thinkFor += dt;
-      if (this.thinkFor > 0.38)
-        this.place(classicMove(this.board, this.ctx.options.difficulty));
+      if (this.thinkFor > Math.max(0.75, this.ai!.delay))
+        this.place(this.ai!.choose(this.board));
     }
     const g = this.graphics;
     g.clear();
@@ -142,6 +151,7 @@ export class TicTacToe implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai?.snapshot(),
       cells: [...this.board.cells],
       turn: this.board.turn,
       winner: this.board.winner,

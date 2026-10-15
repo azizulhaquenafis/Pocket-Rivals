@@ -1,3 +1,5 @@
+import { turnBackground } from "../../../shared/components/TurnView";
+import { restoredAISeed } from "../../../shared/ai/MatchRandom";
 import Phaser from "phaser";
 import type {
   GameContext,
@@ -34,12 +36,16 @@ export class UltimateGame implements MiniGame {
     this.board = UltimateBoard.restore(ctx.restoredState);
     this.ages = this.board.cells.map((c) => (c ? 1 : 0));
     if (ctx.options.mode === "ai")
-      this.ai = new UltimateAI(ctx.options.difficulty, ctx.reportAI);
+      this.ai = new UltimateAI(
+        ctx.options.difficulty,
+        ctx.reportAI,
+        restoredAISeed(ctx.restoredState),
+      );
     ctx.setScore(0, 0);
-    ctx.setHint("WIN THREE SMALL BOARDS IN A ROW");
+    ctx.setHint("");
     this.bg = ctx.scene.add.graphics();
     rounded(this.bg, 24, 112, 372, 538, 20, theme.peach, 4);
-    this.turn = label(ctx.scene, 210, 161, "", 18);
+    this.turn = label(ctx.scene, 210, 161, "", 12);
     this.route = label(ctx.scene, 210, 188, "", 11);
     this.g = ctx.scene.add.graphics();
     this.focusLabel = label(ctx.scene, 210, 610, "", 13);
@@ -90,7 +96,7 @@ export class UltimateGame implements MiniGame {
     this.ages[move] = 0.001;
     this.thinking = 0;
     this.ctx.audio.play("tap");
-    this.ctx.saveState(this.board.save());
+    this.ctx.saveState({ ...this.board.save(), ai: this.ai?.snapshot() });
     if (this.board.forced === null) this.focused = false;
   }
   update(dt: number) {
@@ -105,7 +111,7 @@ export class UltimateGame implements MiniGame {
       !this.pending
     ) {
       this.thinking += dt;
-      if (this.thinking > 0.32) {
+      if (this.thinking > 0.75) {
         this.pending = true;
         const generation = this.generation;
         void this.ai.choose(this.board).then((move) => {
@@ -115,29 +121,31 @@ export class UltimateGame implements MiniGame {
         });
       }
     }
+    this.bg.clear();
+    rounded(this.bg, 24, 112, 372, 538, 20, turnBackground(this.board.turn), 4);
     this.turn.setText(
       this.board.winner
         ? this.board.winner === "draw"
           ? "A GRAND STANDOFF."
           : "THE BIG PICTURE."
         : this.board.turn === 1
-          ? "ORANGE’S TURN  ×"
+          ? ""
           : this.ai
-            ? "BLUE IS THINKING…"
-            : "BLUE’S TURN  ○",
+            ? "…"
+            : "",
     );
     this.route.setText(
       this.board.winner
         ? ""
         : this.board.forced === null
-          ? "YOUR CHOICE · ANY OPEN BOARD"
-          : `PLAY THE HIGHLIGHTED BOARD · ${this.board.forced + 1}`,
+          ? "Any open board"
+          : "",
     );
     this.focusLabel.setText(
       this.board.winner
         ? ""
         : this.board.forced === null
-          ? "YOUR MOVE SETS THEIR NEXT BOARD"
+          ? ""
           : this.focused
             ? "↗  SHOW ALL BOARDS"
             : "⊕  FOCUS BOARD",
@@ -292,6 +300,7 @@ export class UltimateGame implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai?.snapshot(),
       cells: [...this.board.cells],
       boards: [...this.board.boards],
       turn: this.board.turn,

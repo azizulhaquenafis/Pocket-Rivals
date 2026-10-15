@@ -1,0 +1,2 @@
+# Flappy Jump
+A running jumper releases one ball at the jump apex. Shared 750-unit gravity, circular rim contacts, backboard reflection and swept downward hoop-plane crossing; each ball can score once. Data-driven seeded hoop positions stay reachable. AI estimates the same ballistic arc and calls jump, never awards points. 120Hz stepping, bounded ball lifetime. First ten baskets; four-minute cap. No supplied PDF, so exact running speed and court dimensions are documented implementation choices.

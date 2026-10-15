@@ -1,3 +1,4 @@
+import { restoredAISeed } from "../../shared/ai/MatchRandom";
 import { saveHockey, restoreHockey } from "./HockeyState";
 import { PossessionClock } from "./PossessionClock";
 import { MatchClock } from "../../shared/rules/MatchClock";
@@ -12,7 +13,7 @@ import { theme, FIELD } from "../../core/ThemeManager";
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { circle, rounded, label } from "../../shared/components/drawing";
 import { Impacts } from "../../shared/effects/Impacts";
-import { HockeyWorld } from "./AirHockeyPhysics";
+import { HockeyWorld, type Vec } from "./AirHockeyPhysics";
 export class AirHockey implements MiniGame {
   private ctx!: GameContext;
   private world!: HockeyWorld;
@@ -28,12 +29,26 @@ export class AirHockey implements MiniGame {
   private sinceSave = 0;
   private paused = false;
   private ai?: AirHockeyAI;
+  private keys = new Set<string>();
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     if (ctx.options.mode === "ai")
-      this.ai = new AirHockeyAI(ctx.options.difficulty);
+      this.ai = new AirHockeyAI(
+        ctx.options.difficulty,
+        restoredAISeed(ctx.restoredState),
+      );
     ctx.input.dragHalves();
-    ctx.setHint("DRAG YOUR MALLET · FIRST TO 5");
+    this.keys = ctx.input.keys([
+      "KeyW",
+      "KeyA",
+      "KeyS",
+      "KeyD",
+      "ArrowUp",
+      "ArrowDown",
+      "ArrowLeft",
+      "ArrowRight",
+    ]);
+    ctx.setHint("");
     this.bg = ctx.scene.add.graphics();
     const g = this.bg;
     rounded(g, 24, 112, 372, 538, 44, theme.ice, 4);
@@ -89,14 +104,8 @@ export class AirHockey implements MiniGame {
     }
     this.clock.advance(dt, (step) => {
       w.step(step, [
-        this.ctx.input.players[0].down
-          ? this.ctx.input.players[0]
-          : w.mallets[0],
-        this.ai
-          ? this.ai.update(step, w)
-          : this.ctx.input.players[1].down
-            ? this.ctx.input.players[1]
-            : w.mallets[1],
+        this.malletTarget(0, step),
+        this.ai ? this.ai.update(step, w) : this.malletTarget(1, step),
       ]);
       if (w.cooldown <= 0 && !w.done) {
         const penalty = this.possession.advance(step, w.puck.y);
@@ -147,9 +156,40 @@ export class AirHockey implements MiniGame {
   }
   private save() {
     if (!this.world.done)
-      this.ctx.saveState(
-        saveHockey(this.world, this.matchClock, this.possession),
-      );
+      this.ctx.saveState({
+        ...saveHockey(this.world, this.matchClock, this.possession),
+        ai: this.ai?.snapshot(),
+      });
+  }
+  private malletTarget(player: 0 | 1, step: number): Vec {
+    const pointer = this.ctx.input.players[player];
+    if (pointer.down) return pointer;
+    const arrows = player === 1 || !!this.ai;
+    const up =
+      (player === 0 && this.keys.has("KeyW")) ||
+      (arrows && this.keys.has("ArrowUp"));
+    const down =
+      (player === 0 && this.keys.has("KeyS")) ||
+      (arrows && this.keys.has("ArrowDown"));
+    const left =
+      (player === 0 && this.keys.has("KeyA")) ||
+      (arrows && this.keys.has("ArrowLeft"));
+    const right =
+      (player === 0 && this.keys.has("KeyD")) ||
+      (arrows && this.keys.has("ArrowRight"));
+    let vx = Number(right) - Number(left);
+    let vy = Number(down) - Number(up);
+    const m = this.world.mallets[player];
+    if (vx === 0 && vy === 0) return m;
+    const len = Math.hypot(vx, vy);
+    vx /= len;
+    vy /= len;
+    const puckSpeed = Math.hypot(this.world.puck.vx, this.world.puck.vy);
+    const speed = Math.min(1350, Math.max(950, puckSpeed * 1.25));
+    return {
+      x: m.x + vx * speed * step,
+      y: m.y + vy * speed * step,
+    };
   }
   pause() {
     this.save();
@@ -168,6 +208,7 @@ export class AirHockey implements MiniGame {
   }
   snapshot() {
     return {
+      ai: this.ai?.snapshot(),
       possession: {
         side: this.possession.side,
         remaining: this.possession.remaining,

@@ -51,3 +51,11 @@ Development-only `?diagnostics` displays FPS, smoothed frame time, initializatio
 ## Web and Android
 
 Vite builds static relative URLs, suitable for Vercel (`vercel.json`) and Capacitor's local origin. Web service-worker installation caches the shell only. Selected game chunks cache on demand; Settings → Save all games offline explicitly caches the full build, including worker files. Android always packages every registered module and asset and bypasses the web service worker. No network permission or runtime server is required.
+
+## Expanded rivalry collection
+
+The final seven expansion modules remain isolated under their own `games/` folders. All run a bounded 120Hz simulation through the existing FixedStep utility; all use ordinary duel results and metadata-driven tournament eligibility. Car Duel owns a small per-pointer button adapter with explicit pause/disposal; other games use host input. Spike Attacks uses a small visibility graph on wave changes, not a worker or a continuously recomputed route. New real-time matches restart after process closure; existing board/Pong/Hockey checkpoints are unchanged.
+
+Water Guess and Perfect Timer retain separate rule engines and renderers. Round resolution is idempotent. Perfect Timer uses a module-local foreground monotonic clock for both keyboard/touch stops and AI; pause time is excluded. Both use seeded match personalities, with no forced minimum error at Impossible.
+
+TurnView is a small lazy presentation utility used by full-field local hot-seat games. It rotates only module-owned display objects, supplies the inverse pointer mapping, blocks interaction through its 280ms transition, and destroys its children on disposal. Host navigation remains fixed. Turn-based boards use pastel player backgrounds and compact neutral status; simultaneous games retain their separate controls.

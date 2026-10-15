@@ -134,7 +134,10 @@ export class GameManager {
     await SplashScreen.hide();
   }
   selectGame(id: string) {
-    if (getGame(id).category === "arcade") {
+    if (
+      getGame(id).category === "arcade" ||
+      getGame(id).presentation === "custom"
+    ) {
       void this.play(id);
       return;
     }
@@ -265,14 +268,15 @@ export class GameManager {
     if (
       run !== this.run ||
       this.state === "results" ||
-      getGame(this.active!.gameId).category !== "arcade"
+      (getGame(this.active!.gameId).category !== "arcade" &&
+        getGame(this.active!.gameId).presentation !== "custom")
     )
       return;
     this.state = "results";
     const best = this.arcade.record(this.active!.gameId, score);
     this.audio.play("win");
     this.modal.show(
-      `<div class="eyebrow">ONE MORE GO?</div><h2 id="dialog-title">${getGame(this.active!.gameId).name}</h2><div class="arcade-result-score">${score}</div><p>${detail}<br>Personal best <b>${best}</b></p><button class="primary-button" data-action="rematch">Play again →</button><button class="text-button" data-action="menu">Back to Arcade</button>`,
+      `<div class="eyebrow">ONE MORE GO?</div><h2 id="dialog-title">${getGame(this.active!.gameId).name}</h2><div class="arcade-result-score">${score}</div><p>${detail}<br>Personal best <b>${best}</b></p><button class="primary-button" data-action="rematch">Play again →</button><button class="text-button" data-action="menu">${getGame(this.active!.gameId).category === "arcade" ? "Back to Arcade" : "Back to all games"}</button>`,
       {
         rematch: () => void this.play(this.active!.gameId),
         menu: () => this.goMenu(),

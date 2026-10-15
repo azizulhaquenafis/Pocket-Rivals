@@ -1,3 +1,4 @@
+import { MatchRandom } from "../../../shared/ai/MatchRandom";
 import { UltimateBoard } from "./UltimateRules";
 import { WIN_LINES } from "../shared/lines";
 import type { Difficulty } from "../../../shared/contracts/AIController";
@@ -12,7 +13,11 @@ export interface SearchResult {
   depth: number;
   nodes: number;
 }
-export function evaluate(board: UltimateBoard, player: Player) {
+export function evaluate(
+  board: UltimateBoard,
+  player: Player,
+  style?: MatchRandom,
+) {
   if (board.winner)
     return board.winner === "draw"
       ? 0
@@ -32,11 +37,12 @@ export function evaluate(board: UltimateBoard, player: Player) {
   }
   for (let b = 0; b < 9; b++) {
     if (board.boards[b]) {
-      if (board.boards[b] === player) score += 550;
-      else if (board.boards[b] === enemy) score -= 550;
+      if (board.boards[b] === player) score += 530 + (style?.role ?? 1) * 15;
+      else if (board.boards[b] === enemy)
+        score -= 530 + (style?.role ?? 1) * 15;
       continue;
     }
-    const weight = b === 4 ? 1.25 : 1;
+    const weight = b === 4 ? 1.2 + (style?.tempo ?? 1) * 0.05 : 1;
     for (const line of WIN_LINES) {
       const own = line.filter((i) => board.cells[b * 9 + i] === player).length,
         other = line.filter((i) => board.cells[b * 9 + i] === enemy).length;
@@ -46,24 +52,37 @@ export function evaluate(board: UltimateBoard, player: Player) {
     if (board.cells[b * 9 + 4] === player) score += 6;
     else if (board.cells[b * 9 + 4] === enemy) score -= 6;
   }
+  if (style)
+    for (let b = 0; b < 9; b++) {
+      const p = board.cells[b * 9 + (style.side < 0 ? 0 : 8)];
+      if (p) score += (p === player ? 1 : -1) * (style.role === 3 ? 4 : 1);
+    }
   return score;
 }
 /** Budgeted iterative deepening. This is strong practical play, not a solved-game claim. */
 export function ultimateMove(
   board: UltimateBoard,
   difficulty: Difficulty,
-  overrides: { budgetMs?: number; random?: () => number } = {},
+  overrides: {
+    budgetMs?: number;
+    random?: () => number;
+    seed?: number;
+    replay?: boolean;
+  } = {},
 ): SearchResult {
   const settings = {
     medium: { ms: 25, depth: 2, nodes: 5000 },
     hard: { ms: 100, depth: 5, nodes: 45000 },
     impossible: { ms: 280, depth: 9, nodes: 160000 },
   }[difficulty];
-  const random = overrides.random ?? Math.random,
+  const style = new MatchRandom(overrides.seed ?? overrides.random),
+    random = style.next,
     legal = board.legalMoves();
   if (!legal.length) return { move: -1, depth: 0, nodes: 0 };
   const player = board.turn,
-    deadline = performance.now() + (overrides.budgetMs ?? settings.ms),
+    deadline = overrides.replay
+      ? Infinity
+      : performance.now() + (overrides.budgetMs ?? settings.ms),
     table = new Map<string, Entry>();
   let nodes = 0,
     completeDepth = 0,
@@ -75,10 +94,12 @@ export function ultimateMove(
       .map((move) => {
         const next = b.clone();
         next.play(move);
-        return { move, next, value: evaluate(next, player) };
+        return { move, next, value: evaluate(next, player, style) };
       })
-      .sort((a, z) =>
-        b.turn === player ? z.value - a.value : a.value - z.value,
+      .sort(
+        (a, z) =>
+          (b.turn === player ? z.value - a.value : a.value - z.value) ||
+          style.rank(a.move) - style.rank(z.move),
       );
   }
   const roots = ordered(board);
@@ -103,7 +124,7 @@ export function ultimateMove(
       ((nodes & 31) === 0 && performance.now() >= deadline)
     )
       throw TIMEOUT;
-    if (b.winner || depth === 0) return evaluate(b, player);
+    if (b.winner || depth === 0) return evaluate(b, player, style);
     const key = b.key(),
       cached = table.get(key),
       originalAlpha = alpha,
@@ -145,8 +166,11 @@ export function ultimateMove(
     try {
       for (const node of roots) {
         if (performance.now() >= deadline) throw TIMEOUT;
-        const score = search(node.next, depth - 1, value, Infinity);
-        if (score > value) {
+        const score = search(node.next, depth - 1, -Infinity, Infinity);
+        if (
+          score > value ||
+          (score === value && style.rank(node.move) < style.rank(roundBest))
+        ) {
           value = score;
           roundBest = node.move;
         }

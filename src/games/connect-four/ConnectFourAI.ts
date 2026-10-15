@@ -1,3 +1,4 @@
+import { MatchRandom } from "../../shared/ai/MatchRandom";
 import { ConnectFourBoard, FOUR_LINES } from "./ConnectFourRules";
 import type { Difficulty } from "../../shared/contracts/AIController";
 import type { Player } from "../../shared/contracts/GameResult";
@@ -7,7 +8,7 @@ export interface SearchResult {
   nodes: number;
   milliseconds: number;
 }
-function evaluate(b: ConnectFourBoard, root: Player) {
+function evaluate(b: ConnectFourBoard, root: Player, style: MatchRandom) {
   let score = 0;
   const weights = [0, 2, 18, 120, 100000];
   for (const line of FOUR_LINES) {
@@ -17,12 +18,17 @@ function evaluate(b: ConnectFourBoard, root: Player) {
       if (b.cells[i] === root) us++;
       else if (b.cells[i] !== null) them++;
     }
-    if (!them) score += weights[us];
-    if (!us) score -= weights[them] * 1.1;
+    if (!them) score += weights[us] * [1.08, 1, 1.03, 1][style.role];
+    if (!us) score -= weights[them] * [1.05, 1.2, 1.12, 1.1][style.role];
   }
   for (let r = 0; r < 6; r++) {
     const p = b.cells[r * 7 + 3];
-    if (p) score += p === root ? 6 : -6;
+    if (p) score += (p === root ? 1 : -1) * (5 + style.tempo * 2);
+  }
+  // A small preferred-flank positional term breaks symmetric plans without masking threats.
+  for (let r = 0; r < 6; r++) {
+    const p = b.cells[r * 7 + (style.side < 0 ? 2 : 4)];
+    if (p) score += (p === root ? 1 : -1) * (style.role === 3 ? 3 : 1);
   }
   return score;
 }
@@ -30,14 +36,16 @@ export function searchConnectFour(
   b: ConnectFourBoard,
   difficulty: Difficulty,
   random = Math.random,
+  options: { seed?: number; replay?: boolean } = {},
 ): SearchResult {
-  const start = performance.now(),
+  const style = new MatchRandom(options.seed ?? random),
+    start = performance.now(),
     cfg = {
       medium: { ms: 25, depth: 3, nodes: 10000 },
       hard: { ms: 100, depth: 7, nodes: 60000 },
       impossible: { ms: 300, depth: 14, nodes: 220000 },
     }[difficulty],
-    end = start + cfg.ms,
+    end = options.replay ? Infinity : start + cfg.ms,
     root = b.turn;
   let nodes = 0,
     best = b.legal()[0] ?? -1,
@@ -56,7 +64,7 @@ export function searchConnectFour(
         : b.winner === root
           ? 100000 + depth
           : -100000 - depth;
-    if (depth === 0) return evaluate(b, root);
+    if (depth === 0) return evaluate(b, root, style);
     const key = b.cells.map((c) => c ?? 0).join("") + b.turn,
       entry = table.get(key),
       originalAlpha = alpha,
@@ -100,7 +108,7 @@ export function searchConnectFour(
       });
     return value;
   }
-  const legal = b.legal();
+  const legal = b.legal().sort((a, z) => style.rank(a) - style.rank(z));
   if (!legal.length) return { column: -1, depth: 0, nodes: 0, milliseconds: 0 };
   // Never overlook a win in one, even at the casual setting.
   for (const c of legal) {
@@ -128,7 +136,10 @@ export function searchConnectFour(
         } finally {
           b.undo();
         }
-        if (s > value) {
+        if (
+          s > value ||
+          (s === value && style.rank(c) < style.rank(candidate))
+        ) {
           value = s;
           candidate = c;
         }
@@ -141,8 +152,8 @@ export function searchConnectFour(
     }
     if (Math.abs(value) >= 100000 || performance.now() >= end) break;
   }
-  if (difficulty === "medium" && random() < 0.16)
-    best = legal[Math.floor(random() * legal.length)];
+  if (difficulty === "medium" && style.next() < 0.16)
+    best = legal[Math.floor(style.next() * legal.length)];
   return {
     column: best,
     depth: completed,

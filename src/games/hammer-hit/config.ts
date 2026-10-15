@@ -5,7 +5,7 @@ export default {
   name: "Hammer Hit",
   description: "Three swings. Find your rhythm.",
   instructions:
-    "Tap your half when the needle reaches the center. Each player gets exactly three strikes. The arithmetic average of all three scores decides the winner. Orange: Space. Blue: Enter.",
+    "Take turns tapping when the needle reaches the center. The playfield faces the active local player. Each player gets exactly three strikes. The arithmetic average of all three scores decides the winner. Orange: Space. Blue: Enter.",
   color: "#f7d6ad",
   accent: "#d9a975",
   preview,

@@ -986,10 +986,24 @@ button:active {
   border-radius: 13px;
   background: transparent;
   padding: 10px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .variant-choice.selected {
   background: var(--blue);
   box-shadow: 0 3px 0 var(--ink);
+}
+.variant-choice .variant-preview-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 5px;
+}
+.variant-choice .variant-preview-icon svg {
+  display: block;
 }
 .variant-choice b {
   font-size: 12px;
@@ -1218,3 +1232,9 @@ button:disabled {
   color: #58addb;
   margin: 10px;
 }
+
+/* Winner-colored celebration, retaining the existing brief modal entrance. */
+.result-modal:has(.result-emblem.orange) { background: #f7e1cc; }
+.result-modal:has(.result-emblem.blue) { background: #d9eaf4; }
+.result-modal:has(.result-emblem.orange) .result-emblem { box-shadow: 0 0 0 12px #f5a05a55, 4px 5px 0 var(--ink); }
+.result-modal:has(.result-emblem.blue) .result-emblem { box-shadow: 0 0 0 12px #58add555, 4px 5px 0 var(--ink); }

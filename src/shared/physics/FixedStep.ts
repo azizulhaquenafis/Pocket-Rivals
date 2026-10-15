@@ -12,6 +12,12 @@ export class FixedStep {
   reset() {
     this.accumulator = 0;
   }
+  get remainder() {
+    return this.accumulator;
+  }
+  get fraction() {
+    return Math.min(1, Math.max(0, this.accumulator / this.step));
+  }
 }
 export const clamp = (v: number, min: number, max: number) =>
   Math.max(min, Math.min(max, v));

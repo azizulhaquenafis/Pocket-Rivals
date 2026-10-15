@@ -17,6 +17,7 @@ export interface GameVariant {
   id: string;
   name: string;
   description: string;
+  preview?: string;
   hasTutorial?: boolean;
   ai?: boolean;
 }

@@ -7,3 +7,5 @@
 - Pause cancels aiming and clears the fixed accumulator. Dispose UI objects, masks and graphics. No additional RAF loops. Cancel the shot-planning worker on pause/disposal. Retain source units regardless of screen resolution.
 - Tests: `tests/unit/ultimate-golf.test.ts`, `golf-routes.test.ts` (four legal tee-to-cup fixtures), `tests/browser/ultimate-golf.spec.ts`. Full routes are deterministic Easy-mode evidence, not claims that all strategies or devices were tested.
 - See `docs/ULTIMATE_GOLF.md` for source provenance, mechanics and intentional differences. `modes/` isolates casual, hot-seat and real AI race progression; `ai/` owns bounded worker shot planning. Competitive storage never changes casual records. Global tournament participation remains disabled.
+
+AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical parameters inside this module and preserve personality across rounds. See `docs/AI_REFINEMENT.md` for seeded replay and audit commands. Preserve legal actions and bounded worker/motion behavior when adding variety.

@@ -1,3 +1,4 @@
+import { MatchRandom, type SeedInput } from "../../../shared/ai/MatchRandom";
 import type { Difficulty } from "../../../shared/contracts/AIController";
 import type { Player } from "../../../shared/contracts/GameResult";
 import { WIN_LINES } from "../shared/lines";
@@ -8,6 +9,7 @@ export function classicMove(
   board: TicTacToeBoard,
   difficulty: Difficulty,
   random = Math.random,
+  preference: (move: number) => number = () => 1,
 ): number {
   const cells = [...board.cells],
     player = board.turn;
@@ -15,7 +17,14 @@ export function classicMove(
   if (board.winner || !legal.length) return -1;
   if (difficulty === "medium" && random() < 0.32)
     return legal[Math.floor(random() * legal.length)];
-  const limit = difficulty === "impossible" ? 9 : difficulty === "hard" ? 5 : 2;
+  const limit =
+    difficulty === "impossible"
+      ? 9
+      : difficulty === "hard"
+        ? legal.length >= 8
+          ? 9
+          : 5
+        : 2;
   function search(
     turn: Player,
     depth: number,
@@ -55,16 +64,67 @@ export function classicMove(
     }
     return value;
   }
-  let best = -Infinity,
-    move = legal[0];
+  let best = -Infinity;
+  let choices: number[] = [];
   for (const i of legal) {
     cells[i] = player;
     const score = search(player === 1 ? 2 : 1, limit - 1, -Infinity, Infinity);
     cells[i] = null;
     if (score > best) {
       best = score;
-      move = i;
-    }
+      choices = [i];
+    } else if (score === best) choices.push(i);
   }
-  return move;
+  const weights = choices.map(preference),
+    total = weights.reduce((a, b) => a + b, 0);
+  let value = random() * total;
+  for (let i = 0; i < choices.length; i++) {
+    value -= weights[i];
+    if (value <= 0) return choices[i];
+  }
+  return choices.at(-1)!;
+}
+
+/** Natural opening variety only among equally evaluated moves; Impossible remains exact. */
+export class ClassicAI {
+  readonly personality: MatchRandom;
+  readonly delay: number;
+  constructor(
+    readonly difficulty: Difficulty,
+    seed?: SeedInput,
+  ) {
+    this.personality = new MatchRandom(seed);
+    this.delay = this.personality.sample(
+      { medium: 0.6, hard: 0.4, impossible: 0.25 }[difficulty],
+      0.1,
+      0.18,
+    );
+  }
+  choose(board: TicTacToeBoard) {
+    const role = this.personality.role;
+    return classicMove(
+      board,
+      this.difficulty,
+      new MatchRandom(
+        this.personality.turnSeed(board.cells.filter(Boolean).length),
+      ).next,
+      (move) =>
+        1 +
+        (role === 0 && move === 4
+          ? 3
+          : role === 1 && [0, 2, 6, 8].includes(move)
+            ? 3
+            : role === 2 && [1, 3, 5, 7].includes(move)
+              ? 3
+              : role === 3 && move % 3 === (this.personality.side < 0 ? 0 : 2)
+                ? 3
+                : 0),
+    );
+  }
+  snapshot() {
+    return {
+      ...this.personality.snapshot(),
+      strategy: ["center", "corners", "edges", "flank"][this.personality.role],
+    };
+  }
 }

@@ -4,7 +4,6 @@ import { GolfAI } from "../ai/GolfAI";
 import type { Difficulty } from "../../../../shared/contracts/AIController";
 import {
   COURSE_TIMEOUT,
-  FINISH_TOLERANCE,
   seedFor,
   total,
   winner,
@@ -18,8 +17,6 @@ export class AIChallengeMode {
   readonly worlds: [GolfPhysics, GolfPhysics];
   readonly ai: GolfAI;
   phase: "ready" | "playing" | "complete" = "ready";
-  private finishClock: number | null = null;
-  private clock = 0;
   private failed: [boolean, boolean] = [false, false];
   constructor(
     readonly plan: number[],
@@ -28,7 +25,7 @@ export class AIChallengeMode {
     report: (ms: number) => void,
   ) {
     this.worlds = [this.create(0), this.create(0)];
-    this.ai = new GolfAI(difficulty, report);
+    this.ai = new GolfAI(difficulty, report, seed);
   }
   private create(hole: number) {
     return new GolfPhysics(
@@ -42,7 +39,6 @@ export class AIChallengeMode {
   }
   update(dt: number) {
     if (this.phase !== "playing") return;
-    this.clock += dt;
     for (const p of [0, 1] as const) {
       if (this.attempts[p].length === this.plan.length || this.failed[p])
         continue;
@@ -69,15 +65,19 @@ export class AIChallengeMode {
           if (p === 1) this.ai.reset();
         } else {
           this.failed[p] = !completed;
-          this.finishClock ??= this.clock;
         }
       }
     }
-    if (
-      this.failed.some(Boolean) ||
-      (this.finishClock !== null &&
-        this.clock - this.finishClock >= FINISH_TOLERANCE)
-    ) {
+    const done0 =
+      this.attempts[0].length === this.plan.length || this.failed[0];
+    const done1 =
+      this.attempts[1].length === this.plan.length || this.failed[1];
+    if (done0 && !done1) {
+      this.ai.accelerated = true;
+    }
+    if (done0 && done1) {
+      // Both immutable attempt records now exist; time tolerance belongs to
+      // winner comparison, not an extra playable frame after completion.
       this.phase = "complete";
       this.ai.cancel();
     }

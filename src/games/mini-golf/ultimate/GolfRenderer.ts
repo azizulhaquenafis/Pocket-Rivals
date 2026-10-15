@@ -24,7 +24,12 @@ export class GolfRenderer {
     this.mask = this.maskShape.createGeometryMask();
     this.g.setMask(this.mask);
   }
-  draw(world: GolfPhysics, aim: Point | null, rival?: Point) {
+  draw(
+    world: GolfPhysics,
+    aim: Point | null,
+    rival?: Point,
+    playerColor = theme.orange,
+  ) {
     const g = this.g,
       c = world.course,
       d = world.dynamics,
@@ -268,7 +273,7 @@ export class GolfRenderer {
       circle(rival, 7, theme.blue, 2);
     }
     // The halo enlarges visibility, not the physical collision radius.
-    g.lineStyle(3, theme.orange, 0.8).strokeCircle(
+    g.lineStyle(3, playerColor, 0.8).strokeCircle(
       world.ball.x,
       world.ball.y,
       18,

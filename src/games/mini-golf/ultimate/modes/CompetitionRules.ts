@@ -21,9 +21,9 @@ export function total(attempts: Attempt[], count: number): Totals {
 export function winner(one: Totals, two: Totals): 1 | 2 | "draw" {
   if (one.completed !== two.completed) return one.completed ? 1 : 2;
   if (!one.completed) return "draw";
+  if (one.strokes !== two.strokes) return one.strokes < two.strokes ? 1 : 2;
   if (Math.abs(one.time - two.time) > FINISH_TOLERANCE)
     return one.time < two.time ? 1 : 2;
-  if (one.strokes !== two.strokes) return one.strokes < two.strokes ? 1 : 2;
   return "draw";
 }
 export function seedFor(seed: number, index: number) {

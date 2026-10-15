@@ -1,8 +1,11 @@
+import { freshSeed } from "../../../shared/ai/MatchRandom";
 import type {
   GameContext,
+  MatchOptions,
   MiniGame,
 } from "../../../shared/contracts/GameModule";
 import type { Difficulty } from "../../../shared/contracts/AIController";
+import { theme } from "../../../core/ThemeManager";
 import { courses } from "./courses";
 import { GolfRenderer } from "./GolfRenderer";
 import { GolfView, shotVector } from "./GolfInput";
@@ -21,8 +24,21 @@ export class UltimateGolfGame implements MiniGame {
   private casual = new CasualMode();
   private local?: LocalVersusMode;
   private race?: AIChallengeMode;
-  private mode: Mode = "casual";
+  private mode: Mode = "local";
   private difficulty: Difficulty = "medium";
+  constructor(private initialOptions?: MatchOptions) {
+    if (initialOptions) this.applyOptions(initialOptions);
+  }
+  private applyOptions(options: MatchOptions) {
+    if (options.variant === "casual") {
+      this.mode = "casual";
+    } else if (options.mode === "ai") {
+      this.mode = "ai";
+      this.difficulty = options.difficulty ?? "medium";
+    } else {
+      this.mode = "local";
+    }
+  }
   private plan = [0];
   private renderer?: GolfRenderer;
   private renderedWorld?: object;
@@ -49,6 +65,7 @@ export class UltimateGolfGame implements MiniGame {
   }
   initialize(ctx: GameContext) {
     this.ctx = ctx;
+    if (ctx.options) this.applyOptions(ctx.options);
     this.ui = new GolfUI((action) => {
       if (!this.paused) this.action(action);
     });
@@ -88,6 +105,10 @@ export class UltimateGolfGame implements MiniGame {
     this.ctx.audio.play("tap");
     if (action === "pause") {
       this.ctx.navigation?.pause();
+      return;
+    }
+    if (action === "exit") {
+      this.ctx.navigation?.exit();
       return;
     }
     if (action === "back") {
@@ -216,18 +237,18 @@ export class UltimateGolfGame implements MiniGame {
     this.ui.screen(
       `<div class="golf-modes">${(
         [
+          [
+            "local",
+            "2 Player Challenge",
+            "Challenge a friend to finish first.",
+            "#f9d7b5",
+          ],
           ["ai", "1 Player vs AI", "Race against a smart opponent.", "#c8e7eb"],
           [
             "casual",
             "1 Player Casual",
             "Complete courses, earn points, beat your best.",
             "#d9e9bc",
-          ],
-          [
-            "local",
-            "2 Player",
-            "Challenge a friend to finish first.",
-            "#f9d7b5",
           ],
         ] as const
       )
@@ -250,13 +271,13 @@ export class UltimateGolfGame implements MiniGame {
           : "Hot-seat race",
     );
     this.ui.screen(
-      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${c.name}<small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode !== "casual" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : this.mode === "ai" ? `<div class="golf-choice">${(["medium", "hard", "impossible"] as const).map((d) => `<button data-action="ai:${d}" aria-pressed="${d === this.difficulty}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>` : ""}`,
+      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${c.name}<small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode !== "casual" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : this.mode === "ai" ? `<div class="golf-choice">${(["medium", "hard", "impossible"] as const).map((d) => `<button data-action="ai:${d}" aria-pressed="${d === this.difficulty}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Player match</button>' : '<button data-action="mode:casual">Casual solo practice</button>'}</div>`,
     );
   }
   private startCompetitionOrCasual(plan: number[]) {
     this.release();
     this.plan = [...plan];
-    const seed = crypto.getRandomValues(new Uint32Array(1))[0];
+    const seed = freshSeed();
     if (this.mode === "casual") {
       this.casual.start(plan[0]);
       this.showPlay();
@@ -278,7 +299,7 @@ export class UltimateGolfGame implements MiniGame {
     const p = this.mode === "local" ? this.local!.player + 1 : 1;
     this.ui.title(this.mode === "local" ? `Player ${p}` : "You vs AI");
     this.ui.screen(
-      `<h2>${this.mode === "local" ? `Player ${p}, ready?` : "Ready to race?"}</h2><p>${courses[this.course].name}${this.plan.length > 1 ? ` · Course ${this.mode === "local" ? this.local!.hole + 1 : 1} of ${this.plan.length}` : ""}</p><p>Fastest completion wins. Strokes break ties.<br>3 minutes per course · ${strokeLimit(courses[this.course], 0)} strokes</p>${this.mode === "local" && p === 2 ? "<p>Pass the device. Same courses, same conditions.</p>" : ""}<div class="golf-actions"><button class="golf-primary" data-action="begin">Start attempt</button></div>`,
+      `<h2>${this.mode === "local" ? `Player ${p}, ready?` : "Ready to race?"}</h2><p>${courses[this.course].name}${this.plan.length > 1 ? ` · Course ${this.mode === "local" ? this.local!.hole + 1 : 1} of ${this.plan.length}` : ""}</p><p>Fewest strokes wins. Time breaks ties.<br>3 minutes per course · ${strokeLimit(courses[this.course], 0)} strokes</p>${this.mode === "local" && p === 2 ? "<p>Pass the device. Same courses, same conditions.</p>" : ""}<div class="golf-actions"><button class="golf-primary" data-action="begin">Start attempt</button></div>`,
     );
   }
   private showPlay() {
@@ -328,7 +349,7 @@ export class UltimateGolfGame implements MiniGame {
         : "Four-course challenge",
     );
     this.ui.screen(
-      `<h2>${result === "draw" ? "A draw!" : `${names[result - 1]} ${result === 1 && this.mode === "ai" ? "win" : "wins"}!`}</h2><table class="golf-result-table"><thead><tr><th>Golfer</th><th>Time</th><th>Strokes</th></tr></thead><tbody>${competition.totals.map((r, i) => `<tr><th>${names[i]}</th><td>${r.completed ? timeText(r.time) : "DNF"}</td><td>${r.strokes + (this.mode === "ai" && !r.completed && competition.attempts[i].length === 0 ? this.race!.worlds[i].strokes : 0)}</td></tr>`).join("")}</tbody></table><p>${result === "draw" ? "Neither golfer takes the win." : competition.totals.some((r) => r.completed) ? "Completed courses first. Time, then strokes." : "An attempt ended before completion."}</p><div class="golf-actions"><button class="golf-primary" data-action="rematch">Rematch</button><button data-action="courses">New race</button></div>`,
+      `<h2>${result === "draw" ? "A draw!" : `${names[result - 1]} ${result === 1 && this.mode === "ai" ? "win" : "wins"}!`}</h2><table class="golf-result-table"><thead><tr><th>Golfer</th><th>Strokes</th><th>Time</th></tr></thead><tbody>${competition.totals.map((r, i) => `<tr><th>${names[i]}</th><td>${r.strokes + (this.mode === "ai" && !r.completed && competition.attempts[i].length === 0 ? this.race!.worlds[i].strokes : 0)}</td><td>${r.completed ? timeText(r.time) : "DNF"}</td></tr>`).join("")}</tbody></table><p>${result === "draw" ? "Neither golfer takes the win." : competition.totals.some((r) => r.completed) ? "Completed courses first. Strokes, then time." : "An attempt ended before completion."}</p><div class="golf-actions"><button class="golf-primary" data-action="rematch">Rematch</button><button data-action="courses">New race</button><button data-action="exit">Back to all games</button></div>`,
     );
   }
   update(dt: number) {
@@ -344,12 +365,17 @@ export class UltimateGolfGame implements MiniGame {
     }
     if (!w.shootable) this.cancel();
     if (!this.anchor) this.view.follow(w.ball, 1 - Math.exp(-dt * 12));
+    const playerColor =
+      this.mode === "local" && this.local?.player === 1
+        ? theme.blue
+        : theme.orange;
     this.renderer?.draw(
       w,
       this.aim,
       this.mode === "ai" && this.race!.holes[0] === this.race!.holes[1]
         ? this.race!.worlds[1].ball
         : undefined,
+      playerColor,
     );
     if (w.impacts !== this.impacts) {
       this.ctx.audio.play("hit");
@@ -365,23 +391,38 @@ export class UltimateGolfGame implements MiniGame {
         : this.mode === "ai"
           ? this.race!.elapsed[0]
           : 0;
+    const prefix =
+      this.mode === "local" ? `Player ${this.local!.player + 1} · ` : "";
     this.ui.title(
       courses[this.course].name,
-      `${w.strokes}/${w.limit} strokes${this.mode !== "casual" ? ` · ${timeText(elapsed)}` : ""}`,
+      `${prefix}${w.strokes}/${w.limit} strokes${this.mode !== "casual" ? ` · ${timeText(elapsed)}` : ""}`,
     );
+    const playerDone =
+      this.mode === "ai" &&
+      this.race!.attempts[0].length === this.plan.length;
     this.ui.message(
-      w.messageTime > 0
-        ? w.message
-        : w.dynamics.ufo.warning
-          ? "UFO approaching"
-          : "",
+      playerDone
+        ? "You finished! Waiting for AI..."
+        : w.messageTime > 0
+          ? w.message
+          : w.dynamics.ufo.warning
+            ? "UFO approaching"
+            : "",
     );
     this.ui.meter(this.aim?.power ?? null);
     if (this.mode === "ai") {
       const r = this.race!;
-      this.ui.rival(
-        `AI · ${r.worlds[1].strokes} strokes${this.plan.length > 1 ? ` · ${r.holes[1] + 1}/${this.plan.length}` : ""}`,
-      );
+      const aiDone = r.attempts[1].length === this.plan.length;
+      if (aiDone) {
+        const totalAI = r.totals[1];
+        this.ui.rival(
+          `AI finished · ${totalAI.strokes} strokes (${timeText(totalAI.time)})`,
+        );
+      } else {
+        this.ui.rival(
+          `AI · ${r.worlds[1].strokes} strokes${this.plan.length > 1 ? ` · ${r.holes[1] + 1}/${this.plan.length}` : ""}`,
+        );
+      }
     }
     if (this.mode === "casual") {
       if (w.status !== "playing") this.casualResult();

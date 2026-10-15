@@ -49,3 +49,26 @@ it("Hammer AI completes every difficulty at different frame rates using real tim
       if (difficulty === "impossible") expect(m.totals[1]).toBeGreaterThan(270);
     }
 });
+
+it("Impossible uses approximately 70/25/5 bands through legal needle timing", () => {
+  const bands = [0, 0, 0];
+  const unique = new Set<number>();
+  for (let seed = 0; seed < 1000; seed++) {
+    const m = new HammerMatch(),
+      ai = new HammerAI("impossible", seed);
+    for (let step = 0; step < 600 * 12 && m.scores[1].length < 3; step++) {
+      m.update(1 / 600);
+      if (ai.update(m)) {
+        const score = m.hit(1)!;
+        unique.add(score);
+        bands[score >= 97 ? 0 : score >= 90 ? 1 : 2]++;
+      }
+    }
+    expect(m.scores[1]).toHaveLength(3);
+  }
+  expect(bands[0] / 3000).toBeCloseTo(0.7, 1);
+  expect(bands[1] / 3000).toBeCloseTo(0.25, 1);
+  expect(bands[2] / 3000).toBeCloseTo(0.05, 1);
+  expect(unique.size).toBeGreaterThan(15);
+  console.log("Hammer actual 3,000 strikes:", bands);
+});
