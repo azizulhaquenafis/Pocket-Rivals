@@ -1,2 +1,0 @@
-# Archery Duel
-Three-tap state machine, 120ms lock debounce, 175-unit/second reflected crosshair. Impact after 380ms awards 1/2 points using exact visible circle radii; first to ten, 180-second cap. Per-attempt targets are shared seeded data, independently consumed by players. AI locks the same moving crosshair, never supplies a fabricated hit. All objects are scene-owned. No reference PDF supplied; written specification is authoritative.

@@ -1,0 +1,6 @@
+src/future-games/
+docs/
+tests/
+output/
+tmp/
+**/*.md
