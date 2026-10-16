@@ -40,6 +40,7 @@ test("Hammer local field faces each player while host navigation remains fixed",
 test("new games enter tournaments automatically and a real new-game round crowns its winner", async ({
   page,
 }) => {
+  await page.clock.install();
   await page.goto("/");
   await page.getByRole("button", { name: "Tournament", exact: true }).click();
   await page
@@ -50,22 +51,31 @@ test("new games enter tournaments automatically and a real new-game round crowns
   await page.getByLabel("Number of rounds").selectOption("1");
   await page.getByRole("button", { name: "Choose games" }).click();
   for (const name of [
-    "Chicken Jump",
-    "Archery Duel",
-    "Gravity Runner",
+    "Gravity Runner · Random map",
     "Happy Birds",
-    "Spike Attacks",
-    "Flappy Jump",
-    "Car Duel",
+    "Spike Attacks · Random map",
   ])
     await expect(
       page.getByRole("checkbox", { name: `○ ${name}`, exact: true }),
     ).toBeVisible();
+  for (const name of [
+    "Flappy Jump",
+    "Car Duel",
+    "Archery Duel",
+    "Chicken Jump",
+  ])
+    await expect(
+      page.getByRole("checkbox", { name: `○ ${name}`, exact: true }),
+    ).toHaveCount(0);
   await page
     .getByRole("checkbox", { name: "○ Happy Birds", exact: true })
     .click();
   await page.getByRole("button", { name: "Start tournament →" }).click();
   await page.getByRole("button", { name: "Play next round →" }).click();
+  await expect.poll(async () => (await state(page)).scene.ready).toBe(true);
+  for (let i = 0; i < 120 && !(await state(page)).scene.game.winner; i++)
+    await page.clock.runFor(1000);
+  await page.clock.runFor(1000);
   await expect
     .poll(async () => (await state(page)).tournament.points[1], {
       timeout: 18000,

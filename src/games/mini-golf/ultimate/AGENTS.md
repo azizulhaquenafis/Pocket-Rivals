@@ -9,3 +9,7 @@
 - See `docs/ULTIMATE_GOLF.md` for source provenance, mechanics and intentional differences. `modes/` isolates casual, hot-seat and real AI race progression; `ai/` owns bounded worker shot planning. Competitive storage never changes casual records. Global tournament participation remains disabled.
 
 AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical parameters inside this module and preserve personality across rounds. See `docs/AI_REFINEMENT.md` for seeded replay and audit commands. Preserve legal actions and bounded worker/motion behavior when adding variety.
+
+Temple AI waypoints must remain outside bumpers, quicksand and the moving-boulder sweep. Record reached route points before forecasting reaction delay; a mover must not erase completed progress. Keep original course geometry and human/AI physics identical. `golf-temple-ai.test.ts` verifies full planned completions at every AI difficulty; the browser regression runs the real planning worker.
+
+CourseArt generates static portrait overviews from actual course data for the picker. It must not create physics/AI instances. Keep course cards readable within the app container (two columns in portrait, not a viewport-wide four-column assumption).

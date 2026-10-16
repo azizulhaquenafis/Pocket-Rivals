@@ -36,17 +36,23 @@ export function planShot(input: PlanInput): ShotPlan {
     input.state.seed ?? 1,
   );
   base.restoreSimulation(input.state);
-  for (let i = 0; i < input.delay * 240; i++) base.tick(1 / 240);
   let waypoint = Math.min(input.waypoint, route.length - 1);
-  while (waypoint < route.length - 1) {
-    const t = route[waypoint];
-    if (
-      Math.hypot(base.ball.x - (t[2] ?? t[0]), base.ball.y - (t[3] ?? t[1])) >
-      25
-    )
-      break;
-    waypoint++;
-  }
+  const advanceReached = () => {
+    while (waypoint < route.length - 1) {
+      const t = route[waypoint];
+      if (
+        Math.hypot(base.ball.x - (t[2] ?? t[0]), base.ball.y - (t[3] ?? t[1])) >
+        25
+      )
+        break;
+      waypoint++;
+    }
+  };
+  // A completed waypoint stays completed if a mover pushes the resting ball
+  // during the reaction delay. Forecasting first caused endless return shots.
+  advanceReached();
+  for (let i = 0; i < input.delay * 240; i++) base.tick(1 / 240);
+  advanceReached();
   const [tx, ty, gx = tx, gy = ty] = route[waypoint],
     angle = Math.atan2(ty - base.ball.y, tx - base.ball.x),
     distance = Math.hypot(tx - base.ball.x, ty - base.ball.y);

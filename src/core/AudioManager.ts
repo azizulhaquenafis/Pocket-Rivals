@@ -17,12 +17,30 @@ export type Sound =
   | "fall"
   | "slide"
   | "capture"
-  | "perfect";
+  | "perfect"
+  | "slice"
+  | "thud"
+  | "clockTick"
+  | "clockStop";
 /** Original procedural one-shots: created on demand, no soundtrack or audio downloads. */
 const effects: Record<
   Sound,
   { notes: number[]; wave?: OscillatorType; duration?: number; gain?: number }
 > = {
+  slice: {
+    notes: [2400, 1100],
+    wave: "sawtooth",
+    duration: 0.045,
+    gain: 0.035,
+  },
+  thud: { notes: [110, 65], wave: "triangle", duration: 0.075, gain: 0.13 },
+  clockTick: { notes: [1550], wave: "triangle", duration: 0.018, gain: 0.045 },
+  clockStop: {
+    notes: [820, 520],
+    wave: "triangle",
+    duration: 0.04,
+    gain: 0.09,
+  },
   tap: { notes: [480], duration: 0.055 },
   hit: { notes: [260], duration: 0.055 },
   goal: { notes: [440, 660] },

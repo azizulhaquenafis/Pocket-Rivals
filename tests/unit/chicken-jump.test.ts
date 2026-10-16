@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
-import { ChickenMatch } from "../../src/games/chicken-jump/Rules";
-import { ChickenAI } from "../../src/games/chicken-jump/AI";
+import { ChickenMatch } from "../../src/future-games/chicken-jump/Rules";
+import { ChickenAI } from "../../src/future-games/chicken-jump/AI";
 it("geometric landings stack ten; misses cannot score; duplicate stops rejected", () => {
   const m = new ChickenMatch(3);
   m.players[0].block = 100;

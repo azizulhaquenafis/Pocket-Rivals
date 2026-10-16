@@ -16,13 +16,9 @@ try {
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${url}/?diagnostics&aiSeed=77`);
   for (const name of [
-    "Chicken Jump",
-    "Archery Duel",
     "Gravity Runner",
     "Happy Birds",
     "Spike Attacks",
-    "Flappy Jump",
-    "Car Duel",
   ]) {
     await page
       .getByRole("button", { name: `Play ${name}`, exact: true })

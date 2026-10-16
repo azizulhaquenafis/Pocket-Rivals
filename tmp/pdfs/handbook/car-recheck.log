@@ -1,0 +1,11 @@
+
+ RUN  v3.2.7 /Users/nafis/Documents/ChatGPT/Exam Grading/pocket-rivals
+
+ ✓ tests/unit/car-duel.test.ts (3 tests) 12541ms
+   ✓ 100 seeded duel simulations remain finite with bounded controls and resolve matches  12534ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  18:02:38
+   Duration  12.81s (transform 26ms, setup 0ms, collect 29ms, tests 12.54s, environment 0ms, prepare 35ms)
+

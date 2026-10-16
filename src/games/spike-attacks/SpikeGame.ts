@@ -1,176 +1,223 @@
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
-import { theme } from "../../core/ThemeManager";
-import { rounded, label } from "../../shared/components/drawing";
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { freshSeed } from "../../shared/ai/MatchRandom";
-import { SpikeMatch, STONES, DIRECTIONS } from "./Rules";
+import { SpikeMatch } from "./Rules";
 import { SpikeAI } from "./AI";
+import { SpikeView } from "./SpikeView";
+import { KEY_CODES, keyboardDirection, SpikeGamepads } from "./SpikeControls";
+import { drawArena, JOYS, type Stick } from "./SpikeArt";
 export class SpikeGame implements MiniGame {
   private ctx!: GameContext;
   private m = new SpikeMatch(freshSeed());
   private ai?: SpikeAI;
   private g!: Phaser.GameObjects.Graphics;
-  private text!: Phaser.GameObjects.Text;
+  private clip!: Phaser.GameObjects.Graphics;
+  private mask!: Phaser.Display.Masks.GeometryMask;
   private fixed = new FixedStep();
+  private view = new SpikeView();
+  private pose?: ReturnType<SpikeView["sample"]>;
   private keys = new Set<string>();
+  private pads = new SpikeGamepads();
+  private movement = [
+    { x: 0, y: 0, source: "none" },
+    { x: 0, y: 0, source: "none" },
+  ];
+  private sticks: Stick[] = [
+    { x: 0, y: 0, active: false },
+    { x: 0, y: 0, active: false },
+  ];
   private paused = false;
   private done = false;
   private scores = "";
-  private wave = 0;
+  private finishAge = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.g = ctx.scene.add.graphics();
-    this.text = label(ctx.scene, 210, 381, "", 15);
+    this.clip = ctx.scene.make.graphics({ x: 0, y: 0 });
+    this.clip.fillStyle(0xffffff).fillRoundedRect(22, 110, 376, 542, 22);
+    this.mask = this.clip.createGeometryMask();
+    this.g.setMask(this.mask);
     if (ctx.options.mode === "ai") {
       this.ai = new SpikeAI(ctx.options.difficulty);
-      this.m = new SpikeMatch(this.ai.personality.seed);
     }
-    ctx.input.dragHalves();
-    ctx.input.tap((x, y) => this.pointer(x, y));
-    this.keys = ctx.input.keys([
-      "KeyW",
-      "KeyA",
-      "KeyS",
-      "KeyD",
-      "ArrowUp",
-      "ArrowLeft",
-      "ArrowDown",
-      "ArrowRight",
-    ]);
+    this.m = new SpikeMatch(
+      this.ai?.personality.seed ?? freshSeed(),
+      ctx.options.variant,
+    );
+    for (const i of [0, 1] as const) {
+      if (i === 1 && this.ai) continue;
+      const center = JOYS[i];
+      ctx.input.drag(
+        (x, y) => {
+          if (
+            this.paused ||
+            this.done ||
+            Math.hypot(x - center.x, y - center.y) > 58
+          )
+            return false;
+          this.sticks[i].active = true;
+          this.stick(i, x, y);
+          return true;
+        },
+        (x, y) => this.stick(i, x, y),
+        () => this.release(i),
+        () => this.release(i),
+      );
+    }
+    this.keys = ctx.input.keys(KEY_CODES);
     ctx.setHint("");
+    ctx.setScore(0, 0);
+    ctx.setClock("2:00", false);
+    this.view.reset(this.m);
+    this.pose = this.view.sample(this.m, 1, 0);
     this.draw();
+    ctx.audio.play("start");
   }
-  private pointer(x: number, y: number) {
-    if (this.paused || this.done || x < 40 || x > 380) return;
-    const p = y < 380 ? 1 : 0,
-      top = p === 0 ? 428 : 158;
-    if (y < top || y > top + 170 || (p === 1 && this.ai)) return;
-    this.m.target(p, x - 40, y - top);
+  private stick(i: 0 | 1, x: number, y: number) {
+    const dx = x - JOYS[i].x,
+      dy = y - JOYS[i].y,
+      len = Math.hypot(dx, dy),
+      scale = Math.max(28, len);
+    this.sticks[i].x = len < 5 ? 0 : dx / scale;
+    this.sticks[i].y = len < 5 ? 0 : dy / scale;
+  }
+  private release(i: 0 | 1) {
+    this.sticks[i] = { x: 0, y: 0, active: false };
+    this.m.stop(i);
   }
   update(dt: number) {
     if (this.paused || this.done) return;
-    for (const t of this.ctx.input.players) if (t.down) this.pointer(t.x, t.y);
+    this.m.advanceClock(dt);
+    const pads = this.pads.poll(!!this.ai);
+    for (const i of [0, 1] as const) {
+      if (i === 1 && this.ai) continue;
+      const key = keyboardDirection(this.keys, i, !!this.ai),
+        pad = pads[i],
+        touch = this.sticks[i];
+      this.movement[i] =
+        key.x || key.y
+          ? { ...key, source: "keyboard" }
+          : pad.x || pad.y
+            ? { ...pad, source: "gamepad" }
+            : {
+                x: touch.x,
+                y: touch.y,
+                source: touch.active ? "touch" : "none",
+              };
+    }
     this.fixed.advance(dt, (h) => {
-      for (const p of [0, 1] as const) {
-        if (p === 1 && this.ai) continue;
-        const codes =
-            p === 0
-              ? ["KeyA", "KeyD", "KeyW", "KeyS"]
-              : ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
-          dx =
-            Number(this.keys.has(codes[1])) - Number(this.keys.has(codes[0])),
-          dy =
-            Number(this.keys.has(codes[3])) - Number(this.keys.has(codes[2]));
-        if (dx || dy) {
-          const v = this.m.players[p];
-          this.m.target(p, v.x + dx * 50, v.y + dy * 50);
-        }
+      this.view.capture(this.m);
+      for (const i of [0, 1] as const) {
+        if (i === 1 && this.ai) continue;
+        const { x, y } = this.movement[i];
+        if (x || y)
+          this.m.target(
+            i,
+            this.m.players[i].x + x * 100,
+            this.m.players[i].y + y * 100,
+          );
+        else this.m.stop(i);
       }
       this.ai?.update(h, this.m);
+      const phase = this.m.phase,
+        round = this.m.round,
+        alive = this.m.players.map((p) => p.alive);
       this.m.step(h);
+      if (this.m.phase !== phase) {
+        if (this.m.phase === "extend") this.ctx.audio.play("shoot", 0.65);
+        if (this.m.phase === "hold") this.ctx.audio.play("thud", 0.45);
+        if (this.m.phase === "retract") this.ctx.audio.play("slide", 0.5);
+        if (this.m.phase === "warning") this.ctx.audio.play("countdown", 0.5);
+      }
+      if (round !== this.m.round) {
+        this.view.reset(this.m);
+        this.ctx.audio.play("start", 0.5);
+      }
+      for (const i of [0, 1] as const)
+        if (alive[i] && !this.m.players[i].alive)
+          this.ctx.audio.play("fail", 0.6);
     });
-    if (this.m.wave !== this.wave) {
-      this.wave = this.m.wave;
-      this.ctx.audio.play("countdown");
-    }
     if (this.m.scores.join() !== this.scores) {
-      if (this.scores) this.ctx.audio.play("hit");
+      if (this.scores) this.ctx.audio.play("goal", 0.65);
       this.scores = this.m.scores.join();
       this.ctx.setScore(...this.m.scores);
     }
+    const seconds = Math.ceil(this.m.remaining);
+    this.ctx.setClock(
+      `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
+      seconds <= 10,
+    );
+    this.pose = this.view.sample(
+      this.m,
+      this.fixed.fraction,
+      Math.min(dt, 0.1),
+    );
+    this.ctx.reportAI(this.ai?.computationMs ?? 0);
     this.draw();
     if (this.m.winner) {
-      this.done = true;
-      this.ctx.finish({ winner: this.m.winner, scores: this.m.scores });
+      this.finishAge += dt;
+      if (this.finishAge > 0.7) {
+        this.done = true;
+        this.ctx.finish({ winner: this.m.winner, scores: this.m.scores });
+      }
     }
   }
   private draw() {
-    const g = this.g;
-    g.clear();
-    rounded(g, 24, 112, 372, 538, 20, 0xe5dcc5, 4);
-    for (const i of [0, 1] as const) {
-      const top = i === 0 ? 428 : 158,
-        p = this.m.players[i],
-        color = i === 0 ? theme.orange : theme.blue;
-      rounded(g, 40, top, 340, 170, 9, theme.white, 2);
-      for (const s of STONES) {
-        g.fillStyle(0xa3aaa2).fillCircle(40 + s.x, top + s.y, s.r);
-        g.lineStyle(3, theme.ink).strokeCircle(40 + s.x, top + s.y, s.r);
-        g.lineStyle(2, theme.white, 0.5).lineBetween(
-          33 + s.x,
-          top + s.y - 8,
-          42 + s.x,
-          top + s.y - 11,
-        );
-      }
-      if (this.m.warning > 0) {
-        const d = DIRECTIONS[this.m.direction],
-          x = 210 - d.x * 155,
-          y = top + 85 - d.y * 70;
-        g.lineStyle(
-          5,
-          color,
-          0.5 + 0.5 * Math.sin(this.m.warning * 9) ** 2,
-        ).lineBetween(x - d.x * 10, y - d.y * 10, x + d.x * 8, y + d.y * 8);
-        g.fillStyle(color).fillTriangle(
-          x + d.x * 14,
-          y + d.y * 14,
-          x - d.y * 7,
-          y + d.x * 7,
-          x + d.y * 7,
-          y - d.x * 7,
-        );
-      }
-      for (const s of p.shots) {
-        g.fillStyle(theme.ink).fillCircle(40 + s.x, top + s.y, 3);
-        g.lineStyle(2, theme.ink).lineBetween(
-          40 + s.x,
-          top + s.y,
-          40 + s.x - s.vx * 0.035,
-          top + s.y - s.vy * 0.035,
-        );
-      }
-      g.fillStyle(p.alive ? color : theme.muted).fillCircle(
-        40 + p.x,
-        top + p.y,
-        9,
-      );
-      g.lineStyle(3, theme.ink).strokeCircle(40 + p.x, top + p.y, 9);
-    }
-    this.text.setText(
-      this.m.between
-        ? "NEXT ROUND…"
-        : this.m.warning > 0
-          ? `TAKE COVER · ${this.m.warning.toFixed(1)}s`
-          : `WAVE ${this.m.wave} · HOLD YOUR COVER`,
+    this.g.clear();
+    drawArena(
+      this.g,
+      this.m,
+      this.pose!,
+      this.sticks.map((stick, i) =>
+        stick.active
+          ? stick
+          : { ...stick, x: this.movement[i].x, y: this.movement[i].y },
+      ),
+      !!this.ai,
     );
   }
   pause() {
     this.paused = true;
     this.fixed.reset();
+    this.pads.pause();
+    this.movement.forEach((d) => {
+      d.x = 0;
+      d.y = 0;
+      d.source = "none";
+    });
+    this.release(0);
+    this.release(1);
   }
   resume() {
     this.paused = false;
-    this.m.players.forEach((p) => {
-      p.tx = p.x;
-      p.ty = p.y;
-    });
   }
   dispose() {
     this.done = true;
+    this.pads.dispose();
     this.g.destroy();
-    this.text.destroy();
+    this.mask.destroy();
+    this.clip.destroy();
   }
   snapshot() {
     return {
+      sharedArena: true,
+      map: this.m.map.id,
+      visibleControls: this.ai ? [0] : [0, 1],
       players: this.m.players,
       scores: this.m.scores,
       warning: this.m.warning,
       direction: this.m.direction,
       wave: this.m.wave,
+      round: this.m.round,
+      phase: this.m.phase,
+      lengths: this.m.lengths,
       between: this.m.between,
       winner: this.m.winner,
+      remaining: this.m.remaining,
+      sticks: this.sticks,
+      controls: this.movement,
+      renderState: this.pose,
       ai: this.ai?.personality.snapshot(),
     };
   }

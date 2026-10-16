@@ -1,68 +1,66 @@
+import { selectMap, type SpikeMap } from "./Maps";
 import { MatchRandom } from "../../shared/ai/MatchRandom";
-export const STONES = [
-  { x: 85, y: 85, r: 17 },
-  { x: 255, y: 85, r: 17 },
-  { x: 170, y: 38, r: 17 },
-  { x: 170, y: 132, r: 17 },
-];
-export const DIRECTIONS = [
-  { x: 1, y: 0 },
-  { x: -1, y: 0 },
-  { x: 0, y: 1 },
-  { x: 0, y: -1 },
-];
-export interface Spike {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-}
+import { attackDepth, movePlayer, pistonHits, type Side } from "./ArenaPhysics";
+export type Phase = "warning" | "extend" | "hold" | "retract" | "recover";
 export interface Survivor {
   x: number;
   y: number;
   tx: number;
   ty: number;
   alive: boolean;
-  shots: Spike[];
-}
-/** Earliest swept circle contact; null means clear. */
-export function contact(
-  x: number,
-  y: number,
-  dx: number,
-  dy: number,
-  cx: number,
-  cy: number,
-  r: number,
-) {
-  const a = dx * dx + dy * dy,
-    ox = x - cx,
-    oy = y - cy,
-    c = ox * ox + oy * oy - r * r;
-  if (c <= 0) return 0;
-  if (!a) return null;
-  const b = 2 * (ox * dx + oy * dy),
-    d = b * b - 4 * a * c;
-  if (d < 0) return null;
-  const t = (-b - Math.sqrt(d)) / (2 * a);
-  return t >= 0 && t <= 1 ? t : null;
 }
 export class SpikeMatch {
-  players: [Survivor, Survivor] = [this.player(), this.player()];
+  readonly map: SpikeMap;
+  players: [Survivor, Survivor];
   scores: [number, number] = [0, 0];
   winner: 1 | 2 | "draw" | null = null;
   wave = 1;
-  direction = 0;
-  warning = 2.6;
+  round = 1;
+  direction: Side = 0;
+  phase: Phase = "warning";
+  phaseAge = 0;
+  warning = 1.85;
   between = 0;
+  elapsed = 0;
   total = 0;
+  readonly lengths = [0, 0, 0, 0];
   private rng: MatchRandom;
-  constructor(seed: number) {
+  constructor(
+    readonly seed: number,
+    mapId?: string,
+  ) {
+    this.map = selectMap(mapId, seed);
+    this.players = [this.player(0), this.player(1)];
     this.rng = new MatchRandom(seed);
-    this.direction = Math.floor(this.rng.next() * 4);
+    this.direction = Math.floor(this.rng.next() * 4) as Side;
   }
-  private player(): Survivor {
-    return { x: 170, y: 85, tx: 170, ty: 85, alive: true, shots: [] };
+  private player(i: number): Survivor {
+    return {
+      ...this.map.spawns[i],
+      tx: this.map.spawns[i].x,
+      ty: this.map.spawns[i].y,
+      alive: true,
+    };
+  }
+  warningDuration() {
+    return Math.max(1.05, 1.85 - (this.wave - 1) * 0.045);
+  }
+  extensionSpeed() {
+    return Math.min(940, 620 + (this.wave - 1) * 18);
+  }
+  get remaining() {
+    return Math.max(0, 120 - this.elapsed);
+  }
+  advanceClock(dt: number) {
+    if (this.winner) return;
+    this.elapsed = Math.min(120, this.elapsed + Math.max(0, dt));
+    if (this.elapsed >= 120)
+      this.winner =
+        this.scores[0] === this.scores[1]
+          ? "draw"
+          : this.scores[0] > this.scores[1]
+            ? 1
+            : 2;
   }
   target(i: 0 | 1, x: number, y: number) {
     if (
@@ -72,103 +70,100 @@ export class SpikeMatch {
       !Number.isFinite(x + y)
     )
       return;
-    this.players[i].tx = Math.max(10, Math.min(330, x));
-    this.players[i].ty = Math.max(10, Math.min(160, y));
+    this.players[i].tx = Math.max(9, Math.min(311, x));
+    this.players[i].ty = Math.max(9, Math.min(311, y));
   }
-  private spawn() {
-    const d = DIRECTIONS[this.direction],
-      speed = Math.min(250, 165 + this.wave * 5),
-      length = d.x ? 170 : 340;
-    const shots: Spike[] = [];
-    for (let n = 8; n < length; n += 20)
-      shots.push({
-        x: d.x === 1 ? -8 : d.x === -1 ? 348 : n,
-        y: d.y === 1 ? -8 : d.y === -1 ? 178 : n,
-        vx: d.x * speed,
-        vy: d.y * speed,
-      });
-    this.players.forEach((p) => (p.shots = shots.map((s) => ({ ...s }))));
+  stop(i: 0 | 1) {
+    this.players[i].tx = this.players[i].x;
+    this.players[i].ty = this.players[i].y;
+  }
+  private nextWave() {
+    this.wave++;
+    // A repeated side would reward camping. Changes are seeded and fully telegraphed.
+    this.direction = ((this.direction + 1 + Math.floor(this.rng.next() * 3)) %
+      4) as Side;
+    this.phase = "warning";
+    this.phaseAge = 0;
+    this.warning = this.warningDuration();
+    this.lengths.fill(0);
   }
   step(dt: number) {
+    // Keep all collision/phase checks bounded, including direct simulation callers.
+    for (
+      let left = Math.max(0, Math.min(dt, 0.1));
+      left > 1e-9;
+      left -= 1 / 120
+    )
+      this.tick(Math.min(left, 1 / 120));
+  }
+  private tick(dt: number) {
     if (this.winner) return;
     this.total += dt;
-    if (this.total >= 240) {
-      this.winner =
-        this.scores[0] === this.scores[1]
-          ? "draw"
-          : this.scores[0] > this.scores[1]
-            ? 1
-            : 2;
-      return;
-    }
     if (this.between) {
       this.between = Math.max(0, this.between - dt);
-      if (!this.between) {
-        this.players = [this.player(), this.player()];
-        this.warning = 2.6;
-        this.wave++;
-        this.direction = Math.floor(this.rng.next() * 4);
+      if (this.between < 1e-8) {
+        this.between = 0;
+        this.round++;
+        this.players = [this.player(0), this.player(1)];
+        this.nextWave();
       }
       return;
     }
-    if (this.warning > 0) {
-      this.warning = Math.max(0, this.warning - dt);
-      if (!this.warning) this.spawn();
-    }
+    const old = this.lengths.slice();
+    this.phaseAge += dt;
+    if (this.phase === "warning") {
+      this.warning = Math.max(0, this.warningDuration() - this.phaseAge);
+      if (this.warning < 1e-8) {
+        this.phase = "extend";
+        this.phaseAge = 0;
+        this.warning = 0;
+      }
+    } else if (this.phase === "extend") {
+      for (let i = 0; i < 4; i++)
+        this.lengths[i] = Math.min(
+          attackDepth(this.direction, i, this.map.blocks),
+          this.phaseAge * this.extensionSpeed(),
+        );
+      if (this.phaseAge >= 320 / this.extensionSpeed()) {
+        this.phase = "hold";
+        this.phaseAge = 0;
+      }
+    } else if (this.phase === "hold") {
+      if (this.phaseAge >= 0.32 + Math.min(0.18, this.wave * 0.008)) {
+        this.phase = "retract";
+        this.phaseAge = 0;
+      }
+    } else if (this.phase === "retract") {
+      const t = Math.min(1, this.phaseAge / 0.64),
+        ease = t * t * (3 - 2 * t);
+      for (let i = 0; i < 4; i++)
+        this.lengths[i] =
+          attackDepth(this.direction, i, this.map.blocks) * (1 - ease);
+      if (t === 1) {
+        this.lengths.fill(0);
+        this.phase = "recover";
+        this.phaseAge = 0;
+      }
+    } else if (this.phaseAge >= 0.18) this.nextWave();
     for (const p of this.players) {
-      const dx = p.tx - p.x,
-        dy = p.ty - p.y,
-        len = Math.hypot(dx, dy),
-        fraction = len ? Math.min(1, (150 * dt) / len) : 0;
-      p.x += dx * fraction;
-      p.y += dy * fraction;
-      for (const s of STONES) {
-        const x = p.x - s.x,
-          y = p.y - s.y,
-          d = Math.hypot(x, y);
-        if (d < s.r + 9) {
-          const nx = d ? x / d : 1,
-            ny = d ? y / d : 0;
-          p.x = s.x + nx * (s.r + 9);
-          p.y = s.y + ny * (s.r + 9);
-        }
-      }
-      p.x = Math.max(9, Math.min(331, p.x));
-      p.y = Math.max(9, Math.min(161, p.y));
-      for (let i = p.shots.length - 1; i >= 0; i--) {
-        const s = p.shots[i],
-          sx = s.vx * dt,
-          sy = s.vy * dt;
-        let stone = Infinity;
-        for (const c of STONES) {
-          const t = contact(s.x, s.y, sx, sy, c.x, c.y, c.r + 3);
-          if (t !== null) stone = Math.min(stone, t);
-        }
-        const hit = contact(s.x, s.y, sx, sy, p.x, p.y, 12);
-        if (hit !== null && hit < stone) p.alive = false;
-        if (stone !== Infinity || hit !== null) {
-          p.shots.splice(i, 1);
-          continue;
-        }
-        s.x += sx;
-        s.y += sy;
-        if (s.x < -15 || s.x > 355 || s.y < -15 || s.y > 185)
-          p.shots.splice(i, 1);
-      }
+      movePlayer(p, p.tx - p.x, p.ty - p.y, dt, this.map.blocks);
+      for (let lane = 0; lane < 4; lane++)
+        if (
+          pistonHits(
+            p,
+            this.direction,
+            lane,
+            Math.max(old[lane], this.lengths[lane]),
+          )
+        )
+          p.alive = false;
     }
     if (this.players.some((p) => !p.alive)) {
       if (this.players[0].alive !== this.players[1].alive)
         this.scores[this.players[0].alive ? 0 : 1]++;
-      this.between = 1.2;
+      this.between = 1.15;
       if (this.scores.some((s) => s >= 5))
         this.winner = this.scores[0] >= 5 ? 1 : 2;
-    } else if (
-      this.warning === 0 &&
-      this.players.every((p) => p.shots.length === 0)
-    ) {
-      this.wave++;
-      this.direction = Math.floor(this.rng.next() * 4);
-      this.warning = 2.6;
     }
   }
 }

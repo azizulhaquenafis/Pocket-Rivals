@@ -1,7 +1,11 @@
 import { it, expect } from "vitest";
-import { CarMatch } from "../../src/games/car-duel/Rules";
-import { CarAI } from "../../src/games/car-duel/AI";
-import { head, terrain, integrate } from "../../src/games/car-duel/Physics";
+import { CarMatch } from "../../src/future-games/car-duel/Rules";
+import { CarAI } from "../../src/future-games/car-duel/AI";
+import {
+  head,
+  terrain,
+  integrate,
+} from "../../src/future-games/car-duel/Physics";
 it("idle cars settle stably and retain legal wheel contact", () => {
   const m = new CarMatch();
   for (let i = 0; i < 1200; i++) m.step(1 / 120, [0, 0]);

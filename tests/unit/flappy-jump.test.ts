@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
-import { FlappyMatch } from "../../src/games/flappy-jump/Rules";
-import { FlappyAI } from "../../src/games/flappy-jump/AI";
+import { FlappyMatch } from "../../src/future-games/flappy-jump/Rules";
+import { FlappyAI } from "../../src/future-games/flappy-jump/AI";
 it("only legal descending hoop crossings score once", () => {
   const m = new FlappyMatch(1),
     p = m.players[0];

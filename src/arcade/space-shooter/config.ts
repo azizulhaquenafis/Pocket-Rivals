@@ -5,7 +5,7 @@ export default {
   name: "Star Patrol",
   description: "Small ship. Endless courage.",
   instructions:
-    "Drag the lower field to steer and fire. On a keyboard use arrows or A/D and hold Space. Clear waves, protect your three lives, and beat your best.",
+    "Drag to steer/fire; arrows/A/D + Space. Rare gear resets each level; extra lives carry over. Ace every 4 levels.",
   color: "#d8d4e6",
   accent: "#aaa3c6",
   preview,

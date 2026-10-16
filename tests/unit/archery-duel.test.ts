@@ -1,6 +1,6 @@
 import { it, expect } from "vitest";
-import { ArcheryMatch } from "../../src/games/archery-duel/Rules";
-import { ArcheryAI } from "../../src/games/archery-duel/AI";
+import { ArcheryMatch } from "../../src/future-games/archery-duel/Rules";
+import { ArcheryAI } from "../../src/future-games/archery-duel/AI";
 it("debounces stages and scores only real circle hits once", () => {
   const m = new ArcheryMatch(1);
   expect(m.tap(0)).toBe(true);

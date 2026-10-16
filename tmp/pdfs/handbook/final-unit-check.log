@@ -1,0 +1,101 @@
+
+ RUN  v3.2.7 /Users/nafis/Documents/ChatGPT/Exam Grading/pocket-rivals
+
+ ❯ tests/unit/car-duel.test.ts (3 tests | 1 failed) 23838ms
+   ✓ idle cars settle stably and retain legal wheel contact 6ms
+   ✓ head contact loses the round and simultaneous head impacts replay 0ms
+   × 100 seeded duel simulations remain finite with bounded controls and resolve matches 23830ms
+     → Test timed out in 20000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ✓ tests/unit/gravity-variation.test.ts (5 tests) 45984ms
+   ✓ 100 Impossible routes per map establish legal two-minute paths through all trap families  45676ms
+ ✓ tests/unit/golf-temple-ai.test.ts (11 tests) 22146ms
+   ✓ medium Temple seed 11 completes with real legal planned shots  1445ms
+   ✓ medium Temple seed 42 completes with real legal planned shots  1709ms
+   ✓ medium Temple seed 123 completes with real legal planned shots  1912ms
+   ✓ hard Temple seed 11 completes with real legal planned shots  2299ms
+   ✓ hard Temple seed 42 completes with real legal planned shots  2146ms
+   ✓ hard Temple seed 123 completes with real legal planned shots  2713ms
+   ✓ impossible Temple seed 11 completes with real legal planned shots  2676ms
+   ✓ impossible Temple seed 42 completes with real legal planned shots  3107ms
+   ✓ impossible Temple seed 123 completes with real legal planned shots  3664ms
+   ✓ reached Temple waypoints are recorded before forecasting movement during reaction time  472ms
+ ✓ tests/unit/gravity-runner.test.ts (10 tests) 15783ms
+   ✓ 100 seeded opponents at every difficulty beat idle players using legal flips  2520ms
+   ✓ 100 seeds per difficulty traverse two minutes of increasingly fast shared hazards  12573ms
+   ✓ no time limit or forced replay; speed rises smoothly and geometry stays bounded  528ms
+ ✓ tests/unit/ai-refinement.test.ts (18 tests) 17136ms
+   ✓ medium > 100 physics scenarios preserve speed/bounds and stable seeded trajectories  639ms
+   ✓ hard > 100 physics scenarios preserve speed/bounds and stable seeded trajectories  613ms
+   ✓ impossible > 100 physics scenarios preserve speed/bounds and stable seeded trajectories  603ms
+   ✓ Classic Impossible never loses against any legal human line across every personality  572ms
+   ✓ seeded board search replays, restores inputs, and varies equal-score openings  6801ms
+   ✓ Golf seeded candidate simulations replay legal shots, without post-simulation errors  3047ms
+   ✓ Golf chooses varied comparably good simulated shots rather than post-simulation noise  3665ms
+ ✓ tests/unit/ultimate-golf.test.ts (17 tests) 5521ms
+   ✓ Ultimate Golf native port > survives prolonged moving-obstacle simulation at every difficulty  5457ms
+ ✓ tests/unit/golf-refinement.test.ts (8 tests) 1847ms
+   ✓ Golf refinement > all four real completion routes remain valid at different fixed frame rates  333ms
+   ✓ Golf refinement > each AI difficulty produces bounded legal shots from real course state  1432ms
+ ✓ tests/unit/engine.test.ts (32 tests) 9150ms
+   ✓ Air hockey > survives 60k steps of fast adversarial input without nonfinite state  2030ms
+   ✓ Tic-tac-toe > checks every possible reachable game tree  7076ms
+ ✓ tests/unit/star-patrol.test.ts (9 tests) 1335ms
+   ✓ one hundred seeded powered scenarios retain bounded pools and stop every action after death  1248ms
+ ✓ tests/unit/phase2.test.ts (45 tests) 1298ms
+   ✓ hockey contact regression > handles prolonged repeated high speed contacts and initial complete overlap  542ms
+ ✓ tests/unit/phase3.test.ts (42 tests) 953ms
+   ✓ Connect Four rules and bounded search > impossible chooses legally and finds immediate wins  302ms
+   ✓ Connect Four rules and bounded search > Impossible blocks a loss and restoration rejects stale illegal history  301ms
+ ✓ tests/unit/happy-birds.test.ts (11 tests) 1050ms
+   ✓ all difficulties finish genuine 15-star races across 100 seeds using legal flaps  999ms
+ ✓ tests/unit/spike-attacks.test.ts (9 tests) 778ms
+   ✓ 100 seeded matches across all maps keep both AI players inside legal geometry  493ms
+(node:69757) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/unit/math-quiz.test.ts (7 tests) 503ms
+   ✓ 10000 basic questions span all 7 categories with exact mathematical answers and 3 distinct options  349ms
+ ✓ tests/unit/lumberjack.test.ts (4 tests) 338ms
+   ✓ Lumberjack seeded streams always leave at least one legal chopping side  334ms
+ ✓ tests/unit/dots-and-boxes.test.ts (7 tests) 287ms
+ ✓ tests/unit/hammer-presentation.test.ts (2 tests) 149ms
+ ✓ tests/unit/golf-routes.test.ts (7 tests) 135ms
+ ✓ tests/unit/fruit-duel.test.ts (6 tests) 65ms
+ ✓ tests/unit/expansion-framerate.test.ts (1 test) 80ms
+ ✓ tests/unit/chicken-jump.test.ts (3 tests) 29ms
+stdout | tests/unit/hammer-hit.test.ts > Impossible uses approximately 70/25/5 bands through legal needle timing
+Hammer actual 3,000 strikes: [ 2116, 722, 162 ]
+
+ ✓ tests/unit/hammer-hit.test.ts (4 tests) 61ms
+ ✓ tests/unit/archery-duel.test.ts (2 tests) 20ms
+ ✓ tests/unit/flappy-jump.test.ts (3 tests) 35ms
+ ✓ tests/unit/water-guess.test.ts (7 tests) 3ms
+ ✓ tests/unit/antigravity-review.test.ts (4 tests) 12ms
+ ✓ tests/unit/perfect-timer.test.ts (7 tests) 3ms
+ ✓ tests/unit/audio.test.ts (2 tests) 4ms
+ ✓ tests/unit/spike-controls.test.ts (3 tests) 2ms
+ ✓ tests/unit/premium-motion.test.ts (3 tests) 4ms
+ ✓ tests/unit/turn-view.test.ts (1 test) 3ms
+ ✓ tests/unit/light-fingers.test.ts (4 tests) 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/car-duel.test.ts > 100 seeded duel simulations remain finite with bounded controls and resolve matches
+Error: Test timed out in 20000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/unit/car-duel.test.ts:36:1
+     34|   expect(tie.between).toBeGreaterThan(0);
+     35| });
+     36| it("100 seeded duel simulations remain finite with bounded controls an…
+       | ^
+     37|   for (let seed = 0; seed < 100; seed++) {
+     38|     const m = new CarMatch(),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 31 passed (32)
+      Tests  1 failed | 296 passed (297)
+   Start at  18:11:06
+   Duration  77.87s (transform 587ms, setup 0ms, collect 1.10s, tests 148.55s, environment 3ms, prepare 1.29s)
+

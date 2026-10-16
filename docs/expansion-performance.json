@@ -1,313 +1,89 @@
 {
   "environment": "Headless desktop Chrome, 412×915 touch viewport, DPR 1, development build. Short diagnostic samples, not Android hardware or long-session certification.",
-  "measuredAt": "2026-10-14T20:29:19.496Z",
+  "measuredAt": "2026-10-16T07:05:41.777Z",
   "results": [
-    {
-      "name": "Chicken Jump",
-      "samples": [
-        {
-          "diagnostics": {
-            "fps": 60.05424253610301,
-            "frameMs": 16.683036996416035,
-            "modules": [
-              "chicken-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 21972636
-        },
-        {
-          "diagnostics": {
-            "fps": 59.988002410959595,
-            "frameMs": 16.647941851787433,
-            "modules": [
-              "chicken-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 22089548
-        },
-        {
-          "diagnostics": {
-            "fps": 59.952038357878735,
-            "frameMs": 16.690226667484822,
-            "modules": [
-              "chicken-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 22654860
-        },
-        {
-          "diagnostics": {
-            "fps": 59.99612929028691,
-            "frameMs": 16.691824091807064,
-            "modules": [
-              "chicken-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 23833672
-        },
-        {
-          "diagnostics": {
-            "fps": 59.98452011553707,
-            "frameMs": 16.673863767763482,
-            "modules": [
-              "chicken-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 24607156
-        }
-      ],
-      "cleanup": {
-        "id": "chicken-jump",
-        "options": {
-          "mode": "ai",
-          "difficulty": "impossible"
-        },
-        "ready": false,
-        "paused": true,
-        "ended": false,
-        "inputListeners": 0,
-        "children": 0
-      }
-    },
-    {
-      "name": "Archery Duel",
-      "samples": [
-        {
-          "diagnostics": {
-            "fps": 59.90415336033635,
-            "frameMs": 16.693624947823924,
-            "modules": [
-              "chicken-jump",
-              "archery-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 13,
-          "heap": 24568066
-        },
-        {
-          "diagnostics": {
-            "fps": 60.00774293180273,
-            "frameMs": 16.622476668042225,
-            "modules": [
-              "chicken-jump",
-              "archery-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 13,
-          "heap": 24607059
-        },
-        {
-          "diagnostics": {
-            "fps": 59.97291546030152,
-            "frameMs": 16.663396899091808,
-            "modules": [
-              "chicken-jump",
-              "archery-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 13,
-          "heap": 24572043
-        },
-        {
-          "diagnostics": {
-            "fps": 60.019361084220705,
-            "frameMs": 16.688982078905337,
-            "modules": [
-              "chicken-jump",
-              "archery-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 13,
-          "heap": 27027573
-        },
-        {
-          "diagnostics": {
-            "fps": 59.999999999999986,
-            "frameMs": 16.675754739386363,
-            "modules": [
-              "chicken-jump",
-              "archery-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 13,
-          "heap": 19764265
-        }
-      ],
-      "cleanup": {
-        "id": "archery-duel",
-        "options": {
-          "mode": "ai",
-          "difficulty": "impossible"
-        },
-        "ready": false,
-        "paused": true,
-        "ended": false,
-        "inputListeners": 0,
-        "children": 0
-      }
-    },
     {
       "name": "Gravity Runner",
       "samples": [
         {
           "diagnostics": {
-            "fps": 60.00774293180274,
-            "frameMs": 16.70879924330163,
+            "fps": 59.88023952095806,
+            "frameMs": 16.677237075819725,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284
+              "gravity-runner": 29.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
           "children": 12,
-          "heap": 20212964
+          "heap": 22864154
         },
         {
           "diagnostics": {
-            "fps": 60.054242536103025,
-            "frameMs": 16.68796225162141,
+            "fps": 60.05424254997173,
+            "frameMs": 16.63988569823619,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284
+              "gravity-runner": 29.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
           "children": 12,
-          "heap": 20365508
+          "heap": 23889178
         },
         {
           "diagnostics": {
-            "fps": 59.952038372161006,
-            "frameMs": 16.681831545565338,
+            "fps": 59.99999999999997,
+            "frameMs": 16.63525104847716,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284
+              "gravity-runner": 29.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
           "children": 12,
-          "heap": 20273980
+          "heap": 24803442
         },
         {
           "diagnostics": {
-            "fps": 59.98452012937359,
-            "frameMs": 16.694384632343557,
+            "fps": 59.999999999999986,
+            "frameMs": 16.683122516219512,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284
+              "gravity-runner": 29.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
           "children": 12,
-          "heap": 22768328
+          "heap": 31364102
         },
         {
           "diagnostics": {
-            "fps": 60.00774293180273,
-            "frameMs": 16.683888440171728,
+            "fps": 59.96402157847497,
+            "frameMs": 16.66218531646906,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284
+              "gravity-runner": 29.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
           "children": 12,
-          "heap": 22814453
+          "heap": 31383787
         }
       ],
       "cleanup": {
@@ -328,113 +104,93 @@
       "samples": [
         {
           "diagnostics": {
-            "fps": 59.99999999999997,
-            "frameMs": 16.710779814296718,
+            "fps": 59.97600959044405,
+            "frameMs": 16.71104068812898,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
-          "children": 12,
-          "heap": 22373145
-        },
-        {
-          "diagnostics": {
-            "fps": 59.999999999999986,
-            "frameMs": 16.677179063028845,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 26739293
-        },
-        {
-          "diagnostics": {
-            "fps": 60.12412722763094,
-            "frameMs": 16.714331510937974,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 24626621
+          "children": 11,
+          "heap": 28323314
         },
         {
           "diagnostics": {
             "fps": 59.988002410959595,
-            "frameMs": 16.72113596931765,
+            "frameMs": 16.695359580463798,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
-          "children": 12,
-          "heap": 26991069
+          "children": 11,
+          "heap": 28306802
+        },
+        {
+          "diagnostics": {
+            "fps": 60.0193610842207,
+            "frameMs": 16.69477378370704,
+            "modules": [
+              "gravity-runner",
+              "happy-birds"
+            ],
+            "initializations": {
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858
+            },
+            "aiMs": 0,
+            "aiMaxMs": 0
+          },
+          "children": 11,
+          "heap": 28659674
+        },
+        {
+          "diagnostics": {
+            "fps": 59.9880023966602,
+            "frameMs": 16.686225143495964,
+            "modules": [
+              "gravity-runner",
+              "happy-birds"
+            ],
+            "initializations": {
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858
+            },
+            "aiMs": 0,
+            "aiMaxMs": 0
+          },
+          "children": 11,
+          "heap": 28666246
         },
         {
           "diagnostics": {
             "fps": 59.999999999999986,
-            "frameMs": 16.65143460341859,
+            "frameMs": 16.60505800953856,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858
             },
             "aiMs": 0,
             "aiMaxMs": 0
           },
-          "children": 12,
-          "heap": 22585793
+          "children": 11,
+          "heap": 31089030
         }
       ],
       "cleanup": {
@@ -455,431 +211,107 @@
       "samples": [
         {
           "diagnostics": {
-            "fps": 60.019361084220705,
-            "frameMs": 16.676073121911433,
+            "fps": 59.99612929028692,
+            "frameMs": 16.70360281719524,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds",
               "spike-attacks"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858,
+              "spike-attacks": 21.700000047683716
             },
-            "aiMs": 0,
-            "aiMaxMs": 0
+            "aiMs": 1,
+            "aiMaxMs": 1
           },
-          "children": 12,
-          "heap": 23276318
-        },
-        {
-          "diagnostics": {
-            "fps": 59.91611744414924,
-            "frameMs": 16.623316712140213,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 23279902
-        },
-        {
-          "diagnostics": {
-            "fps": 59.99999999999997,
-            "frameMs": 16.6954646709356,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 23290166
+          "children": 11,
+          "heap": 21266851
         },
         {
           "diagnostics": {
             "fps": 60.06587870290236,
-            "frameMs": 16.67665468852993,
+            "frameMs": 16.589774354066645,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds",
               "spike-attacks"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858,
+              "spike-attacks": 21.700000047683716
             },
-            "aiMs": 0,
-            "aiMaxMs": 0
+            "aiMs": 1,
+            "aiMaxMs": 1
           },
-          "children": 12,
-          "heap": 26519062
+          "children": 11,
+          "heap": 21263103
         },
         {
           "diagnostics": {
-            "fps": 59.928086293590084,
-            "frameMs": 16.635520037797196,
+            "fps": 59.94005994005992,
+            "frameMs": 16.596744757703103,
             "modules": [
-              "chicken-jump",
-              "archery-duel",
               "gravity-runner",
               "happy-birds",
               "spike-attacks"
             ],
             "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858,
+              "spike-attacks": 21.700000047683716
             },
-            "aiMs": 0,
-            "aiMaxMs": 0
+            "aiMs": 1,
+            "aiMaxMs": 1
           },
-          "children": 12,
-          "heap": 24119418
+          "children": 11,
+          "heap": 35426227
+        },
+        {
+          "diagnostics": {
+            "fps": 59.999999999999986,
+            "frameMs": 16.67109747630518,
+            "modules": [
+              "gravity-runner",
+              "happy-birds",
+              "spike-attacks"
+            ],
+            "initializations": {
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858,
+              "spike-attacks": 21.700000047683716
+            },
+            "aiMs": 1,
+            "aiMaxMs": 1
+          },
+          "children": 11,
+          "heap": 20799359
+        },
+        {
+          "diagnostics": {
+            "fps": 60.00774293180274,
+            "frameMs": 16.67879595809001,
+            "modules": [
+              "gravity-runner",
+              "happy-birds",
+              "spike-attacks"
+            ],
+            "initializations": {
+              "gravity-runner": 29.100000023841858,
+              "happy-birds": 20.100000023841858,
+              "spike-attacks": 21.700000047683716
+            },
+            "aiMs": 1,
+            "aiMaxMs": 1
+          },
+          "children": 11,
+          "heap": 20832643
         }
       ],
       "cleanup": {
         "id": "spike-attacks",
-        "options": {
-          "mode": "ai",
-          "difficulty": "impossible"
-        },
-        "ready": false,
-        "paused": true,
-        "ended": false,
-        "inputListeners": 0,
-        "children": 0
-      }
-    },
-    {
-      "name": "Flappy Jump",
-      "samples": [
-        {
-          "diagnostics": {
-            "fps": 59.99999999999997,
-            "frameMs": 16.66456535227217,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 26138892
-        },
-        {
-          "diagnostics": {
-            "fps": 59.98452011553708,
-            "frameMs": 16.66852977463992,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 26135300
-        },
-        {
-          "diagnostics": {
-            "fps": 60.00774294564997,
-            "frameMs": 16.676061721075733,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 28750212
-        },
-        {
-          "diagnostics": {
-            "fps": 60.00774293180274,
-            "frameMs": 16.68256523746202,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 20761876
-        },
-        {
-          "diagnostics": {
-            "fps": 60.00774293180274,
-            "frameMs": 16.604595357119866,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 12,
-          "heap": 20770884
-        }
-      ],
-      "cleanup": {
-        "id": "flappy-jump",
-        "options": {
-          "mode": "ai",
-          "difficulty": "impossible"
-        },
-        "ready": false,
-        "paused": true,
-        "ended": false,
-        "inputListeners": 0,
-        "children": 0
-      }
-    },
-    {
-      "name": "Car Duel",
-      "samples": [
-        {
-          "diagnostics": {
-            "fps": 59.904153360336345,
-            "frameMs": 16.725600281045796,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump",
-              "car-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257,
-              "car-duel": 27.600000023841858
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 18,
-          "heap": 22700499
-        },
-        {
-          "diagnostics": {
-            "fps": 60.019361084220705,
-            "frameMs": 16.7315571816077,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump",
-              "car-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257,
-              "car-duel": 27.600000023841858
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 18,
-          "heap": 22670539
-        },
-        {
-          "diagnostics": {
-            "fps": 60.077519379844944,
-            "frameMs": 16.647693688085884,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump",
-              "car-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257,
-              "car-duel": 27.600000023841858
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 18,
-          "heap": 25983359
-        },
-        {
-          "diagnostics": {
-            "fps": 60.0193610842207,
-            "frameMs": 16.66759712539412,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump",
-              "car-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257,
-              "car-duel": 27.600000023841858
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 18,
-          "heap": 25930507
-        },
-        {
-          "diagnostics": {
-            "fps": 59.99999999999997,
-            "frameMs": 16.649751921691674,
-            "modules": [
-              "chicken-jump",
-              "archery-duel",
-              "gravity-runner",
-              "happy-birds",
-              "spike-attacks",
-              "flappy-jump",
-              "car-duel"
-            ],
-            "initializations": {
-              "chicken-jump": 24.300000071525574,
-              "archery-duel": 19.800000071525574,
-              "gravity-runner": 18.299999952316284,
-              "happy-birds": 18.299999952316284,
-              "spike-attacks": 19.699999928474426,
-              "flappy-jump": 19.09999990463257,
-              "car-duel": 27.600000023841858
-            },
-            "aiMs": 0,
-            "aiMaxMs": 0
-          },
-          "children": 18,
-          "heap": 25955223
-        }
-      ],
-      "cleanup": {
-        "id": "car-duel",
         "options": {
           "mode": "ai",
           "difficulty": "impossible"

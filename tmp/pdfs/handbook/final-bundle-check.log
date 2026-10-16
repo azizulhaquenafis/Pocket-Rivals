@@ -1,0 +1,77 @@
+
+> pocket-rivals@0.3.0 test:bundle
+> node scripts/bundle-report.mjs
+
+{
+  "initial": [
+    {
+      "module": "index.html",
+      "file": "assets/index-CcjdJ8cl.js",
+      "bytes": 75999,
+      "gzip": 23998
+    },
+    {
+      "module": "_index-D1ZBgHxV.js",
+      "file": "assets/index-D1ZBgHxV.js",
+      "bytes": 8133,
+      "gzip": 3321
+    },
+    {
+      "module": "_phaser-DXXWZowi.js",
+      "file": "assets/phaser-DXXWZowi.js",
+      "bytes": 1208050,
+      "gzip": 330072
+    },
+    {
+      "module": "_preload-helper-PPVm8Dsz.js",
+      "file": "assets/preload-helper-PPVm8Dsz.js",
+      "bytes": 1232,
+      "gzip": 715
+    },
+    {
+      "module": "_Maps-TfkLaxQm.js",
+      "file": "assets/Maps-TfkLaxQm.js",
+      "bytes": 1943,
+      "gzip": 1037
+    },
+    {
+      "module": "_Maps-CS-UviKl.js",
+      "file": "assets/Maps-CS-UviKl.js",
+      "bytes": 712,
+      "gzip": 389
+    },
+    {
+      "module": "_ThemeManager-DRa-1XQR.js",
+      "file": "assets/ThemeManager-DRa-1XQR.js",
+      "bytes": 213,
+      "gzip": 189
+    },
+    {
+      "module": "_drawing-Dz1znLUz.js",
+      "file": "assets/drawing-Dz1znLUz.js",
+      "bytes": 812,
+      "gzip": 425
+    }
+  ],
+  "lazyGames": [
+    "src/arcade/snake/index.ts",
+    "src/arcade/space-shooter/index.ts",
+    "src/games/air-hockey/index.ts",
+    "src/games/connect-four/index.ts",
+    "src/games/dots-and-boxes/index.ts",
+    "src/games/fruit-duel/index.ts",
+    "src/games/gravity-runner/index.ts",
+    "src/games/hammer-hit/index.ts",
+    "src/games/happy-birds/index.ts",
+    "src/games/light-fingers/index.ts",
+    "src/games/lumberjack/index.ts",
+    "src/games/math-quiz/index.ts",
+    "src/games/mini-golf/index.ts",
+    "src/games/perfect-timer/index.ts",
+    "src/games/pong/index.ts",
+    "src/games/spike-attacks/index.ts",
+    "src/games/tic-tac-toe/index.ts",
+    "src/games/water-guess/index.ts"
+  ],
+  "totalInitialGzip": 360146
+}

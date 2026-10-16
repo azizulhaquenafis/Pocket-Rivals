@@ -1,6 +1,6 @@
 # Pocket Rivals
 
-An original offline game collection for one phone: 19 local/AI rivalry games, two solo arcade games, Ultimate Golf’s own three modes, and persistent tournaments. TypeScript · Phaser 3 · Vite · Capacitor 8. The existing cream/pastel visual identity, local typography, bold outlines and illustrated cards are preserved.
+An original offline game collection for one phone: 15 local/AI rivalry games, two solo arcade games, Ultimate Golf’s own three modes, and persistent tournaments. TypeScript · Phaser 3 · Vite · Capacitor 8. The existing cream/pastel visual identity, local typography, bold outlines and illustrated cards are preserved.
 
 ## Run
 
@@ -24,11 +24,11 @@ Build before running browser or bundle tests. Browser tests use installed Google
 
 | Collection      | Games                                                                   |
 | --------------- | ----------------------------------------------------------------------- |
-| 2 Player Games | Pong, Air Hockey, Tic-Tac-Toe (Classic/Ultimate), Connect Four, Dots and Boxes, Hammer Hit, Light Fingers, Fruit Duel, Math Quiz, Lumberjack, Water Guess, Perfect Timer, Chicken Jump, Archery Duel, Gravity Runner, Happy Birds, Spike Attacks, Flappy Jump, Car Duel |
+| 2 Player Games | Pong, Air Hockey, Tic-Tac-Toe (Classic/Ultimate), Connect Four, Dots and Boxes, Hammer Hit, Light Fingers, Fruit Duel, Math Quiz, Lumberjack, Water Guess, Perfect Timer, Gravity Runner, Happy Birds, Spike Attacks |
 | 1 Player Arcade | Ultimate Golf, Classic Snake, Star Patrol                               |
 | Tournament      | Any eligible rivalry game/variant; random or selected pool; local or AI |
 
-Every rivalry game offers Medium, Hard and Impossible AI. Classic Impossible cannot be beaten with legal play; Ultimate and Connect Four use strong bounded searches, **not a mathematical optimality guarantee**. Blue is AI in single-player games. For most local games, orange plays below and blue above. Car Duel uses side-by-side directional controls. Water Guess and Hammer Hit rotate the field for local Blue turns; playfield color identifies the active player.
+Every rivalry game offers Medium, Hard and Impossible AI. Classic Impossible cannot be beaten with legal play; Ultimate and Connect Four use strong bounded searches, **not a mathematical optimality guarantee**. Blue is AI in single-player games. For most local games, orange plays below and blue above. Water Guess and Hammer Hit rotate the field for local Blue turns; playfield color identifies the active player.
 
 - Pong/Hockey: first to five, or lead at two minutes. Regulation 0–0 draws; other ties get a 60-second sudden-death period, then draw. Hockey also awards a point against 15 seconds of continuous possession on one half.
 - Ultimate: legal boards are highlighted; optional focus enlarges the required board. The interactive tutorial is in setup.
@@ -61,3 +61,5 @@ npm run android:release # Sync + signed bundleRelease
 Debug output: `android/app/build/outputs/apk/debug/app-debug.apk`. Release output: `android/app/build/outputs/bundle/release/app-release.aab`. This workstation lacks a usable Java runtime and Android SDK; no APK/AAB or physical-device testing is claimed. Android is configured with min SDK 24, compile/target SDK 36, portrait mode and no app permissions. See [build/signing instructions](docs/ANDROID_RELEASE.md).
 
 [QA and known limits](docs/QA.md) · [Privacy/data handling](docs/PRIVACY.md) · [Third-party licenses](docs/THIRD_PARTY_NOTICES.md). Branding and illustrations are original; fonts are bundled under their open licenses. Publisher identity/name/package availability and release signing remain the publisher's responsibility.
+
+Flappy Jump, Car Duel, Archery Duel and Chicken Jump are preserved in [src/future-games](src/future-games/README.md) for later development. They are excluded from menus, tournaments and production bundles.

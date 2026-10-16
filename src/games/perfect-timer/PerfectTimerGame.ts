@@ -32,6 +32,7 @@ export class PerfectTimerGame implements MiniGame {
   private revealText!: Phaser.GameObjects.Text;
 
   private ready = [false, false];
+  private lastTick = -1;
   private state: "WAITING_READY" | "COUNTDOWN" | "TIMING" | "REVEAL" =
     "WAITING_READY";
 
@@ -195,7 +196,7 @@ export class PerfectTimerGame implements MiniGame {
       if (this.match.stops[player] === null) {
         const elapsedMs = this.clock.elapsed();
         this.match.recordStop(player, elapsedMs);
-        this.ctx.audio.play("hit");
+        this.ctx.audio.play("clockStop");
         this.updateButtons();
 
         if (this.match.bothStopped) {
@@ -243,6 +244,7 @@ export class PerfectTimerGame implements MiniGame {
   private startTimingPhase() {
     this.state = "TIMING";
     this.clock.start();
+    this.lastTick = -1;
     this.countdownText.setAlpha(0);
     this.statusText.setText("").setColor("#e74c3c").setFontSize(14).setAlpha(1);
     this.ctx.audio.play("start");
@@ -362,11 +364,17 @@ export class PerfectTimerGame implements MiniGame {
       }
     } else if (this.state === "TIMING") {
       const now = this.clock.elapsed();
+      const tick = Math.floor(now / 500);
+      if (tick !== this.lastTick && !this.match.bothStopped) {
+        this.lastTick = tick;
+        this.ctx.audio.play("clockTick");
+      }
 
       // Check AI auto-stop
       if (this.ai && this.match.stops[1] === null && this.ai.shouldStop(now)) {
         const elapsedMs = now;
         this.match.recordStop(1, elapsedMs);
+        this.ctx.audio.play("clockStop");
         this.updateButtons();
         if (this.match.bothStopped) {
           this.triggerReveal();

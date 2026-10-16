@@ -300,3 +300,10 @@
     transform: translateY(-2px);
   }
 }
+
+.golf-course { display: flex; flex-direction: column; align-items: center; gap: 7px; }
+.golf-course strong { font-weight: 600; text-align: center; overflow-wrap: anywhere; max-width: 100%; }
+.golf-course small { margin-top: 0; text-align: center; }
+.golf-course-preview { display: block; width: 100%; height: 155px; border-radius: 9px; }
+
+@media (max-height: 480px) { .golf-course-preview { height: 85px; } }

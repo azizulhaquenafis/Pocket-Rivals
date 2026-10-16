@@ -1,19 +1,19 @@
 import { it, expect } from "vitest";
 import { FixedStep } from "../../src/shared/physics/FixedStep";
-import { ChickenMatch } from "../../src/games/chicken-jump/Rules";
-import { ChickenAI } from "../../src/games/chicken-jump/AI";
-import { ArcheryMatch } from "../../src/games/archery-duel/Rules";
-import { ArcheryAI } from "../../src/games/archery-duel/AI";
+import { ChickenMatch } from "../../src/future-games/chicken-jump/Rules";
+import { ChickenAI } from "../../src/future-games/chicken-jump/AI";
+import { ArcheryMatch } from "../../src/future-games/archery-duel/Rules";
+import { ArcheryAI } from "../../src/future-games/archery-duel/AI";
 import { GravityMatch } from "../../src/games/gravity-runner/Rules";
 import { GravityAI } from "../../src/games/gravity-runner/AI";
 import { BirdsMatch } from "../../src/games/happy-birds/Rules";
 import { BirdsAI } from "../../src/games/happy-birds/AI";
 import { SpikeMatch } from "../../src/games/spike-attacks/Rules";
 import { SpikeAI } from "../../src/games/spike-attacks/AI";
-import { FlappyMatch } from "../../src/games/flappy-jump/Rules";
-import { FlappyAI } from "../../src/games/flappy-jump/AI";
-import { CarMatch } from "../../src/games/car-duel/Rules";
-import { CarAI } from "../../src/games/car-duel/AI";
+import { FlappyMatch } from "../../src/future-games/flappy-jump/Rules";
+import { FlappyAI } from "../../src/future-games/flappy-jump/AI";
+import { CarMatch } from "../../src/future-games/car-duel/Rules";
+import { CarAI } from "../../src/future-games/car-duel/AI";
 it("all seven seeded simulations produce identical outcomes at 30, 60 and 120 render FPS", () => {
   const outcomes = [30, 60, 120].map((fps) => {
     const c = new ChickenMatch(18),

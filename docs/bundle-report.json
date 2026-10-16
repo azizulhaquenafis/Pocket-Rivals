@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-B6fpOUVM.js",
-      "bytes": 76926,
-      "gzip": 23927
+      "file": "assets/index-DuAyc0kb.js",
+      "bytes": 75973,
+      "gzip": 23982
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -25,6 +25,18 @@
       "gzip": 715
     },
     {
+      "module": "_Maps-TfkLaxQm.js",
+      "file": "assets/Maps-TfkLaxQm.js",
+      "bytes": 1943,
+      "gzip": 1037
+    },
+    {
+      "module": "_Maps-CS-UviKl.js",
+      "file": "assets/Maps-CS-UviKl.js",
+      "bytes": 712,
+      "gzip": 389
+    },
+    {
       "module": "_ThemeManager-DRa-1XQR.js",
       "file": "assets/ThemeManager-DRa-1XQR.js",
       "bytes": 213,
@@ -41,12 +53,8 @@
     "src/arcade/snake/index.ts",
     "src/arcade/space-shooter/index.ts",
     "src/games/air-hockey/index.ts",
-    "src/games/archery-duel/index.ts",
-    "src/games/car-duel/index.ts",
-    "src/games/chicken-jump/index.ts",
     "src/games/connect-four/index.ts",
     "src/games/dots-and-boxes/index.ts",
-    "src/games/flappy-jump/index.ts",
     "src/games/fruit-duel/index.ts",
     "src/games/gravity-runner/index.ts",
     "src/games/hammer-hit/index.ts",
@@ -61,5 +69,5 @@
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 358649
+  "totalInitialGzip": 360130
 }

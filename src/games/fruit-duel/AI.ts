@@ -1,6 +1,6 @@
 import { MatchRandom, type SeedInput } from "../../shared/ai/MatchRandom";
 import type { Difficulty } from "../../shared/contracts/AIController";
-import type { FruitMatch } from "./Rules";
+import { isFruit, type FruitMatch } from "./Rules";
 export class FruitAI {
   readonly personality: MatchRandom;
   snapshot() {
@@ -39,10 +39,9 @@ export class FruitAI {
       !this.tapped &&
       m.phase === "active" &&
       m.time - m.visibleAt >= this.delay &&
-      (m.current === m.target || this.mistake)
+      (isFruit(m.current) || this.mistake)
     ) {
-      m.tap(1);
-      this.tapped = true;
+      if (m.tap(1)) this.tapped = true;
     }
   }
 }

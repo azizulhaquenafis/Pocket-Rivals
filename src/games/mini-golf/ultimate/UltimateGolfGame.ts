@@ -11,6 +11,7 @@ import { GolfRenderer } from "./GolfRenderer";
 import { GolfView, shotVector } from "./GolfInput";
 import { difficulties, strokeLimit, type GolfDifficulty } from "./GolfRules";
 import { GolfUI } from "./components/GolfUI";
+import { courseArt } from "./components/CourseArt";
 import { modeArt } from "./components/ModeArt";
 import { CasualMode } from "./modes/CasualMode";
 import { LocalVersusMode } from "./modes/LocalVersusMode";
@@ -271,7 +272,7 @@ export class UltimateGolfGame implements MiniGame {
           : "Hot-seat race",
     );
     this.ui.screen(
-      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${c.name}<small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode !== "casual" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : this.mode === "ai" ? `<div class="golf-choice">${(["medium", "hard", "impossible"] as const).map((d) => `<button data-action="ai:${d}" aria-pressed="${d === this.difficulty}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Player match</button>' : '<button data-action="mode:casual">Casual solo practice</button>'}</div>`,
+      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${courseArt(c)}<strong>${c.name}</strong><small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode !== "casual" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : this.mode === "ai" ? `<div class="golf-choice">${(["medium", "hard", "impossible"] as const).map((d) => `<button data-action="ai:${d}" aria-pressed="${d === this.difficulty}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Player match</button>' : '<button data-action="mode:casual">Casual solo practice</button>'}</div>`,
     );
   }
   private startCompetitionOrCasual(plan: number[]) {
@@ -398,8 +399,7 @@ export class UltimateGolfGame implements MiniGame {
       `${prefix}${w.strokes}/${w.limit} strokes${this.mode !== "casual" ? ` · ${timeText(elapsed)}` : ""}`,
     );
     const playerDone =
-      this.mode === "ai" &&
-      this.race!.attempts[0].length === this.plan.length;
+      this.mode === "ai" && this.race!.attempts[0].length === this.plan.length;
     this.ui.message(
       playerDone
         ? "You finished! Waiting for AI..."

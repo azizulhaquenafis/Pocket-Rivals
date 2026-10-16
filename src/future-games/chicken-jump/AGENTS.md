@@ -1,0 +1,2 @@
+# Chicken Jump
+Rules owns two independent stack states and geometric descending landings. The controller advances at 120 Hz; input locks a sliding block and launches the chicken. A miss retries the same height. Ten stacks wins, same-step ties draw; 180-second safety cap uses height. These timing/balancing choices are original because the referenced PDF was not supplied. AI chooses a seeded alignment offset per height and uses the same stop action. Keep rules/AI/rendering isolated; no global listeners or timers.

@@ -1238,3 +1238,15 @@ button:disabled {
 .result-modal:has(.result-emblem.blue) { background: #d9eaf4; }
 .result-modal:has(.result-emblem.orange) .result-emblem { box-shadow: 0 0 0 12px #f5a05a55, 4px 5px 0 var(--ink); }
 .result-modal:has(.result-emblem.blue) .result-emblem { box-shadow: 0 0 0 12px #58add555, 4px 5px 0 var(--ink); }
+
+/* Metadata map thumbnails use the same picker component at a readable size. */
+.variant-choices:has(.map-preview) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+.variant-choice:has(.map-preview) { min-width: 0; padding: 9px; }
+.variant-choice:has(.map-preview) b { font-size: 14px; }
+.variant-choice:has(.map-preview) small { font-size: 10px; }
+.variant-preview-icon .map-preview { width: 72px; height: 72px; }

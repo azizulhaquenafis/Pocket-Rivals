@@ -3,11 +3,11 @@ import preview from "./assets/preview.svg?raw";
 export default {
   id: "fruit-duel",
   name: "Fruit Duel",
-  description: "Spot the match. Beat the clock.",
+  description: "Slice the fruit. Dodge the decoys.",
   instructions:
-    "The small fruit is your target. Tap your half when the large fruit matches it. A wrong or early tap gives your rival a point. Simultaneous taps replay. First to ten. Orange: Space. Blue: Enter.",
-  color: "#f5dfcf",
-  accent: "#d9b498",
+    "Tap your half to slice real fruit. Gifts, medals, flowers and empty swings cause a 1.35s cooldown. Simultaneous slices replay. First to 10. Orange: Space; Blue: Enter.",
+  color: "#d6bddb",
+  accent: "#b693be",
   preview,
   order: 11,
   tag: "A FRUITY FACE-OFF",

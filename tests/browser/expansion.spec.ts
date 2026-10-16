@@ -149,7 +149,7 @@ test("Light Fingers cooldowns, legal steals, pause and a complete match", async 
     .toBe(1);
 });
 
-test("Fruit Duel completes ten legal target matches and AI responds after matching fruit", async ({
+test("Fruit Duel completes ten legal fruit slices and AI responds to real fruit", async ({
   page,
 }) => {
   test.setTimeout(65000);

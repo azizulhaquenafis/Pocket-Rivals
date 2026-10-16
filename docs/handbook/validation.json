@@ -1,0 +1,12 @@
+{
+  "Application source changes for this request": "None. Only documentation/generation artifacts were authored. Other concurrent project work was observed; source fingerprints define this edition.",
+  "npm run build": "Passed at the initial review checkpoint (strict TypeScript and production Vite build). Vite reported the large shared Phaser chunk warning. The source reference may include later concurrent work; see any final snapshot check below.",
+  "npm run test:bundle": "Passed at the initial checkpoint; 18 registered entry paths were verified and totalInitialGzip was 360135 bytes. The report is a build snapshot.",
+  "npm test": "Initial run: 30 files passed, one file failed; 287 tests passed and one Car Duel 100-seed stress case exceeded the configured 20000ms timeout. No failed assertion was reported for that case.",
+  "Car Duel isolated recheck": "npx vitest run tests/unit/car-duel.test.ts passed all 3 tests; the stress case completed in 12.534 seconds. No application/test configuration was changed for the recheck.",
+  "Browser and native checks": "Not rerun for this documentation request. Existing project QA records are historical; no physical Android/iOS validation or APK/AAB release is claimed.",
+  "PDF verification": "The delivered edition is rendered and inspected separately; coverage.json checks that every indexed maintained code file has an atlas/test entry.",
+  "Final production build": "npm run build passed again after the Star Patrol source additions (strict TypeScript plus Vite; 3.26s Vite build). The shared large-chunk warning remains.",
+  "Final bundle check": "npm run test:bundle passed again against the rebuilt dist. The report describes that build, not a physical device.",
+  "Final unit run": "npx vitest run --maxWorkers=2: 31 files passed and one failed; 296 tests passed and the same Car Duel 100-seed stress test exceeded 20000ms again. The new Star Patrol unit suite passed. The earlier isolated Car Duel run passed; the full-suite timeout remains unresolved and is not represented as a green suite."
+}
