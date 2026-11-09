@@ -1,15 +1,58 @@
-import { shuffleAnswers, fracLatex, simplifyFrac, type MathQuestion } from './Question';
+import {
+  shuffleAnswers,
+  fracLatex,
+  simplifyFrac,
+  type MathQuestion,
+} from "./Question";
 
-export function basicQuestion(serial: number, random = Math.random): MathQuestion {
-  // Category selection across all 7 required basic math categories:
+export function basicQuestion(
+  serial: number,
+  random = Math.random,
+): MathQuestion {
+  // Category selection across 11 basic math categories:
   // 0: Addition, 1: Subtraction, 2: Multiplication, 3: Division,
   // 4: Fractions, 5: Percentages, 6: Operator Precedence
-  const cat = Math.floor(random() * 7);
+  const cat = Math.floor(random() * 11);
 
+  if (cat >= 7) {
+    const a = 2 + Math.floor(random() * 19),
+      b = 2 + Math.floor(random() * 9);
+    const k = 2 + Math.floor(random() * 5);
+    const families = ["equation", "power", "ratio", "average"];
+    const topics = ["Equations", "Powers", "Ratios", "Averages"];
+    const answers = [b, a * a - b, a * k, a + b];
+    const prompts = [
+      String.raw`x+${a}=${a + b}.\quad x=?`,
+      String.raw`${a}^2-${b}=?`,
+      String.raw`${a}:${b}=x:${b * k}.\quad x=?`,
+      String.raw`\text{Mean of }${a},\ ${a + b},\ ${a + 2 * b}=?`,
+    ];
+    const explanations = [
+      `${a + b}-${a}=${b}`,
+      `${a * a}-${b}=${a * a - b}`,
+      String.raw`\frac{${a}\cdot${b * k}}{${b}}=${a * k}`,
+      String.raw`\frac{${a}+${a + b}+${a + 2 * b}}3=${a + b}`,
+    ];
+    const i = cat - 7,
+      answer = answers[i];
+    return shuffleAnswers(
+      {
+        id: `basic-${families[i]}-${a}-${b}-${i === 2 ? k : 0}`,
+        topic: topics[i],
+        difficulty: "easy",
+        questionLatex: prompts[i],
+        optionsLatex: [String(answer), String(answer + 1), String(answer - 1)],
+        correctIndex: 0,
+        explanationLatex: explanations[i],
+        estimatedSeconds: 10,
+      },
+      random,
+    );
+  }
   if (cat === 0) {
     // Addition: 2-digit sums
-    const a = 11 + Math.floor(random() * 78);
-    const b = 11 + Math.floor(random() * 78);
+    const a = 11 + Math.floor(random() * 118);
+    const b = 11 + Math.floor(random() * 118);
     const correct = a + b;
     // Misconceptions: off-by-one, digit carry mistake (off by 10)
     const d1 = correct + (random() < 0.5 ? 1 : -1);
@@ -21,8 +64,8 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     ];
     const q: MathQuestion = {
       id: `basic-add-${a}-${b}`,
-      topic: 'Arithmetic',
-      difficulty: 'easy',
+      topic: "Arithmetic",
+      difficulty: "easy",
       questionLatex: `${a} + ${b} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -34,7 +77,7 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
 
   if (cat === 1) {
     // Subtraction
-    const a = 25 + Math.floor(random() * 74);
+    const a = 25 + Math.floor(random() * 114);
     const b = 12 + Math.floor(random() * (a - 5));
     const correct = a - b;
     const d1 = correct + (random() < 0.5 ? 1 : -1);
@@ -42,12 +85,18 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     const options: [string, string, string] = [
       String(correct),
       String(d1),
-      String(d2 === correct || d2 === d1 ? (correct > 2 ? correct - 2 : correct + 3) : d2),
+      String(
+        d2 === correct || d2 === d1
+          ? correct > 2
+            ? correct - 2
+            : correct + 3
+          : d2,
+      ),
     ];
     const q: MathQuestion = {
       id: `basic-sub-${a}-${b}`,
-      topic: 'Arithmetic',
-      difficulty: 'easy',
+      topic: "Arithmetic",
+      difficulty: "easy",
       questionLatex: `${a} - ${b} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -72,8 +121,8 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     ];
     const q: MathQuestion = {
       id: `basic-mul-${a}-${b}`,
-      topic: 'Arithmetic',
-      difficulty: 'easy',
+      topic: "Arithmetic",
+      difficulty: "easy",
       questionLatex: String.raw`${a} \times ${b} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -97,8 +146,8 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     ];
     const q: MathQuestion = {
       id: `basic-div-${dividend}-${b}`,
-      topic: 'Arithmetic',
-      difficulty: 'easy',
+      topic: "Arithmetic",
+      difficulty: "easy",
       questionLatex: String.raw`\frac{${dividend}}{${b}} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -110,7 +159,7 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
 
   if (cat === 4) {
     // Fractions: Addition with common denominator
-    const den = 3 + Math.floor(random() * 7); // 3..9
+    const den = 3 + Math.floor(random() * 11); // 3..9
     const a = 1 + Math.floor(random() * (den - 2));
     const b = 1 + Math.floor(random() * (den - a));
     const correctNum = a + b;
@@ -119,15 +168,17 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     const d1 = fracLatex(correctNum, den * 2);
     const d2 = fracLatex(correctNum + 1, den);
     const optSet = new Set([correctStr]);
-    const validD1 = !optSet.has(d1) ? d1 : fracLatex(Math.max(1, correctNum - 1), den);
+    const validD1 = !optSet.has(d1)
+      ? d1
+      : fracLatex(Math.max(1, correctNum - 1), den);
     optSet.add(validD1);
     const validD2 = !optSet.has(d2) ? d2 : fracLatex(correctNum + 2, den);
     const options: [string, string, string] = [correctStr, validD1, validD2];
 
     const q: MathQuestion = {
       id: `basic-frac-${a}-${b}-${den}`,
-      topic: 'Fractions',
-      difficulty: 'easy',
+      topic: "Fractions",
+      difficulty: "easy",
       questionLatex: String.raw`\frac{${a}}{${den}} + \frac{${b}}{${den}} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -156,8 +207,8 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
     ];
     const q: MathQuestion = {
       id: `basic-pct-${pct}-${base}`,
-      topic: 'Percentages',
-      difficulty: 'easy',
+      topic: "Percentages",
+      difficulty: "easy",
       questionLatex: `${pct}\\% \\text{ of } ${base} = ?`,
       optionsLatex: options,
       correctIndex: 0,
@@ -182,8 +233,8 @@ export function basicQuestion(serial: number, random = Math.random): MathQuestio
   ];
   const q: MathQuestion = {
     id: `basic-prec-${a}-${b}-${c}`,
-    topic: 'Precedence',
-    difficulty: 'easy',
+    topic: "Precedence",
+    difficulty: "easy",
     questionLatex: String.raw`${a} + ${b} \times ${c} = ?`,
     optionsLatex: options,
     correctIndex: 0,

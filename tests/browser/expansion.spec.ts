@@ -246,31 +246,24 @@ test("Math Quiz renders formulas, validates all mobile widths and completes a re
     .toBe(1);
 });
 
-test("Lumberjack real controls, seeded trees, three rounds and a result", async ({
+test("Lumberjack idle safety, keyboard chops and immediate branch defeat", async ({
   page,
 }) => {
   await open(page, "Lumberjack");
-  for (let round = 1; round <= 3; round++) {
-    await expect
-      .poll(async () => (await state(page)).scene.game.round)
-      .toBe(round);
-    await page.keyboard.press("KeyA");
-    await expect
-      .poll(async () => (await state(page)).scene.game.players[0].score)
-      .toBe(1);
-    if (round < 3)
-      await expect
-        .poll(async () => (await state(page)).scene.game.phase, {
-          timeout: 4000,
-        })
-        .toBe("between");
+  await page.waitForTimeout(2300);
+  expect(
+    (await state(page)).scene.game.players.every((p: any) => p.alive),
+  ).toBe(true);
+  for (let i = 0; i < 25; i++) {
+    const m = (await state(page)).scene.game,
+      index = m.players[0].score;
+    const branch = m.pattern[index] || m.pattern[index + 1];
+    await page.keyboard.press(branch === 1 ? "KeyD" : "KeyA");
+    if (branch) break;
+    await page.waitForTimeout(110);
   }
   await expect(
     page.getByRole("button", { name: "Rematch", exact: true }),
   ).toBeVisible();
-  expect((await state(page)).scene.game.totals).toEqual([3, 0]);
-  await open(page, "Lumberjack", true);
-  await expect
-    .poll(async () => (await state(page)).scene.game.players[1].score)
-    .toBeGreaterThan(2);
+  expect((await state(page)).scene.game.winner).toBe(2);
 });

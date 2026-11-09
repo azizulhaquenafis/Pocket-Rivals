@@ -34,7 +34,7 @@ export class DotsGame implements MiniGame {
   private flashAge = 1;
   private aiDelay = 0;
   private last = -1;
-  private selected = 0;
+  private selected = -1;
   private reported = false;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -76,7 +76,14 @@ export class DotsGame implements MiniGame {
           const legal = this.board.legal(),
             i = legal.indexOf(this.selected),
             d = code === "ArrowLeft" || code === "ArrowUp" ? -1 : 1;
-          this.selected = legal[(i + d + legal.length) % legal.length] ?? 0;
+          this.selected =
+            legal[
+              i < 0
+                ? d < 0
+                  ? legal.length - 1
+                  : 0
+                : (i + d + legal.length) % legal.length
+            ] ?? -1;
         }
       },
     );

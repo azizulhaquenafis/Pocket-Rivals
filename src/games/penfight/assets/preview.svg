@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260">
+  <g stroke="#242b32" stroke-width="7" stroke-linejoin="round">
+    <rect x="35" y="25" width="370" height="220" rx="24" fill="#f1dcba" />
+    <path d="M55 82h330M55 189h330" stroke="#c9b491" stroke-width="3" />
+    <g transform="translate(150 165) rotate(-22)">
+      <rect x="-70" y="-12" width="140" height="24" rx="10" fill="#f49b58" />
+      <path d="M70-10l21 10-21 10z" fill="#fffdf5" />
+      <path d="M-48-12v24" />
+    </g>
+    <g transform="translate(290 94) rotate(20)">
+      <rect x="-70" y="-12" width="140" height="24" rx="10" fill="#58addb" />
+      <path d="M70-10l21 10-21 10z" fill="#fffdf5" />
+      <path d="M-48-12v24" />
+    </g>
+    <path
+      d="m197 106 18 8-16 12m19-27 11 8"
+      fill="none"
+      stroke-linecap="round"
+    />
+  </g>
+</svg>

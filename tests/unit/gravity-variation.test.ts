@@ -63,7 +63,7 @@ it("speed has a calm start, smooth staged increases and a safe endless ceiling",
   for (let age = 7; age < 112; age += 0.1)
     expect(m.speed(age + 0.01) - m.speed(age)).toBeLessThan(0.121);
 });
-it("later sections vary spacing and raise hazard density without shortening legal transit below 245", () => {
+it("later sections vary spacing and raise hazard density without shortening legal transit below 230", () => {
   const stream = new CourseStream(42, "green"),
     gaps: Gap[] = [],
     obstacles: Obstacle[] = [];
@@ -82,7 +82,7 @@ it("later sections vary spacing and raise hazard density without shortening lega
     if (hazards[i].x !== hazards[i - 1].x)
       expect(
         hazards[i].x - hazards[i - 1].x - hazards[i - 1].width,
-      ).toBeGreaterThanOrEqual(245 - 1e-6);
+      ).toBeGreaterThanOrEqual(230 - 1e-6);
 });
 it("jets pulse, phase gates really open, and visual polygons match legal collisions", () => {
   const jet: Obstacle = {
@@ -114,9 +114,10 @@ it("jets pulse, phase gates really open, and visual polygons match legal collisi
   expect(touchesTrap(icicle, 95, 40, 0)).toBe(false); // Empty triangular corner is genuinely safe.
   expect(touchesTrap(jet, 300, 160, 0)).toBe(false);
 });
-it("100 Impossible routes per map establish legal two-minute paths through all trap families", () => {
-  for (const map of Object.keys(TRAPS))
-    for (let seed = 0; seed < 100; seed++) {
+for (const map of Object.keys(TRAPS)) for (const start of [0,25,50,75])
+it(`${map}: legal two-minute routes for seeds ${start}–${start+24}`, async () => {
+    for (let seed = start; seed < start+25; seed++) {
+      await new Promise<void>(resolve => setImmediate(resolve));
       const m = new GravityMatch(seed, map),
         ai = new GravityAI("impossible", seed);
       for (let i = 0; i < 14400; i++) {

@@ -53,7 +53,7 @@ test("new games enter tournaments automatically and a real new-game round crowns
   for (const name of [
     "Gravity Runner · Random map",
     "Happy Birds",
-    "Spike Attacks · Random map",
+    "Spike Attacks",
   ])
     await expect(
       page.getByRole("checkbox", { name: `○ ${name}`, exact: true }),

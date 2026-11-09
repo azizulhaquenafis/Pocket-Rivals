@@ -1,3 +1,4 @@
+import { oppositeSideLayout } from "../../shared/utilities/DeviceLayout";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { theme } from "../../core/ThemeManager";
@@ -19,8 +20,10 @@ export class LumberGame implements MiniGame {
   private swing = [0, 0];
   private sides = [-1, 1];
   private round = 1;
+  private flipped = false;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
+    this.flipped = ctx.options.mode === "local" && oppositeSideLayout();
     this.g = ctx.scene.add.graphics();
     this.text = label(ctx.scene, 210, 381, "", 11);
     if (ctx.options.mode === "ai")
@@ -31,8 +34,7 @@ export class LumberGame implements MiniGame {
       const p = y < 380 ? 1 : 0;
       this.chop(
         p,
-        ((x < 210 ? -1 : 1) *
-          (p === 1 && ctx.options.mode === "local" ? -1 : 1)) as Side,
+        ((x < 210 ? -1 : 1) * (p === 1 && this.flipped ? -1 : 1)) as Side,
       );
     });
     ctx.input.press(["KeyA", "KeyD", "ArrowLeft", "ArrowRight"], (key) =>
@@ -50,7 +52,8 @@ export class LumberGame implements MiniGame {
     if (result !== null) {
       this.ctx.audio.play(result ? "wood" : "fail");
       this.swing[p] = 1;
-      if (result) this.scroll[p] = Math.min(28, this.scroll[p] + 28);
+      if (result || this.m.players[p].hitNext)
+        this.scroll[p] = Math.min(28, this.scroll[p] + 28);
     }
   }
   update(dt: number) {
@@ -77,28 +80,18 @@ export class LumberGame implements MiniGame {
         g,
         this.m,
         p,
-        p === 1 && !this.ai,
+        p === 1 && this.flipped,
         this.scroll[p],
         this.swing[p],
         this.sides[p],
       );
     }
-    const scores = this.m.totals.map(
-      (s, i) => s + (this.m.phase === "playing" ? this.m.players[i].score : 0),
-    ) as [number, number];
+    const scores = this.m.totals;
     if (scores.join(",") !== this.previousScores) {
       this.previousScores = scores.join(",");
       this.ctx.setScore(...scores);
     }
-    this.text
-      .setDepth(1)
-      .setText(
-        this.m.phase === "between"
-          ? "NEXT ROUND"
-          : this.m.round > 3
-            ? "SUDDEN DEATH"
-            : `${this.m.round} / 3`,
-      );
+    this.text.setDepth(1).setText("FIRST TO 100");
     if (this.m.winner) {
       this.done += dt;
       if (this.done > 0.8 && !this.reported) {
@@ -120,6 +113,7 @@ export class LumberGame implements MiniGame {
   snapshot() {
     return {
       ai: this.ai?.snapshot(),
+      seed: this.m.seed,
       phase: this.m.phase,
       round: this.m.round,
       players: this.m.players.map((p) => ({ ...p })),

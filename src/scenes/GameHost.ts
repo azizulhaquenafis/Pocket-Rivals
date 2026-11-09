@@ -1,3 +1,4 @@
+import { oppositeSideLayout } from "../shared/utilities/DeviceLayout";
 import Phaser from "phaser";
 import type { GameManager } from "../core/GameManager";
 import type {
@@ -96,7 +97,7 @@ export class GameHost extends Phaser.Scene {
             86,
             this.options.mode === "ai" ? "BLUE AI   0" : "BLUE   0",
             18,
-          ).setRotation(this.options.mode === "ai" ? 0 : Math.PI),
+          ).setRotation(this.options.mode === "local" && oppositeSideLayout() ? Math.PI : 0),
         ];
       } else {
         rounded(g, 80, 70, 260, 32, 12, theme.blue, 2);

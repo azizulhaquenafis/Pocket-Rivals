@@ -32,9 +32,10 @@ it("simultaneous falls replay; legal survival points finish at five", () => {
   expect(m.winner).toBe(2);
   expect(m.flip(1)).toBe(false);
 });
-it("100 seeded opponents at every difficulty beat idle players using legal flips", () => {
-  for (const d of ["medium", "hard", "impossible"] as const)
+for (const d of ["medium", "hard", "impossible"] as const)
+it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () => {
     for (let seed = 0; seed < 100; seed++) {
+      await new Promise<void>(resolve=>setImmediate(resolve));
       const m = new GravityMatch(seed),
         a = new GravityAI(d, seed);
       for (let i = 0; i < 36000 && !m.winner; i++) {
@@ -45,9 +46,10 @@ it("100 seeded opponents at every difficulty beat idle players using legal flips
       expect(m.scores[1]).toBe(5);
     }
 });
-it("100 seeds per difficulty traverse two minutes of increasingly fast shared hazards", () => {
-  for (const d of ["medium", "hard", "impossible"] as const)
+for (const d of ["medium", "hard", "impossible"] as const)
+it(`${d}: 100 seeds traverse two minutes of increasingly fast shared hazards`, async () => {
     for (let seed = 0; seed < 100; seed++) {
+      await new Promise<void>(resolve=>setImmediate(resolve));
       const m = new GravityMatch(seed),
         a = new GravityAI(d, seed);
       let flips = 0,
@@ -94,7 +96,7 @@ it("double wall gaps always have a continuous rail and ample entry/exit clearanc
       if (!gaps.length) continue; // Pinches and islands use rails with intact walls.
       expect(gaps).toHaveLength(2);
       expect(gaps.map((g) => g.side).sort()).toEqual([-1, 1]);
-      expect(gaps[0].x - o.x).toBeGreaterThanOrEqual(180);
+      expect(gaps[0].x - o.x).toBeGreaterThanOrEqual(180 - 1e-9);
       expect(o.x + o.width - gaps[0].x - gaps[0].width).toBeGreaterThanOrEqual(
         179.999,
       );

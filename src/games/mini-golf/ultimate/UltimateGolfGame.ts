@@ -99,6 +99,7 @@ export class UltimateGolfGame implements MiniGame {
         this.cancel();
       },
       () => this.cancel(),
+      { outside: true },
     );
     this.modes();
   }

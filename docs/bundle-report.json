@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-DuAyc0kb.js",
-      "bytes": 75973,
-      "gzip": 23982
+      "file": "assets/index-CLOu7bOk.js",
+      "bytes": 72202,
+      "gzip": 22732
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -13,28 +13,28 @@
       "gzip": 3321
     },
     {
-      "module": "_phaser-DXXWZowi.js",
-      "file": "assets/phaser-DXXWZowi.js",
-      "bytes": 1208050,
-      "gzip": 330072
-    },
-    {
       "module": "_preload-helper-PPVm8Dsz.js",
       "file": "assets/preload-helper-PPVm8Dsz.js",
       "bytes": 1232,
       "gzip": 715
     },
     {
+      "module": "_phaser-DXXWZowi.js",
+      "file": "assets/phaser-DXXWZowi.js",
+      "bytes": 1208050,
+      "gzip": 330072
+    },
+    {
+      "module": "_DeviceLayout-g7aSze0z.js",
+      "file": "assets/DeviceLayout-g7aSze0z.js",
+      "bytes": 138,
+      "gzip": 121
+    },
+    {
       "module": "_Maps-TfkLaxQm.js",
       "file": "assets/Maps-TfkLaxQm.js",
       "bytes": 1943,
       "gzip": 1037
-    },
-    {
-      "module": "_Maps-CS-UviKl.js",
-      "file": "assets/Maps-CS-UviKl.js",
-      "bytes": 712,
-      "gzip": 389
     },
     {
       "module": "_ThemeManager-DRa-1XQR.js",
@@ -47,6 +47,12 @@
       "file": "assets/drawing-Dz1znLUz.js",
       "bytes": 812,
       "gzip": 425
+    },
+    {
+      "module": "_icons-BYBCPnF9.js",
+      "file": "assets/icons-BYBCPnF9.js",
+      "bytes": 1180,
+      "gzip": 591
     }
   ],
   "lazyGames": [
@@ -63,11 +69,11 @@
     "src/games/lumberjack/index.ts",
     "src/games/math-quiz/index.ts",
     "src/games/mini-golf/index.ts",
-    "src/games/perfect-timer/index.ts",
+    "src/games/penfight/index.ts",
     "src/games/pong/index.ts",
     "src/games/spike-attacks/index.ts",
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 360130
+  "totalInitialGzip": 359203
 }

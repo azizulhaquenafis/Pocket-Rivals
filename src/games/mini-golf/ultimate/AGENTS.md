@@ -13,3 +13,5 @@ AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical par
 Temple AI waypoints must remain outside bumpers, quicksand and the moving-boulder sweep. Record reached route points before forecasting reaction delay; a mover must not erase completed progress. Keep original course geometry and human/AI physics identical. `golf-temple-ai.test.ts` verifies full planned completions at every AI difficulty; the browser regression runs the real planning worker.
 
 CourseArt generates static portrait overviews from actual course data for the picker. It must not create physics/AI instances. Keep course cards readable within the app container (two columns in portrait, not a viewport-wide four-column assumption).
+
+Golf aiming opts into host pointer capture (`outside: true`). A gesture starts inside the course, then may continue beyond the viewport/canvas and across DOM footer controls without clicking them. Keep world unprojection unclamped and the camera fixed while aiming. Test full/focused touch, outside mouse releases and cleanup in `tests/browser/outside-aim.spec.ts`.

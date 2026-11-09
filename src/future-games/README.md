@@ -1,6 +1,6 @@
 # Future games
 
-Flappy Jump (`flappy-jump`), Car Duel (`car-duel`), Archery Duel (`archery-duel`) and Chicken Jump (`chicken-jump`) are paused projects, preserved intact with their assets, metadata, AI, rules and module instructions.
+Perfect Timer (`perfect-timer`), Flappy Jump (`flappy-jump`), Car Duel (`car-duel`), Archery Duel (`archery-duel`) and Chicken Jump (`chicken-jump`) are paused projects, preserved intact with their assets, metadata, AI, rules and module instructions.
 
 This directory is intentionally outside `GameRegistry` and `GameLoader` discovery. These games do not appear in Quick Play or tournament selection, and their implementations/assets are not bundled. Existing stored records and IDs are not deleted. An old tournament containing a deferred game can be replaced through New tournament; an unavailable saved round cannot launch.
 

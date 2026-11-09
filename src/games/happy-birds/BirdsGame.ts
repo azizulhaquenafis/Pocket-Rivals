@@ -1,3 +1,4 @@
+import { oppositeSideLayout } from "../../shared/utilities/DeviceLayout";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { FixedStep } from "../../shared/physics/FixedStep";
@@ -49,7 +50,7 @@ export class BirdsGame implements MiniGame {
       label(ctx.scene, 73, 86, "★ / 15", 12, "#a17e2d"),
       label(ctx.scene, 73, 690, "★ / 15", 12, "#a17e2d"),
     ];
-    if (!this.ai) this.goalLabels[0].setRotation(Math.PI);
+    if (!this.ai && oppositeSideLayout()) this.goalLabels[0].setRotation(Math.PI);
     this.view.reset(this.m);
     this.renderState = this.view.sample(this.m, 1, 0);
     this.draw();

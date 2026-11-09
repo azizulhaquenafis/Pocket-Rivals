@@ -158,8 +158,7 @@ export class WaterGuessGame implements MiniGame {
     }
 
     // Row 3: ".", "DEL", "CONFIRM"
-    addKey(".", 28, 604, 64, 34, () => this.appendDecimal());
-    addKey("⌫ DEL", 100, 604, 76, 34, () => this.backspace());
+    addKey("⌫ DEL", 28, 604, 148, 34, () => this.backspace());
     addKey("CONFIRM", 184, 604, 204, 34, () => this.submitCurrentGuess());
 
     // Create Phaser Text objects for each button
@@ -230,7 +229,7 @@ export class WaterGuessGame implements MiniGame {
       "Numpad0",
     ];
     this.ctx.input.press(
-      [...digitCodes, "Period", "NumpadDecimal", "Backspace", "Enter", "Space"],
+      [...digitCodes, "Backspace", "Enter", "Space"],
       (code) => {
         if (this.paused || this.reported) return;
         if (this.state === "REVEAL") {
@@ -245,9 +244,6 @@ export class WaterGuessGame implements MiniGame {
             this.ctx.audio.play("tap");
             this.appendDigit(char);
           }
-        } else if (code === "Period" || code === "NumpadDecimal") {
-          this.ctx.audio.play("tap");
-          this.appendDecimal();
         } else if (code === "Backspace") {
           this.ctx.audio.play("tap");
           this.backspace();
@@ -260,22 +256,9 @@ export class WaterGuessGame implements MiniGame {
   }
 
   private appendDigit(digit: string) {
-    if (this.inputBuffer.length >= 6) return;
-    // Don't allow more than two decimals after dot
-    const dotIdx = this.inputBuffer.indexOf(".");
-    if (dotIdx !== -1 && this.inputBuffer.length - dotIdx > 2) return;
-
-    this.inputBuffer += digit;
-    this.updateBufferDisplay();
-  }
-
-  private appendDecimal() {
-    if (this.inputBuffer.includes(".")) return;
-    if (this.inputBuffer.length === 0) {
-      this.inputBuffer = "0.";
-    } else {
-      this.inputBuffer += ".";
-    }
+    const next = this.inputBuffer + digit;
+    if (next.length > 3 || Number(next) > 100) return;
+    this.inputBuffer = next;
     this.updateBufferDisplay();
   }
 
@@ -287,6 +270,7 @@ export class WaterGuessGame implements MiniGame {
   }
 
   private updateBufferDisplay() {
+    this.inputBufferText.setFontSize(16);
     const pName = this.activeGuesser === 0 ? "ORANGE" : this.ai ? "AI" : "BLUE";
     const color = this.activeGuesser === 0 ? "#e67e22" : "#2980b9";
     this.promptText
@@ -307,6 +291,7 @@ export class WaterGuessGame implements MiniGame {
     this.roundResult = undefined;
     this.revealAge = 0;
     this.revealText.setAlpha(0);
+    this.bannerTitle.setVisible(true);
 
     const isSudden = this.match.isSuddenDeath;
     this.bannerTitle.setText(isSudden ? "TIEBREAK" : `${this.match.round} / 5`);
@@ -338,7 +323,12 @@ export class WaterGuessGame implements MiniGame {
     const val = parsePercentInput(this.inputBuffer);
 
     const ok = this.match.submit(this.activeGuesser, val);
-    if (!ok) return;
+    if (!ok) {
+      this.inputBufferText.setText("Choose another %").setFontSize(13);
+      this.inputBuffer = "";
+      this.ctx.audio.play("fail");
+      return;
+    }
 
     this.ctx.audio.play("wood");
 
@@ -373,11 +363,6 @@ export class WaterGuessGame implements MiniGame {
     this.ctx.setScore(this.match.scores[0], this.match.scores[1]);
 
     const res = this.roundResult;
-    const g0Str = formatPercent(res.guesses[0]);
-    const g1Str = formatPercent(res.guesses[1]);
-
-    const actStr = formatPercent(res.actual);
-
     if (res.winner === 1) {
       this.ctx.audio.play("capture");
     } else if (res.winner === 2) {
@@ -386,13 +371,11 @@ export class WaterGuessGame implements MiniGame {
       this.ctx.audio.play("draw");
     }
 
+    this.bannerTitle.setVisible(false);
     this.revealText
-      .setText(
-        `${res.winner === "draw" ? "A TIE!" : "NICE GUESS!"}\n` +
-          `Actual ${actStr}\n` +
-          `${g0Str}  ·  ${g1Str}\n` +
-          `Continue →`,
-      )
+      .setPosition(0, 0)
+      .setFontSize(54)
+      .setText(formatPercent(res.actual))
       .setAlpha(1);
 
     this.promptText.setAlpha(0);
@@ -426,7 +409,14 @@ export class WaterGuessGame implements MiniGame {
     ) {
       this.aiWait = Math.max(0, this.aiWait - dt);
       if (this.aiWait === 0) {
-        this.match.submit(1, this.ai.estimate(this.match.actual));
+        let guess = this.ai.estimate(this.match.actual);
+        // Occupied guesses are unavailable to either player. Choose a legal
+        // adjacent percentage without re-sampling for a more accurate answer.
+        if (guess === this.match.guesses[0]) {
+          const direction = this.random.next() < 0.5 ? -100 : 100;
+          guess += guess === 0 ? 100 : guess === 10000 ? -100 : direction;
+        }
+        this.match.submit(1, guess);
         if (this.match.bothSubmitted) this.triggerReveal();
       }
     }
@@ -462,9 +452,9 @@ export class WaterGuessGame implements MiniGame {
       20,
       this.state === "REVEAL"
         ? this.roundResult?.winner === 1
-          ? 0xf7e1cc
+          ? theme.orange
           : this.roundResult?.winner === 2
-            ? 0xd9eaf4
+            ? theme.blue
             : theme.paper
         : turnBackground(
             this.ai &&
@@ -478,6 +468,8 @@ export class WaterGuessGame implements MiniGame {
       4,
     );
 
+    if (this.state === "REVEAL") return;
+
     // 2. Tube & Water
     const waterLevel =
       this.state === "FILLING"
@@ -488,7 +480,7 @@ export class WaterGuessGame implements MiniGame {
       g,
       waterLevel,
       this.animTime,
-      this.state === "REVEAL",
+      false,
       this.match.actual,
       this.match.guesses[0],
       this.match.guesses[1],
@@ -505,24 +497,6 @@ export class WaterGuessGame implements MiniGame {
         }
         rounded(g, b.x, b.y, b.w, b.h, 10, btnColor, 2);
       }
-    }
-
-    // 4. Reveal bottom panel card
-    if (this.state === "REVEAL") {
-      const winner = this.roundResult?.winner;
-      const color =
-        winner === 1 ? theme.orange : winner === 2 ? theme.blue : 0xb8d998;
-      const pop = Math.sin(Math.min(1, this.revealAge / 0.25) * Math.PI) * 5;
-      rounded(
-        g,
-        34 - pop,
-        484 - pop,
-        352 + pop * 2,
-        146 + pop * 2,
-        16,
-        color,
-        3,
-      );
     }
   }
 

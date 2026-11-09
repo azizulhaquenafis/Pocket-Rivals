@@ -1,3 +1,4 @@
+import { oppositeSideLayout } from "../../shared/utilities/DeviceLayout";
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import './quiz.css';
@@ -18,7 +19,7 @@ export class MathUI {
 
   constructor(local: boolean, answer: (p: 0 | 1, index: number) => void) {
     this.root.className = 'quiz-overlay';
-    this.root.innerHTML = `<div class="quiz-panel">${this.side(1, local)}<div class="quiz-middle"><span></span><div class="quiz-explanation"></div></div>${this.side(0, local)}</div>`;
+    this.root.innerHTML = `<div class="quiz-panel">${this.side(1, local && oppositeSideLayout())}<div class="quiz-middle"><span></span><div class="quiz-explanation"></div></div>${this.side(0, local)}</div>`;
     this.root.addEventListener('pointerdown', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLButtonElement>('button');
       if (b && !b.disabled) {

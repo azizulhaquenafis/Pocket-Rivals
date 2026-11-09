@@ -25,8 +25,7 @@ export class LumberAI {
       v = m.players[1],
       base = { medium: 0.42, hard: 0.245, impossible: 0.135 }[this.difficulty];
     this.wait = p.sample(base * (0.88 + p.tempo * 0.12), base * 0.12, 0.095);
-    if (this.difficulty !== "medium")
-      this.wait = Math.min(this.wait, m.limit(1) * 0.8);
+
     const legal = ([-1, 1] as Side[]).filter((side) => m.safe(1, side));
     let side = legal[0];
     if (legal.length === 2) {

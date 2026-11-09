@@ -10,7 +10,6 @@ import { AudioManager } from "./AudioManager";
 import { TournamentManager } from "./TournamentManager";
 import { GameHost } from "../scenes/GameHost";
 import { MainMenu } from "../scenes/MainMenu";
-import { Settings } from "../scenes/Settings";
 import { GameSetup } from "../scenes/GameSetup";
 import { TournamentScene } from "../tournament/TournamentScene";
 import { Modal } from "../shared/components/Modal";
@@ -382,7 +381,15 @@ export class GameManager {
     this.audio.play("tap");
   }
   settings() {
-    new Settings(this).show();
+    const run = this.run;
+    void import("../scenes/Settings")
+      .then(({ Settings }) => {
+        if (run === this.run && this.state === "menu" && !this.modal.isOpen)
+          new Settings(this).show();
+      })
+      .catch((error) => {
+        if (run === this.run) this.showError(error);
+      });
   }
   showError(error: unknown) {
     this.transition.hidden = true;

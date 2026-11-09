@@ -5,7 +5,6 @@ async function launch(p: Page, ai = false) {
   await p
     .getByRole("button", { name: "Play Spike Attacks", exact: true })
     .click();
-  await p.getByRole("button", { name: /Courtyard/ }).click();
   await p.getByRole("radio", { name: ai ? /1 Player/ : /2 Players/ }).click();
   if (ai)
     await p.getByRole("radio", { name: "Impossible", exact: true }).click();
@@ -183,30 +182,14 @@ test("browser gamepad input moves legally and held sticks cannot creep after pau
   await page.screenshot({ path: "docs/spike-keyboard-controller.png" });
 });
 
-test("three maps and Random launch, while solo hides the AI control", async ({
-  page,
-}) => {
-  for (const [name, id] of [
-    ["Courtyard", "courtyard"],
-    ["Split Steps", "split-steps"],
-    ["Crosswind", "crosswind"],
-    ["Random map", "random"],
-  ]) {
-    await page.goto("/?aiSeed=77");
-    await page
-      .getByRole("button", { name: "Play Spike Attacks", exact: true })
-      .click();
-    await page.getByRole("button", { name: new RegExp(name) }).click();
-    await page.getByRole("radio", { name: /1 Player/ }).click();
-    await page.getByRole("button", { name: /Let’s play/ }).click();
-    await expect.poll(async () => (await state(page)).scene.ready).toBe(true);
-    const s = (await state(page)).scene.game;
-    expect(s.visibleControls).toEqual([0]);
-    expect(s.map).toBe(id === "random" ? "crosswind" : id);
-    await page.screenshot({ path: `docs/spike-map-${id}.png` });
-    await page.keyboard.press("Escape");
-    await page
-      .getByRole("button", { name: "Back to all games", exact: true })
-      .click();
-  }
+test("maps are automatic and solo hides the AI control", async ({page}) => {
+  await page.goto("/?aiSeed=77");
+  await page.getByRole("button", {name:"Play Spike Attacks",exact:true}).click();
+  await expect(page.locator(".variant-choices")).toHaveCount(0);
+  await page.getByRole("radio", {name:/1 Player/}).click();
+  await page.getByRole("button", {name:/Let’s play/}).click();
+  await expect.poll(async ()=>(await state(page)).scene.ready).toBe(true);
+  const s = (await state(page)).scene.game;
+  expect(s.visibleControls).toEqual([0]);
+  expect(s.map).toBe("crosswind");
 });

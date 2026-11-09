@@ -11,63 +11,45 @@ import { WaterGuessAI } from "../../src/games/water-guess/WaterGuessAI";
 import { TUBE } from "../../src/games/water-guess/WaterRenderer";
 
 describe("Water Guess Rules & Precision", () => {
-  it("formats and parses decimal hundredths accurately", () => {
-    expect(formatPercent(6875)).toBe("68.75%");
-    expect(formatPercent(1063)).toBe("10.63%");
-    expect(formatPercent(0)).toBe("0.00%");
-    expect(formatPercent(10000)).toBe("100.00%");
-    expect(formatValue(4728)).toBe("47.28");
-
-    expect(parsePercentInput("68.75")).toBe(6875);
-    expect(parsePercentInput("10.63%")).toBe(1063);
+  it("accepts only whole percentages and prevents duplicate guesses", () => {
+    expect(formatPercent(6800)).toBe("68%");
+    expect(formatValue(4700)).toBe("47");
+    expect(parsePercentInput("68%")).toBe(6800);
     expect(parsePercentInput("0")).toBe(0);
     expect(parsePercentInput("100")).toBe(10000);
-    expect(parsePercentInput("150")).toBe(10000); // clamped
-    expect(parsePercentInput("-10")).toBe(0); // clamped
+    for (const text of ["68.75", "-1", "101", "50oops", ""])
+      expect(parsePercentInput(text)).toBeNaN();
+    const m = new WaterGuessMatch();
+    expect(m.submit(0, 5025)).toBe(false);
+    expect(m.submit(0, 5000)).toBe(true);
+    expect(m.submit(1, 5000)).toBe(false);
+    expect(m.submit(1, 5100)).toBe(true);
   });
-
-  it("generates actual water levels with 0.01% granularity in 10.00%..90.00%", () => {
-    const match = new WaterGuessMatch();
-    for (let i = 0; i < 20; i++) {
-      expect(match.actual).toBeGreaterThanOrEqual(MIN_PERCENT);
-      expect(match.actual).toBeLessThanOrEqual(MAX_PERCENT);
-      expect(Number.isInteger(match.actual)).toBe(true);
-      match.startNewRound();
+  it("generates all 81 whole water levels without repeats even with a constant RNG", () => {
+    const m = new WaterGuessMatch(() => 0.5),
+      seen = new Set<number>();
+    for (let i = 0; i < 81; i++) {
+      expect(m.actual % 100).toBe(0);
+      expect(m.actual).toBeGreaterThanOrEqual(MIN_PERCENT);
+      expect(m.actual).toBeLessThanOrEqual(MAX_PERCENT);
+      expect(seen.has(m.actual)).toBe(false);
+      seen.add(m.actual);
+      m.startNewRound();
     }
   });
-
-  it("calculates absolute error and determines round winners correctly", () => {
-    const match = new WaterGuessMatch();
-    // Force actual to 68.75% (6875)
-    match.actual = 6875;
-
-    // P1: 68.62% (6862), P2: 69.03% (6903)
-    // Error P1: |6862 - 6875| = 13 (0.13%)
-    // Error P2: |6903 - 6875| = 28 (0.28%)
-    match.submit(0, 6862);
-    match.submit(1, 6903);
-
-    const res = match.resolveRound();
-    expect(res.actual).toBe(6875);
-    expect(res.errors[0]).toBe(13);
-    expect(res.errors[1]).toBe(28);
-    expect(res.winner).toBe(1);
-    expect(match.scores).toEqual([1, 0]);
-  });
-
-  it("declares round tied when absolute errors are exactly identical", () => {
-    const match = new WaterGuessMatch();
-    match.actual = 5000; // 50.00%
-
-    // P1: 49.80% (4980), P2: 50.20% (5020) -> both error = 20 (0.20%)
-    match.submit(0, 4980);
-    match.submit(1, 5020);
-
-    const res = match.resolveRound();
-    expect(res.errors[0]).toBe(20);
-    expect(res.errors[1]).toBe(20);
-    expect(res.winner).toBe("draw");
-    expect(match.scores).toEqual([0, 0]); // no points awarded
+  it("scores closest whole guesses once and permits equidistant draws", () => {
+    const m = new WaterGuessMatch();
+    m.actual = 6800;
+    m.submit(0, 6700);
+    m.submit(1, 7000);
+    expect(m.resolveRound().errors).toEqual([100, 200]);
+    expect(m.resolveRound().winner).toBe(1);
+    expect(m.scores).toEqual([1, 0]);
+    const tie = new WaterGuessMatch();
+    tie.actual = 5000;
+    tie.submit(0, 4900);
+    tie.submit(1, 5100);
+    expect(tie.resolveRound().winner).toBe("draw");
   });
 
   it("handles 5-round match victory and sudden-death extension", () => {
@@ -124,7 +106,7 @@ describe("Water Guess Rules & Precision", () => {
     // Round 6: P2 wins sudden death
     tiedMatch.actual = 4000;
     tiedMatch.submit(0, 4500);
-    tiedMatch.submit(1, 4010);
+    tiedMatch.submit(1, 4000);
     tiedMatch.resolveRound();
 
     expect(tiedMatch.scores).toEqual([2, 3]);

@@ -1,6 +1,4 @@
 import type { GameMetadata } from "../../shared/contracts/GameModule";
-import { mapPreview } from "./MapPreview";
-import { MAPS } from "./Maps";
 import preview from "./assets/preview.svg?raw";
 export default {
   id: "spike-attacks",
@@ -13,20 +11,6 @@ export default {
   preview,
   order: 20,
   tag: "TAKE COVER",
-  variants: [
-    {
-      id: "random",
-      name: "Random map",
-      description: "A fresh arena each match.",
-      preview: mapPreview(),
-    },
-    ...MAPS.map((m) => ({
-      id: m.id,
-      name: m.name,
-      description: m.description,
-      preview: mapPreview(m),
-    })),
-  ],
   supportedModes: ["local-two-player", "single-player"],
   tournament: true,
 } satisfies GameMetadata;

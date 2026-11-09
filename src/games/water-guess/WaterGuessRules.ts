@@ -4,19 +4,19 @@ export const MAX_PERCENT = 9000; // 90.00%
 
 export function formatPercent(hundredths: number): string {
   const clamped = Math.max(0, Math.min(10000, Math.round(hundredths)));
-  return (clamped / 100).toFixed(2) + "%";
+  return String(Math.round(clamped / 100)) + "%";
 }
 
 export function formatValue(hundredths: number): string {
   const clamped = Math.max(0, Math.min(10000, Math.round(hundredths)));
-  return (clamped / 100).toFixed(2);
+  return String(Math.round(clamped / 100));
 }
 
 export function parsePercentInput(input: string): number {
   const cleaned = input.trim().replace("%", "");
-  const num = parseFloat(cleaned);
-  if (isNaN(num)) return 0;
-  return Math.max(0, Math.min(10000, Math.round(num * 100)));
+  if (!/^\d{1,3}$/.test(cleaned)) return NaN;
+  const num = Number(cleaned);
+  return num <= 100 ? num * 100 : NaN;
 }
 
 export interface WaterRoundResult {
@@ -46,18 +46,28 @@ export class WaterGuessMatch {
     let candidate = 5000;
     let attempts = 0;
     do {
-      // Generate percentage with 0.01% granularity between 10.00% and 90.00%
+      // Whole percentages, while preserving the internal hundredths unit.
       const r = this.rng();
-      candidate = MIN_PERCENT + Math.floor(r * (MAX_PERCENT - MIN_PERCENT + 1));
+      candidate = MIN_PERCENT + Math.min(80, Math.floor(r * 81)) * 100;
       attempts++;
     } while (this.usedActuals.has(candidate) && attempts < 100);
 
+    if (this.usedActuals.size >= 81) this.usedActuals.clear();
+    while (this.usedActuals.has(candidate))
+      candidate = candidate >= MAX_PERCENT ? MIN_PERCENT : candidate + 100;
     this.usedActuals.add(candidate);
     this.actual = candidate;
   }
 
   submit(player: 0 | 1, guessHundredths: number): boolean {
-    if (!Number.isFinite(guessHundredths)) return false;
+    if (
+      !Number.isInteger(guessHundredths) ||
+      guessHundredths % 100 !== 0 ||
+      guessHundredths < 0 ||
+      guessHundredths > 10000
+    )
+      return false;
+    if (this.guesses[1 - player] === guessHundredths) return false;
     if (this.guesses[player] !== null) return false;
     const clamped = Math.max(0, Math.min(10000, Math.round(guessHundredths)));
     this.guesses[player] = clamped;

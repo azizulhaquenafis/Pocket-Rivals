@@ -21,9 +21,22 @@ export function forest(
   rounded(g, -166, -2, 332, 16, 7, 0xa6c982, 0);
   rounded(g, -24, -226, 48, 228, 7, 0xb77b50, 3);
   g.fillStyle(0xd79e6a).fillRect(-18, -222, 12, 218);
+  // Broken bark grain and knots give the tree volume without noisy textures.
+  g.fillStyle(0x805339, 0.3).fillRect(15, -221, 7, 218);
+  for (let j = 0; j < 9; j++) {
+    const y = -219 + j * 25;
+    g.lineStyle(1.5, 0x754b32, 0.45).lineBetween(
+      -9 + (j % 3) * 8,
+      y,
+      -11 + (j % 3) * 8,
+      y + 15,
+    );
+  }
+  g.lineStyle(1.5, 0x754b32, 0.6).strokeEllipse(4, -113 - scroll, 10, 17);
   for (let j = 0; j < 7; j++) {
-    const y = -j * 28 - scroll,
-      branch = m.pattern[v.score + j];
+    const y = -36 - j * 28 - scroll,
+      branch = m.pattern[v.score + (v.hitNext ? 1 : 0) + j];
+    if (y - 32 < -226) continue;
     g.lineStyle(2, 0x895c40, 0.6).lineBetween(-18, y - 4, 18, y - 4);
     if (!branch) continue;
     const x = branch * 24,
@@ -43,6 +56,16 @@ export function forest(
     .lineBetween(-9, -14, -11, 0)
     .lineBetween(8, -14, 10, 0);
   rounded(g, -16, -40, 32, 27, 7, alive, 3);
+  // Trousers, boots and a checked work shirt, all inside the character lane.
+  rounded(g, -14, -16, 12, 13, 2, 0x466079, 2);
+  rounded(g, 3, -16, 12, 13, 2, 0x466079, 2);
+  rounded(g, -16, -5, 16, 7, 2, 0x614737, 2);
+  rounded(g, 2, -5, 17, 7, 2, 0x614737, 2);
+  g.lineStyle(2, theme.ink, 0.28)
+    .lineBetween(-11, -38, -11, -17)
+    .lineBetween(2, -38, 2, -17)
+    .lineBetween(-13, -31, 13, -31)
+    .lineBetween(-13, -23, 13, -23);
   circle(g, 0, -53, 13, 0xf2c395, 3);
   rounded(g, -16, -67, 33, 12, 4, alive, 3);
   g.fillStyle(theme.ink).fillCircle(6, -54, 2);
@@ -56,20 +79,21 @@ export function forest(
   rounded(g, 19, -34, 20, 15, 3, 0xd5e3df, 3);
   g.restore();
   circle(g, 13, -29, 5, 0xf2c395, 2);
+  if (swing > 0 && v.alive) {
+    const t = 1 - swing;
+    for (let i = 0; i < 3; i++) {
+      const x = 39 - t * (12 + i * 8),
+        y = -27 - Math.sin(t * Math.PI) * (13 + i * 5);
+      g.fillStyle(0xdba778, swing).fillTriangle(
+        x,
+        y,
+        x + 5,
+        y - 2,
+        x + 3,
+        y + 3,
+      );
+    }
+  }
   g.restore();
-  // Small reserved edge meter, no giant labels over branches.
-  const fraction = v.alive ? Math.max(0, 1 - v.idle / m.limit(p)) : 0;
-  rounded(g, -160, -195, 8, 156, 4, theme.paper, 2);
-  if (fraction > 0)
-    rounded(
-      g,
-      -159,
-      -40 - 154 * fraction,
-      6,
-      154 * fraction,
-      3,
-      fraction < 0.25 ? theme.orange : 0x79aa62,
-      0,
-    );
   g.restore();
 }

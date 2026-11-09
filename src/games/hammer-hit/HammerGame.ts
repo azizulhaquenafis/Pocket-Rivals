@@ -439,7 +439,7 @@ export class HammerGame implements MiniGame {
       ? this.model.locked[activePlayer]
       : this.model.position(activePlayer);
 
-    const needleAngle = needlePos * 0.64; // ~ +/- 37 degrees
+    const needleAngle = needlePos * (Math.PI / 2); // full 180-degree sweep
     const pivotX = 210 + shakeX;
     const pivotY = 614 + shakeY;
     const needleLen = 70;

@@ -7,3 +7,5 @@ AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical par
 User-requested precision variation: Impossible samples a legal target once per strike: 70% 97–100, 25% 90–96, 5% 75–89 (97 belongs to the top band). Never assign scores directly. Gauge/AI run at 600Hz inside the bounded fixed-step update. The hammer rotates around a fixed grip; do not translate its pivot between animation phases.
 
 StrikePhysics owns presentation-only ballistic puck flight and bell contact; ImpactRing is a damped spring. Both use the existing bounded fixed-step loop. A perfect score reaches the bell; non-perfect trajectories peak below it. Scores still come exclusively from Rules. Scale labels alternate lanes. Popup and ring motion pause with gameplay and have no independent timers.
+
+Needle presentation maps normalized -1..1 to -90..90 degrees (180-degree sweep); scoring and AI sample that same normalized needle.

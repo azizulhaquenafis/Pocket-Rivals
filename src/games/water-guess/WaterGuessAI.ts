@@ -23,7 +23,10 @@ export class WaterGuessAI {
             : 0;
     const bias = r.side * spread * (0.15 + r.role * 0.06),
       noise = r.sample(bias, spread * (0.8 + r.tempo * 0.1), -spread * 1.4);
-    return Math.max(0, Math.min(10000, Math.round(measured + noise)));
+    return Math.max(
+      0,
+      Math.min(10000, Math.round((measured + noise) / 100) * 100),
+    );
   }
   snapshot() {
     return this.personality.snapshot();

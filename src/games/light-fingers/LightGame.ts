@@ -2,34 +2,28 @@ import { MatchRandom, mixSeed } from "../../shared/ai/MatchRandom";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { theme } from "../../core/ThemeManager";
-import { rounded, label, circle } from "../../shared/components/drawing";
+import { rounded } from "../../shared/components/drawing";
 import { LightMatch } from "./Rules";
 import { hand, pedestal, gem } from "./LightArt";
 import { turnBackground } from "../../shared/components/TurnView";
 import { LightAI } from "./AI";
+import { HandMotion } from "./HandMotion";
 export class LightGame implements MiniGame {
   private ctx!: GameContext;
   private m = new LightMatch();
   private ai?: LightAI;
   private g!: Phaser.GameObjects.Graphics;
-  private text!: Phaser.GameObjects.Text;
-  private prompts: Phaser.GameObjects.Text[] = [];
   private paused = false;
   private serial = 0;
   private reported = false;
   private finishAge = 0;
   private celebration: 1 | 2 | null = null;
   private previousScores = [0, 0];
-  private reach = [0, 0];
+  private hands = [new HandMotion(), new HandMotion()];
+  private blocked = [0, 0];
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.g = ctx.scene.add.graphics();
-    this.text = label(ctx.scene, 210, 625, "", 11);
-    this.prompts = [
-      label(ctx.scene, 210, 137, "", 11).setRotation(
-        ctx.options.mode === "local" ? Math.PI : 0,
-      ),
-    ];
     if (ctx.options.mode === "ai")
       this.ai = new LightAI(ctx.options.difficulty);
     if (this.ai)
@@ -49,13 +43,20 @@ export class LightGame implements MiniGame {
   private tap(p: 0 | 1) {
     if (!this.paused && !(p === 1 && this.ai)) {
       const accepted = this.m.tap(p);
-      if (accepted) this.reach[p] = 1;
+      if (accepted) this.hands[p].grab(this.m.time);
     }
   }
   update(dt: number) {
     if (this.paused) return;
     this.m.update(dt);
     this.ai?.update(this.m);
+    for (const p of [0, 1] as const) {
+      if (this.m.blockedUntil[p] > this.blocked[p]) {
+        this.blocked[p] = this.m.blockedUntil[p];
+        this.hands[p].recover(this.m.time, this.blocked[p]);
+        this.ctx.audio.play("fail", 0.35);
+      }
+    }
     if (this.serial !== this.m.serial) {
       this.serial = this.m.serial;
       this.celebration =
@@ -65,7 +66,7 @@ export class LightGame implements MiniGame {
             ? 2
             : null;
       this.previousScores = [...this.m.scores];
-      if (this.celebration) this.reach[this.celebration - 1] = 1;
+      if (this.celebration) this.hands[this.celebration - 1].steal(this.m.time);
       this.ctx.setScore(...this.m.scores);
       this.ctx.audio.play(this.m.message.includes("SOON") ? "fail" : "capture");
     }
@@ -86,37 +87,32 @@ export class LightGame implements MiniGame {
     );
     const active = this.m.phase === "signal" || this.m.phase === "active";
     pedestal(g, active, this.m.time);
-    this.reach = this.reach.map((age) => Math.max(0, age - dt));
-    for (const p of [0] as const) {
-      const travel =
-        Math.sin(Math.min(1, (1 - this.reach[p]) / 0.7) * Math.PI) * 140;
+    for (const p of [0, 1] as const) {
+      const pose = this.hands[p].pose(this.m.time);
       hand(
         g,
-        p === 0 ? 260 - (travel / 140) * 50 : 160,
+        p === 0 ? 260 - pose.reach * 50 : 160 + pose.reach * 50,
         p === 0 ? 550 : 210,
         p === 0 ? 0 : Math.PI,
         p === 0 ? theme.orange : theme.blue,
-        travel,
+        pose.reach * 86,
+        pose.gray,
+        pose.grip,
       );
     }
     if (celebrating && this.celebration) {
-      const age = 1 - this.reach[this.celebration - 1];
-      const travel = Math.max(0, Math.min(1, (age - 0.32) / 0.5));
-      const ease = travel * travel * (3 - 2 * travel);
-      gem(
-        g,
-        210 + (this.celebration === 1 ? 45 : -45) * ease,
-        364 + (this.celebration === 1 ? 200 : -200) * ease,
-        1 - 0.65 * ease,
-        this.m.time,
-      );
+      const p = this.celebration - 1;
+      const pose = this.hands[p].pose(this.m.time);
+      const travel = pose.carrying ? 1 - pose.reach : 0;
+      if (pose.phase === "steal")
+        gem(
+          g,
+          210 + (p === 0 ? 50 : -50) * travel,
+          380 + (p === 0 ? 86 : -86) * travel,
+          1 - 0.4 * travel,
+          this.m.time,
+        );
     }
-    const cooldown = Math.max(0, this.m.blockedUntil[0] - this.m.time);
-    this.text.setText(cooldown > 0 ? `${cooldown.toFixed(1)}s` : "");
-    const blueCooldown = Math.max(0, this.m.blockedUntil[1] - this.m.time);
-    this.prompts[0].setText(
-      blueCooldown > 0 ? `${blueCooldown.toFixed(1)}s` : "",
-    );
     if (this.m.phase === "signal") {
       this.ctx.audio.play("countdown");
       this.m.presentSignal();
@@ -137,8 +133,6 @@ export class LightGame implements MiniGame {
   }
   dispose() {
     this.g.destroy();
-    this.text.destroy();
-    this.prompts.forEach((p) => p.destroy());
   }
   snapshot() {
     return {
@@ -149,7 +143,7 @@ export class LightGame implements MiniGame {
       signalAt: this.m.signalAt,
       round: this.m.serial,
       winner: this.m.winner,
-      hands: [...this.reach],
+      hands: this.hands.map((h) => h.pose(this.m.time)),
       cooldowns: this.m.blockedUntil.map((t) => Math.max(0, t - this.m.time)),
       capturedBy: this.m.capturedBy,
     };

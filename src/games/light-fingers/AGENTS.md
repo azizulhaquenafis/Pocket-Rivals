@@ -4,4 +4,6 @@ Rules owns waiting/signal/active/between/done and first-to-five. Signal becomes 
 
 AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical parameters inside this module and preserve personality across rounds. See `docs/AI_REFINEMENT.md` for seeded replay and audit commands. Preserve legal actions and bounded worker/motion behavior when adding variety.
 
-LightArt draws original outlined gloves, an orange forearm and a gem plinth; Blue has no visible hand. The gem travels toward the successful player. Reach animations follow taps/results without delaying signal presentation or changing arbitration. Round results tint the field by winner; keyboard instructions stay in setup.
+LightArt draws two opposing original outlined gloves with orange/blue cuffs around a central gem plinth, in both local and AI modes. HandMotion derives reach, recoil, grayscale recovery and carrying poses from model time; input cooldown deadlines determine when the hand returns fully colored to rest. Never add countdown text. A successful hand closes and carries the gem home; interrupted/failed animations must not restore a stolen gem. Round results tint the field by winner; keyboard instructions stay in setup.
+
+Checks: tests/unit/light-fingers.test.ts, tests/unit/light-hands.test.ts, tests/browser/light-hands.spec.ts and the existing light-lumber-polish browser regression. Keep scoring, signal presentation and AI delays independent of animation. See docs/LIGHT_FINGERS.md.

@@ -1,3 +1,4 @@
+import { oppositeSideLayout } from "../utilities/DeviceLayout";
 import type Phaser from "phaser";
 /** Rotate only module-owned play content; host navigation stays fixed. */
 export class TurnView {
@@ -16,6 +17,7 @@ export class TurnView {
     }
   }
   set(flipped: boolean) {
+    flipped = flipped && oppositeSideLayout();
     if (flipped !== this.target) {
       this.target = flipped;
       this.age = 0.28;

@@ -70,7 +70,7 @@ export const TRAPS: Record<string, Palette> = {
 };
 /** A rolling weighted choice, not a repeating bag/linear five-pattern loop. */
 export class CourseStream {
-  next = 350;
+  next = 300;
   readonly history: Pattern[] = [];
   private random: MatchRandom;
   constructor(
@@ -93,13 +93,13 @@ export class CourseStream {
     if (this.history.length > 16) this.history.shift();
     const x = this.next,
       side = r.next() < 0.5 ? 1 : -1;
-    const intensity = Math.min(1, Math.max(0, (x - 1200) / 11000));
-    const clearance = 245 + (1 - intensity) * 80 + r.next() * 55;
+    const intensity = Math.min(1, Math.max(0, (x - 600) / 6000));
+    const clearance = 230 + (1 - intensity) * 30 + r.next() * 25;
     const hazard = (at: number, s: -1 | 0 | 1, center = false): Obstacle => ({
       x: at,
       width: 42 + r.next() * 25,
       side: s,
-      depth: center ? 32 + r.next() * 10 : 30 + r.next() * 17,
+      depth: center ? 32 + r.next() * 10 : 36 + r.next() * 18,
       kind: center
         ? palette.center
         : palette.side[Math.floor(r.next() * palette.side.length)],
@@ -108,7 +108,7 @@ export class CourseStream {
     });
     if (pattern === "rail" || pattern === "pinch") {
       const width =
-        pattern === "rail" ? 540 + r.next() * 370 : 460 + r.next() * 140;
+        pattern === "rail" ? 520 + r.next() * 180 : 460 + r.next() * 140;
       obstacles.push({
         x,
         width,
@@ -145,8 +145,10 @@ export class CourseStream {
         pattern === "single"
           ? 1
           : pattern === "cluster"
-            ? 2 + Math.floor(r.next() * 2)
-            : 2;
+            ? 3 + Math.floor(r.next() * 2)
+            : pattern === "switchback" || pattern === "slalom"
+              ? 3
+              : 2;
       let at = x;
       for (let i = 0; i < count; i++) {
         if (pattern === "gaps") {
@@ -161,7 +163,8 @@ export class CourseStream {
           const s =
             pattern === "slalom" && i === 0
               ? 0
-              : pattern === "switchback" && i % 2
+              : (pattern === "switchback" && i % 2) ||
+                  (pattern === "cluster" && i >= 2)
                 ? side === 1
                   ? -1
                   : 1

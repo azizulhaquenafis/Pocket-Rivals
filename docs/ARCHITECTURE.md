@@ -28,6 +28,8 @@ The host computes elapsed seconds using `performance.now()`, resetting its refer
 
 Game-specific work stays inside its folder. Pong retains registration ID `ping-pong` for saved-data compatibility. Tic-Tac-Toe lazily loads Classic or Ultimate through one metadata entry. Arcade declares `category: 'arcade'` and `tournament: false`; its result path never changes rival wins or tournament points.
 
+Penfight owns fixed-step rigid capsule physics, match rules, vector pens and cancellable simulation-based AI in its game folder. Optional metadata difficulty labels preserve the shared internal difficulty keys. Settings is dynamically imported on demand, keeping the startup shell small as metadata/cards grow.
+
 ## Persistence and tournaments
 
 - `pocket-rivals.v1`: existing sound/music and overall duel scores; retained without migration.
@@ -54,12 +56,16 @@ Vite builds static relative URLs, suitable for Vercel (`vercel.json`) and Capaci
 
 ## Expanded rivalry collection
 
-Three active expansion modules remain isolated under `games/`. They run a bounded 120Hz simulation through FixedStep and use ordinary duel results and metadata-driven tournament eligibility. Flappy Jump, Car Duel, Archery Duel and Chicken Jump are preserved under `src/future-games/`, outside the registry/loader globs; their code, assets and tests remain available for future development. Spike Attacks uses a small visibility graph on wave changes, not a worker or a continuously recomputed route. New real-time matches restart after process closure; existing board/Pong/Hockey checkpoints are unchanged.
+Three active expansion modules remain isolated under `games/`. They run a bounded 120Hz simulation through FixedStep and use ordinary duel results and metadata-driven tournament eligibility. Perfect Timer, Flappy Jump, Car Duel, Archery Duel and Chicken Jump are preserved under `src/future-games/`, outside the registry/loader globs; their code, assets and tests remain available for future development. Spike Attacks uses a small visibility graph on wave changes, not a worker or a continuously recomputed route. New real-time matches restart after process closure; existing board/Pong/Hockey checkpoints are unchanged.
 
-Water Guess and Perfect Timer retain separate rule engines and renderers. Round resolution is idempotent. Perfect Timer uses a module-local foreground monotonic clock for both keyboard/touch stops and AI; pause time is excluded. Both use seeded match personalities, with no forced minimum error at Impossible.
+Water Guess and the deferred Perfect Timer retain separate rule engines and renderers. Round resolution is idempotent. Perfect Timer uses a module-local foreground monotonic clock for both keyboard/touch stops and AI; pause time is excluded. Both use seeded match personalities, with no forced minimum error at Impossible.
 
 TurnView is a small lazy presentation utility used by full-field local hot-seat games. It rotates only module-owned display objects, supplies the inverse pointer mapping, blocks interaction through its 280ms transition, and destroys its children on disposal. Host navigation remains fixed. Turn-based boards use pastel player backgrounds and compact neutral status; simultaneous games retain their separate controls.
 
 Gravity Runner and Happy Birds interpolate fixed-step presentation separately from physics. Gravity streams bounded seeded obstacle sections, with runnable middle rails across double-wall gaps, four map-specific trap families and staged increasing run speed; it has no time deadline. Its CourseStream selects weighted nonperiodic motifs and retires old geometry. Canonical convex geometry and timed jet/gate states are shared by rendering, collision and all three AI forecasts. Happy Birds uses one shared wall-bounce arena with telegraphed safe pattern changes, a first-to-15 physical star goal and individual three-second animated returns to center after a collision. It has no match deadline; recovery freezes on pause and never awards or removes stars. Local Happy Birds controls are Space for Orange and arrow keys for Blue.
 
 Spike Attacks uses a shared square arena, three solid cover blocks and four piston lanes per edge. Its module owns bounded attack phases, a visibility-route AI, interpolated presentation and two host-managed joystick drags. Foreground deadline is two minutes; game-specific physics and controls stay within its module.
+
+Penfight and Ultimate Golf opt into InputManager’s captured native pointer drags. One pointer owns the gesture across canvas/DOM boundaries; unbounded page coordinates are transformed through Phaser scale and camera, with no second mouse/touch submission path. Pause, cancellation, lost capture and blur release ownership. Other games retain existing Phaser input.
+
+Opposite-side presentation is centralized in `shared/utilities/DeviceLayout.ts`: coarse primary pointer with no hover uses mobile/tablet rotation; mouse and hybrid mouse devices remain upright. TurnView, host scores, quiz panels, Lumberjack touch mapping, and Happy Birds labels share this policy. Physics and keyboard rules do not change by device.

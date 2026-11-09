@@ -36,6 +36,7 @@ export interface GameMetadata {
   presentation?: "custom";
   responsive?: boolean;
   supportedModes: readonly ("local-two-player" | "single-player")[];
+  difficultyLabels?: readonly [string, string, string];
   variants?: readonly GameVariant[];
 }
 export interface GameContext {

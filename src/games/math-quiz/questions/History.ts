@@ -1,5 +1,5 @@
-const STORAGE_KEY = 'pocket-rivals.math-history.v1';
-const MAX_HISTORY = 150;
+const STORAGE_KEY = "pocket-rivals.math-history.v1";
+export const MAX_HISTORY = 10000;
 
 export class QuestionHistory {
   private memory = new Set<string>();
@@ -10,7 +10,8 @@ export class QuestionHistory {
 
   private get storage(): Storage | null {
     try {
-      if (typeof window !== 'undefined' && window.localStorage) return window.localStorage;
+      if (typeof window !== "undefined" && window.localStorage)
+        return window.localStorage;
     } catch {
       // ignore
     }
@@ -25,7 +26,11 @@ export class QuestionHistory {
       if (!raw) return;
       const arr = JSON.parse(raw);
       if (Array.isArray(arr)) {
-        this.memory = new Set(arr.slice(-MAX_HISTORY));
+        this.memory = new Set(
+          arr
+            .filter((id): id is string => typeof id === "string")
+            .slice(-MAX_HISTORY),
+        );
       }
     } catch {
       // Ignore storage access errors in restricted environments
@@ -47,10 +52,18 @@ export class QuestionHistory {
     return this.memory.has(id);
   }
 
+  forget(ids: string[]): void {
+    for (const id of ids) this.memory.delete(id);
+    this.save();
+  }
+
   record(id: string): void {
+    if (this.memory.has(id)) return;
     if (this.memory.size >= MAX_HISTORY) {
       // Remove oldest entries to maintain ring buffer bound
-      const first = this.memory.values().next().value;
+      const first =
+        [...this.memory].find((id) => id.startsWith("basic-")) ??
+        this.memory.values().next().value;
       if (first !== undefined) this.memory.delete(first);
     }
     this.memory.add(id);
@@ -60,7 +73,7 @@ export class QuestionHistory {
   clear(): void {
     this.memory.clear();
     try {
-      if (typeof localStorage !== 'undefined') {
+      if (typeof localStorage !== "undefined") {
         localStorage.removeItem(STORAGE_KEY);
       }
     } catch {

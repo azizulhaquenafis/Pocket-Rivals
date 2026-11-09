@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { TimerClock } from "../../src/games/perfect-timer/TimerClock";
-import { PerfectTimerMatch } from "../../src/games/perfect-timer/PerfectTimerRules";
+import { TimerClock } from "../../src/future-games/perfect-timer/TimerClock";
+import { PerfectTimerMatch } from "../../src/future-games/perfect-timer/PerfectTimerRules";
 import { WaterGuessMatch } from "../../src/games/water-guess/WaterGuessRules";
 describe("formal review regressions", () => {
   it("excludes repeated pause/background intervals from high-resolution timing", () => {
@@ -45,7 +45,7 @@ describe("formal review regressions", () => {
     expect(m.scores).toEqual([1, 0]);
   });
 });
-import { PerfectTimerAI } from "../../src/games/perfect-timer/PerfectTimerAI";
+import { PerfectTimerAI } from "../../src/future-games/perfect-timer/PerfectTimerAI";
 import { WaterGuessAI } from "../../src/games/water-guess/WaterGuessAI";
 it("100 seeds replay diverse targets and increasingly accurate AI without forced Impossible errors", () => {
   const openings = new Set<number>(),

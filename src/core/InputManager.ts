@@ -76,7 +76,9 @@ export class InputManager {
     move: (x: number, y: number) => void,
     end: (x: number, y: number) => void,
     cancel: () => void = () => {},
+    options: { outside?: boolean } = {},
   ) {
+    if (options.outside) return this.capturedDrag(start, move, end, cancel);
     let id: number | null = null;
     const point = (p: Phaser.Input.Pointer) =>
       this.scene.cameras.main.getWorldPoint(p.x, p.y);
@@ -111,6 +113,78 @@ export class InputManager {
     this.cleanups.push(() => {
       this.scene.game.canvas.removeEventListener("touchcancel", clear);
       this.scene.game.canvas.removeEventListener("pointercancel", clear);
+    });
+  }
+  /** Opt-in aiming: own a native pointer until release, even outside the canvas. */
+  private capturedDrag(
+    start: (x: number, y: number) => boolean,
+    move: (x: number, y: number) => void,
+    end: (x: number, y: number) => void,
+    cancel: () => void,
+  ) {
+    const canvas = this.scene.game.canvas;
+    let id: number | null = null;
+    const point = (e: PointerEvent) =>
+      this.scene.cameras.main.getWorldPoint(
+        this.scene.scale.transformX(e.pageX),
+        this.scene.scale.transformY(e.pageY),
+      );
+    const release = () => {
+      const previous = id;
+      id = null; // lostpointercapture must not cancel a completed shot.
+      if (previous !== null && canvas.hasPointerCapture(previous))
+        canvas.releasePointerCapture(previous);
+    };
+    const clear = () => {
+      release();
+      cancel();
+    };
+    const down = (e: PointerEvent) => {
+      if (!this.enabled || id !== null || e.button !== 0) return;
+      const p = point(e);
+      if (!start(p.x, p.y)) return;
+      id = e.pointerId;
+      e.preventDefault();
+      try {
+        canvas.setPointerCapture(id);
+      } catch {
+        /* Window listeners remain a fallback. */
+      }
+    };
+    const motion = (e: PointerEvent) => {
+      if (!this.enabled || e.pointerId !== id) return;
+      e.preventDefault();
+      const p = point(e);
+      move(p.x, p.y);
+    };
+    const up = (e: PointerEvent) => {
+      if (e.pointerId !== id) return;
+      e.preventDefault();
+      const p = point(e);
+      release();
+      if (this.enabled) end(p.x, p.y);
+    };
+    const interrupted = (e: PointerEvent) => {
+      if (e.pointerId === id) clear();
+    };
+    canvas.addEventListener("pointerdown", down);
+    window.addEventListener("pointermove", motion, {
+      capture: true,
+      passive: false,
+    });
+    window.addEventListener("pointerup", up, { capture: true, passive: false });
+    window.addEventListener("pointercancel", interrupted, true);
+    canvas.addEventListener("lostpointercapture", interrupted);
+    window.addEventListener("blur", clear);
+    this.clearHandlers.push(clear);
+    this.cleanups.push(() => {
+      clear();
+      canvas.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", motion, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", interrupted, true);
+      canvas.removeEventListener("lostpointercapture", interrupted);
+      window.removeEventListener("blur", clear);
     });
   }
   press(codes: string[], callback: (code: string) => void) {

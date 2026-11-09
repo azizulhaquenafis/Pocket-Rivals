@@ -43,7 +43,7 @@ export class SpikeGame implements MiniGame {
     }
     this.m = new SpikeMatch(
       this.ai?.personality.seed ?? freshSeed(),
-      ctx.options.variant,
+      "random",
     );
     for (const i of [0, 1] as const) {
       if (i === 1 && this.ai) continue;

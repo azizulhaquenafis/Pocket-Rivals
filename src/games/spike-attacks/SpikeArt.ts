@@ -59,12 +59,24 @@ export function drawArena(
       const warning = active && m.phase === "warning" && !m.between;
       g.fillStyle(
         warning
-          ? 0xf4b55f
+          ? 0xf13939
           : active && m.phase !== "recover"
             ? 0xee8d73
             : 0x91aaa7,
-        warning ? 0.65 + 0.35 * Math.sin(m.phaseAge * 10) ** 2 : 1,
+        warning ? 0.8 + 0.2 * Math.sin(m.phaseAge * 10) ** 2 : 1,
       ).fillRect(-5, c - SHAFT / 2 - 1, 5, SHAFT + 2);
+      if (warning) {
+        g.fillStyle(
+          0xf13939,
+          0.08 + 0.05 * Math.sin(m.phaseAge * 10) ** 2,
+        ).fillRect(2, c - SHAFT / 2, 9, SHAFT);
+        g.lineStyle(3, 0xff4b45).lineBetween(
+          5,
+          c - SHAFT / 2,
+          5,
+          c + SHAFT / 2,
+        );
+      }
       g.fillStyle(0x242b32, 0.15).fillRect(
         -32,
         c - SHAFT / 2 + 5,

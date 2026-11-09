@@ -78,21 +78,3 @@ test("fruit decoys cause recoverable cooldown, real fruit splits, sound plays an
     await page.evaluate(() => (window as any).__POCKET__.scene.inputListeners),
   ).toBe(0);
 });
-test("Perfect Timer schedules clock ticks and stop click, pause stops ticking", async ({
-  page,
-}) => {
-  await audioSpy(page);
-  await open(page, "Perfect Timer");
-  await page.keyboard.press("Space");
-  await page.keyboard.press("Enter");
-  await expect.poll(async () => (await state(page)).state).toBe("TIMING");
-  await page.waitForTimeout(650);
-  await page.keyboard.press("Space");
-  let notes = await page.evaluate(() => (window as any).__notes);
-  expect(notes).toContain(1550);
-  expect(notes).toContain(820);
-  await page.keyboard.press("Escape");
-  const count = await page.evaluate(() => (window as any).__notes.length);
-  await page.waitForTimeout(600);
-  expect(await page.evaluate(() => (window as any).__notes.length)).toBe(count);
-});

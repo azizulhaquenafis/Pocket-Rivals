@@ -30,6 +30,8 @@ export default {
 
 Declare `single-player` only if AI is implemented for duels. Unsupported AI is disabled in setup and excluded from AI tournament pools. Optional `variants` contain IDs, display names, descriptions, `ai: false` overrides and `hasTutorial`. Your factory receives `MatchOptions` and may lazily import the selected variant. An optional named `tutorial(variant, ui)` export owns that game's tutorial.
 
+Optional `difficultyLabels: ["Easy", "Medium", "Hard"]` changes only that game's setup labels, in ascending order. The existing internal keys remain `medium`, `hard`, `impossible` for saved-data and tournament compatibility. Omit it to retain the standard labels.
+
 ## Working example
 
 `examples/tap-duel/` is a complete, playable implementation, not part of the shipped collection. Copy that folder unchanged into `src/games/tap-duel/`, then run `npm run build`. It demonstrates input, independent state, score reporting and disposal. `npm run test:modules` performs this copy in a temporary checkout and verifies discovery/build without changing the real collection.

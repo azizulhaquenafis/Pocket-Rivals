@@ -4,8 +4,8 @@ import {
   formatSeconds,
   formatSecondsRaw,
   TARGET_PRESETS,
-} from "../../src/games/perfect-timer/PerfectTimerRules";
-import { PerfectTimerAI } from "../../src/games/perfect-timer/PerfectTimerAI";
+} from "../../src/future-games/perfect-timer/PerfectTimerRules";
+import { PerfectTimerAI } from "../../src/future-games/perfect-timer/PerfectTimerAI";
 
 describe("Perfect Timer Rules & Precision", () => {
   it("formats centiseconds to 0.01s resolution accurately", () => {
