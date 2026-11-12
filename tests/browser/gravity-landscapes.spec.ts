@@ -2,9 +2,10 @@ import { test, expect, type Page } from "@playwright/test";
 const state = (page: Page) =>
   page.evaluate(() => (window as any).__POCKET__.scene);
 async function launch(page: Page, name: string, map?: string, ai?: string) {
-  await page.goto("/?aiSeed=77");
+  const seed = ({"Icy Heights":2,"Green Valley":1,"Blue Lagoon":3,"Violet Night":0} as Record<string,number>)[map??""] ?? 77;
+  await page.goto(`/?aiSeed=${seed}`);
   await page.getByRole("button", { name: `Play ${name}`, exact: true }).click();
-  if (map) await page.getByRole("button", { name: new RegExp(map) }).click();
+  if(name === "Gravity Runner") await expect(page.locator(".variant-choices")).toHaveCount(0);
   await page
     .getByRole("radio", { name: ai ? /1 Player/ : /2 Players/ })
     .click();
@@ -51,7 +52,7 @@ for (const [name, id] of [
   ["Blue Lagoon", "blue"],
   ["Violet Night", "purple"],
 ])
-  test(`Gravity Runner ${name} loads, has no clock, pauses and cleans up`, async ({
+  test(`Gravity Runner ${name} loads, has a round clock, pauses and cleans up`, async ({
     page,
   }) => {
     const errors: string[] = [];
@@ -60,7 +61,8 @@ for (const [name, id] of [
     await launch(page, "Gravity Runner", name, "Hard");
     const s = (await state(page)).game;
     expect(s.map).toBe(id);
-    expect(s.remaining).toBeUndefined();
+    expect(s.remaining).toBeGreaterThan(118);
+    expect(s.remaining).toBeLessThanOrEqual(120);
     expect(s.obstacles.some((o: any) => o.kind === "platform")).toBe(true);
     await page.waitForTimeout(250);
     expect((await state(page)).game.speed).toBe(120); // Eight-second warm-up.
@@ -79,32 +81,6 @@ for (const [name, id] of [
     expect((await state(page)).inputListeners).toBe(0);
     expect(errors).toEqual([]);
   });
-test("Gravity map previews are distinct and fit a small phone", async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 360, height: 640 });
-  await page.goto("/");
-  await page
-    .getByRole("button", { name: "Play Gravity Runner", exact: true })
-    .click();
-  await expect(page.locator(".map-preview")).toHaveCount(5);
-  expect(
-    new Set(
-      await page
-        .locator(".map-preview")
-        .evaluateAll((nodes) => nodes.map((n) => n.innerHTML)),
-    ).size,
-  ).toBe(5);
-  expect(
-    await page
-      .getByRole("dialog")
-      .evaluate((n) => n.scrollWidth <= n.clientWidth + 1),
-  ).toBe(true);
-  await page.screenshot({
-    path: "docs/gravity-map-previews.png",
-    animations: "disabled",
-  });
-});
 test("both runners can land on the middle rail while both outside walls are missing", async ({
   page,
 }) => {

@@ -14,8 +14,8 @@ export function drawTrap(
   const sy = (x: number) => 548 - (x - distance) * 1.05,
     sx = (y: number) => 84 + (y * 252) / 170;
   const bounds = obstacleBounds(o, age),
-    top = sy(o.x + o.width),
-    bottom = sy(o.x);
+    top = sy(bounds.end),
+    bottom = sy(bounds.start);
   const x = sx(bounds.low),
     w = ((bounds.high - bounds.low) * 252) / 170,
     mid = (top + bottom) / 2;
@@ -31,6 +31,28 @@ export function drawTrap(
         : map.id === "blue"
           ? 0x56b5d5
           : 0xb29ace;
+  if (o.motion) {
+    // Fine guide tracks and fixed sockets distinguish mechanisms from solid cover.
+    g.lineStyle(2, map.rail, 0.55);
+    if (o.motion === "along")
+      g.lineBetween(
+        sx((bounds.low + bounds.high) / 2),
+        sy(o.x),
+        sx((bounds.low + bounds.high) / 2),
+        sy(o.x + o.width),
+      );
+    else if (o.motion === "across")
+      g.lineBetween(
+        sx(85 - (o.range ?? 28)),
+        mid,
+        sx(85 + (o.range ?? 28)),
+        mid,
+      );
+    else {
+      const base = sx(o.side === 1 ? 170 : 0);
+      g.lineStyle(7, map.rail).lineBetween(base, top, base, bottom);
+    }
+  }
   if (bounds.active)
     g.fillStyle(o.kind === "root" ? 0x9c7960 : color).fillPoints(polygon, true);
   g.lineStyle(
@@ -38,6 +60,14 @@ export function drawTrap(
     bounds.warning ? 0xd4934f : theme.ink,
     bounds.active || bounds.warning ? 1 : 0.25,
   ).strokePoints(polygon, true);
+  if (o.motion) {
+    g.fillStyle(bounds.warning ? 0xef8b58 : map.detail).fillCircle(
+      x + w / 2,
+      mid,
+      4,
+    );
+    g.lineStyle(1.5, theme.ink).strokeCircle(x + w / 2, mid, 4);
+  }
   if (o.kind === "crystal") {
     g.lineStyle(2, map.detail, 0.9)
       .lineBetween(polygon[0].x, polygon[0].y, polygon[2].x, polygon[2].y)

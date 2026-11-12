@@ -1,3 +1,4 @@
+import { preloadGame } from "./GameLoader";
 import { Diagnostics } from "./Diagnostics";
 import { ArcadeScoreManager } from "./ArcadeScoreManager";
 import Phaser from "phaser";
@@ -140,6 +141,7 @@ export class GameManager {
       void this.play(id);
       return;
     }
+    void preloadGame(id).catch(() => {});
     this.audio.play("tap");
     new GameSetup(this.modal, (options) => void this.play(id, options)).open(
       getGame(id),

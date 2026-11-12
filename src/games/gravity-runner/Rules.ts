@@ -8,6 +8,8 @@ import {
 import { MAPS, type RunnerMap } from "./Maps";
 import { CourseStream } from "./CourseStream";
 export type { Gap, Obstacle, Runner } from "./RunnerPhysics";
+export const WIN_SCORE = 3;
+export const ROUND_SECONDS = 120;
 export class GravityMatch {
   players: [Runner, Runner] = [this.runner(), this.runner()];
   scores: [number, number] = [0, 0];
@@ -18,8 +20,10 @@ export class GravityMatch {
   age = 0;
   total = 0;
   between = 0;
+  remaining = ROUND_SECONDS;
+  timedOut = false;
   winner: 1 | 2 | "draw" | null = null;
-  readonly map: RunnerMap;
+  map: RunnerMap;
   private stream!: CourseStream;
   private trimmed = -200;
   constructor(
@@ -74,7 +78,16 @@ export class GravityMatch {
     p.cooldown = 0.16;
     return true;
   }
-  step(dt: number) {
+  advanceClock(dt: number) {
+    if (this.winner || this.between || !Number.isFinite(dt) || dt <= 0) return;
+    this.remaining = Math.max(0, this.remaining - dt);
+    if (this.remaining <= 1e-8) {
+      this.remaining = 0;
+      this.timedOut = true;
+      this.between = 1.1; // Both survived: replay without awarding a point.
+    }
+  }
+  step(dt: number, tickClock = true) {
     if (this.winner) return;
     this.total += dt;
     if (this.between) {
@@ -82,12 +95,19 @@ export class GravityMatch {
       if (!this.between) {
         this.players = [this.runner(), this.runner()];
         this.age = 0;
+        this.remaining = ROUND_SECONDS;
+        this.timedOut = false;
         this.distance = 0;
         this.round++;
+        const choices = MAPS.filter((map) => map.id !== this.map.id);
+        this.map =
+          choices[mixSeed(this.seed, this.round * 43) % choices.length];
         this.course();
       }
       return;
     }
+    if (tickClock) this.advanceClock(dt);
+    if (this.between) return;
     this.age += dt;
     this.distance += this.speed() * dt;
     this.extend();
@@ -97,8 +117,8 @@ export class GravityMatch {
       if (this.players[0].alive !== this.players[1].alive)
         this.scores[this.players[0].alive ? 0 : 1]++;
       this.between = 1.1;
-      if (this.scores.some((s) => s >= 5))
-        this.winner = this.scores[0] >= 5 ? 1 : 2;
+      if (this.scores.some((s) => s >= WIN_SCORE))
+        this.winner = this.scores[0] >= WIN_SCORE ? 1 : 2;
     }
   }
 }

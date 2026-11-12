@@ -98,6 +98,8 @@ test("Arcade has independent high scores, Snake controls, pause and game over", 
     .getByRole("button", { name: "Play Classic Snake", exact: true })
     .click();
   await expect.poll(async () => (await state(page)).state).toBe("playing");
+  await page.getByRole("button", {name:"Sunlit Meadow",exact:true}).click();
+  await page.locator("[data-start]").click();
   await page.waitForTimeout(250);
   await tap(page, 210, 574);
   await expect

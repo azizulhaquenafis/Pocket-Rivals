@@ -23,6 +23,8 @@ export interface Obstacle {
     | "buoy"
     | "crystal"
     | "phase";
+  motion?: "along" | "across" | "piston";
+  range?: number;
   phase?: number;
   period?: number;
 }

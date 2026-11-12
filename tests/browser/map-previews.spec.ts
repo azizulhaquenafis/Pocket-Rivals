@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test("Spike map picker shows distinct previews without horizontal overflow on a small phone", async ({
+test("Spike launches a random arena without showing a map picker", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 640 });
@@ -14,26 +14,7 @@ test("Spike map picker shows distinct previews without horizontal overflow on a 
     animations: "disabled",
   });
   await spikeCard.click();
-  await expect(page.locator(".map-preview")).toHaveCount(4);
-  const previews = await page.locator(".map-preview").evaluateAll((nodes) =>
-    nodes.map((n) => ({
-      width: n.getBoundingClientRect().width,
-      height: n.getBoundingClientRect().height,
-      art: n.innerHTML,
-    })),
-  );
-  expect(new Set(previews.map((p) => p.art)).size).toBe(4);
-  expect(previews.every((p) => p.width >= 60 && p.height >= 60)).toBe(true);
-  expect(
-    await page
-      .getByRole("dialog")
-      .evaluate((n) => n.scrollWidth <= n.clientWidth + 1),
-  ).toBe(true);
-  await page.screenshot({
-    path: "docs/spike-map-previews.png",
-    animations: "disabled",
-  });
-  await page.getByRole("button", { name: /Crosswind/ }).click();
+  await expect(page.locator(".map-preview")).toHaveCount(0);
   await page.getByRole("radio", { name: /1 Player/ }).click();
   await page.getByRole("button", { name: /Let’s play/ }).click();
   await expect

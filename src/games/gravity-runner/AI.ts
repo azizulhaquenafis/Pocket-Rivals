@@ -6,6 +6,7 @@ import { advanceRunner } from "./RunnerPhysics";
 export class GravityAI {
   readonly personality: MatchRandom;
   private wait = 0;
+  private positions = new Float64Array(256);
   constructor(
     private difficulty: Difficulty,
     seed?: number,
@@ -29,7 +30,14 @@ export class GravityAI {
     );
     const h = 1 / 120,
       steps = Math.ceil(horizon / h);
-    const positions = new Float64Array(steps + 1);
+    // Avoid forecasting an empty opening; this is a conservative speed bound.
+    const reach = m.distance + m.speed(m.age + horizon) * horizon + 18;
+    if (
+      !m.gaps.some((g) => g.x <= reach && g.x + g.width >= m.distance - 15) &&
+      !m.obstacles.some((o) => o.x <= reach && o.x + o.width >= m.distance - 15)
+    )
+      return false;
+    const positions = this.positions;
     positions[0] = m.distance;
     for (let i = 1; i <= steps; i++)
       positions[i] = positions[i - 1] + m.speed(m.age + i * h) * h;

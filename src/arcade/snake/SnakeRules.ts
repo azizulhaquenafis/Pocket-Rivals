@@ -1,3 +1,5 @@
+import type { Difficulty } from "../../shared/contracts/AIController";
+import { MAPS, type SnakeMap } from "./Maps";
 export type Direction = "up" | "right" | "down" | "left";
 export interface Cell {
   x: number;
@@ -21,15 +23,29 @@ export class SnakeWorld {
   direction: Direction = "right";
   food: Cell | null = null;
   score = 0;
+  eaten = 0;
+  target = 8;
+  challenges = 0;
+  bonus: Cell | null = null;
+  bonusMoves = 0;
+  readonly bonusLifetime = 40;
   dead = false;
   won = false;
   private queue: Direction[] = [];
   accumulator = 0;
-  constructor(private random = Math.random) {
+  constructor(
+    private random = Math.random,
+    readonly map: SnakeMap = MAPS[0],
+    readonly difficulty: Difficulty = "medium",
+  ) {
     this.spawnFood();
   }
   get interval() {
-    return Math.max(0.065, 0.18 - this.score * 0.0015);
+    return Math.max(
+      { medium: 0.09, hard: 0.075, impossible: 0.06 }[this.difficulty],
+      { medium: 0.18, hard: 0.145, impossible: 0.12 }[this.difficulty] -
+        this.eaten * 0.006,
+    );
   }
   steer(dir: Direction) {
     const last = this.queue.at(-1) ?? this.direction,
@@ -49,7 +65,10 @@ export class SnakeWorld {
   }
   update(dt: number) {
     if (this.dead) return;
-    this.accumulator += Math.max(0, Math.min(dt, 0.5));
+    this.accumulator += Math.max(
+      0,
+      Math.min(Number.isFinite(dt) ? dt : 0, 0.05),
+    );
     while (this.accumulator >= this.interval && !this.dead) {
       this.accumulator -= this.interval;
       this.tick();
@@ -67,6 +86,7 @@ export class SnakeWorld {
       head.x >= this.width ||
       head.y < 0 ||
       head.y >= this.height ||
+      this.map.blocks.some((c) => c.x === head.x && c.y === head.y) ||
       solid.some((c) => c.x === head.x && c.y === head.y)
     ) {
       this.dead = true;
@@ -76,14 +96,57 @@ export class SnakeWorld {
     this.body.unshift(head);
     if (eating) {
       this.score += 10;
+      this.eaten++;
+      if (this.eaten === this.target) {
+        this.challenges++;
+        this.score += 40;
+        this.target += 8;
+      }
       this.spawnFood();
+      if (!this.dead && this.eaten % 4 === 0) {
+        const cells = this.freeCells().filter(
+          (c) => c.x !== this.food?.x || c.y !== this.food?.y,
+        );
+        this.bonus = cells.length
+          ? cells[
+              Math.min(
+                cells.length - 1,
+                Math.floor(this.random() * cells.length),
+              )
+            ]
+          : null;
+        this.bonusMoves = this.bonus ? this.bonusLifetime : 0;
+      }
     } else this.body.pop();
+    if (this.bonus && head.x === this.bonus.x && head.y === this.bonus.y) {
+      this.score += 30;
+      this.bonus = null;
+      this.bonusMoves = 0;
+    } else if (this.bonus && --this.bonusMoves <= 0) {
+      this.bonus = null;
+      this.bonusMoves = 0;
+    }
   }
-  spawnFood() {
+  private freeCells() {
     const free: Cell[] = [];
     for (let y = 0; y < this.height; y++)
       for (let x = 0; x < this.width; x++)
-        if (!this.body.some((c) => c.x === x && c.y === y)) free.push({ x, y });
+        if (
+          !this.body.some((c) => c.x === x && c.y === y) &&
+          !this.map.blocks.some((c) => c.x === x && c.y === y)
+        )
+          free.push({ x, y });
+    return free;
+  }
+  spawnFood() {
+    const free = this.freeCells().filter(
+      (c) => c.x !== this.bonus?.x || c.y !== this.bonus?.y,
+    );
+    if (!free.length && this.bonus) {
+      free.push(this.bonus);
+      this.bonus = null;
+      this.bonusMoves = 0;
+    }
     if (!free.length) {
       this.food = null;
       this.dead = this.won = true;

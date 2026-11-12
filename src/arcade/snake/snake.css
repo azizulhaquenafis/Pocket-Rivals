@@ -1,0 +1,91 @@
+.snake-setup {
+  position: absolute;
+  inset: 14% 0 12%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 3;
+}
+.snake-setup-panel {
+  pointer-events: auto;
+  background: #faf7ed;
+  border: 3px solid #242b32;
+  border-radius: 22px;
+  padding: 16px;
+  width: min(90%, 370px);
+  max-height: 100%;
+  overflow: auto;
+  box-sizing: border-box;
+  box-shadow: 0 6px 0 #242b32;
+  text-align: center;
+}
+.snake-setup-panel h2 {
+  font-family: Fredoka, sans-serif;
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+.snake-maps {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.snake-maps button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  border: 2px solid #242b32;
+  border-radius: 12px;
+  background: #fffdf5;
+  padding: 8px;
+  min-height: 64px;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.snake-maps svg {
+  width: 36px;
+  height: 44px;
+  flex-shrink: 0;
+}
+.snake-maps [aria-pressed="true"] {
+  background: #c5dcae;
+  box-shadow: 0 3px 0 #242b32;
+}
+.snake-tiers {
+  display: flex;
+  gap: 5px;
+  margin: 14px 0 10px;
+}
+.snake-tiers button {
+  flex: 1;
+  min-height: 44px;
+  padding: 3px;
+  border: 2px solid #242b32;
+  border-radius: 10px;
+  background: #fffdf5;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  cursor: pointer;
+}
+.snake-tiers [aria-checked="true"] {
+  background: #f49b58;
+}
+.snake-setup-panel p {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 8px 0 12px;
+}
+.snake-setup-panel .primary-button {
+  width: 100%;
+  min-height: 44px;
+}
+.snake-setup-panel details {
+  margin-top: 12px;
+  font-size: 13px;
+}
+.snake-setup-panel summary {
+  cursor: pointer;
+}

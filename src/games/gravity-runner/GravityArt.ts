@@ -58,6 +58,7 @@ export function course(
   g: Phaser.GameObjects.Graphics,
   m: GravityMatch,
   distance = m.distance,
+  age = m.age,
 ) {
   const map = m.map;
   rounded(g, 24, 112, 372, 538, 20, map.sky, 4);
@@ -115,7 +116,7 @@ export function course(
       o.kind !== "platform" &&
       !["ledge", "spikes", "beam", "bridge"].includes(o.kind)
     ) {
-      drawTrap(g, o, map, distance, m.age);
+      drawTrap(g, o, map, distance, age);
       continue;
     }
     const x =

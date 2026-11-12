@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-CLOu7bOk.js",
-      "bytes": 72202,
-      "gzip": 22732
+      "file": "assets/index-DA0pgfXF.js",
+      "bytes": 72398,
+      "gzip": 22524
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -29,12 +29,6 @@
       "file": "assets/DeviceLayout-g7aSze0z.js",
       "bytes": 138,
       "gzip": 121
-    },
-    {
-      "module": "_Maps-TfkLaxQm.js",
-      "file": "assets/Maps-TfkLaxQm.js",
-      "bytes": 1943,
-      "gzip": 1037
     },
     {
       "module": "_ThemeManager-DRa-1XQR.js",
@@ -75,5 +69,5 @@
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 359203
+  "totalInitialGzip": 357958
 }

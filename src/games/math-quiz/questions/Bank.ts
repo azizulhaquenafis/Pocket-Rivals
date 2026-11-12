@@ -34,14 +34,18 @@ export const allUniversityQuestions: MathQuestion[] = Array.from(
  * Prioritizes questions not recently seen in persistent history.
  * Never freezes or loops: falls back to full pool when all variations are exhausted.
  */
-export function universityDeck(random = Math.random): MathQuestion[] {
-  let available = allUniversityQuestions.filter(
-    (q) => !globalQuestionHistory.has(q.id),
+export function universityDeck(
+  random = Math.random,
+  protectedPrompts: ReadonlySet<string> = new Set(),
+): MathQuestion[] {
+  const eligible = allUniversityQuestions.filter(
+    (q) => !protectedPrompts.has(q.questionLatex.replace(/\s+/g, "")),
   );
+  let available = eligible.filter((q) => !globalQuestionHistory.has(q.id));
   if (available.length === 0) {
     // A finite bank can repeat only after the entire bank has been used.
-    globalQuestionHistory.forget(allUniversityQuestions.map((q) => q.id));
-    available = allUniversityQuestions;
+    globalQuestionHistory.forget(eligible.map((q) => q.id));
+    available = eligible;
   }
   const topics = shuffled([...new Set(available.map((q) => q.topic))], random);
   const groups = topics.map((t) =>

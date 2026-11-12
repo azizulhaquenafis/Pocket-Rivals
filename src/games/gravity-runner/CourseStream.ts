@@ -1,6 +1,7 @@
 import { MatchRandom } from "../../shared/ai/MatchRandom";
 import type { Gap, Obstacle } from "./RunnerPhysics";
 export type Pattern =
+  | "movers"
   | "single"
   | "switchback"
   | "cluster"
@@ -19,6 +20,7 @@ export const TRAPS: Record<string, Palette> = {
     side: ["icicle", "ice-block"],
     center: "ice-block",
     patterns: [
+      "movers",
       "single",
       "switchback",
       "gaps",
@@ -32,6 +34,7 @@ export const TRAPS: Record<string, Palette> = {
     side: ["root", "bramble"],
     center: "bramble",
     patterns: [
+      "movers",
       "cluster",
       "switchback",
       "cluster",
@@ -45,6 +48,7 @@ export const TRAPS: Record<string, Palette> = {
     side: ["jet"],
     center: "buoy",
     patterns: [
+      "movers",
       "single",
       "switchback",
       "cluster",
@@ -58,6 +62,7 @@ export const TRAPS: Record<string, Palette> = {
     side: ["crystal"],
     center: "phase",
     patterns: [
+      "movers",
       "switchback",
       "cluster",
       "slalom",
@@ -106,7 +111,24 @@ export class CourseStream {
       phase: r.next() * Math.PI * 2,
       period: 3.2 + r.next() * 1.6,
     });
-    if (pattern === "rail" || pattern === "pinch") {
+    if (pattern === "movers") {
+      let at = x;
+      for (const [i, motion] of (
+        ["along", "across", "piston"] as const
+      ).entries()) {
+        const s =
+          motion === "across" ? 0 : i === 0 ? side : side === 1 ? -1 : 1;
+        const o = hazard(at, s, s === 0);
+        o.motion = motion;
+        o.period = 4.2 + r.next() * 1.2;
+        o.range = motion === "along" ? 20 : 28;
+        if (motion === "along") o.width += 40;
+        if (motion === "piston") o.depth = 56 + r.next() * 8;
+        obstacles.push(o);
+        at += o.width + clearance;
+      }
+      this.next = at;
+    } else if (pattern === "rail" || pattern === "pinch") {
       const width =
         pattern === "rail" ? 520 + r.next() * 180 : 460 + r.next() * 140;
       obstacles.push({

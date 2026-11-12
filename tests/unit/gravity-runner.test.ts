@@ -14,14 +14,14 @@ const runner = (y = 160, gravity: -1 | 1 = 1): Runner => ({
   alive: true,
   cooldown: 0,
 });
-it("simultaneous falls replay; legal survival points finish at five", () => {
+it("simultaneous falls replay; legal survival points finish at three", () => {
   const m = new GravityMatch(1);
   m.players.forEach((p) => (p.y = 193));
   m.gaps = [{ x: 0, width: 1000, side: 1 }];
   m.step(1 / 120);
   expect(m.scores).toEqual([0, 0]);
   expect(m.between).toBeGreaterThan(0);
-  for (let i = 0; i < 5; i++) {
+  for (let i = 0; i < 3; i++) {
     m.step(1.2);
     m.players[0].y = 193;
     m.gaps = [{ x: 0, width: 1000, side: 1 }];
@@ -43,7 +43,7 @@ it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () =>
         m.step(1 / 120);
       }
       expect(m.winner, `${d} seed ${seed}`).toBe(2);
-      expect(m.scores[1]).toBe(5);
+      expect(m.scores[1]).toBe(3);
     }
 });
 for (const d of ["medium", "hard", "impossible"] as const)
@@ -145,12 +145,12 @@ it("spikes, ledges and beams stay lethal at their visible bounds", () => {
       expect(p.alive).toBe(false);
     }
 });
-it("no time limit or forced replay; speed rises smoothly and geometry stays bounded", () => {
+it("two-minute rounds draw; speed rises smoothly and geometry stays bounded", () => {
   const m = new GravityMatch(17),
     a = new GravityAI("impossible", 17);
   let previous = m.speed(),
     maxObjects = 0;
-  for (let i = 0; i < 120 * 360; i++) {
+  for (let i = 0; i < 120 * 121; i++) {
     if (a.update(m)) {
       m.flip(1);
       m.flip(0);
@@ -161,10 +161,10 @@ it("no time limit or forced replay; speed rises smoothly and geometry stays boun
     maxObjects = Math.max(maxObjects, m.gaps.length + m.obstacles.length);
     if (m.between) break;
   }
-  expect(m.age).toBeGreaterThan(359);
+  expect(m.age).toBeGreaterThan(119);
   expect(m.winner).toBeNull();
   expect(m.round).toBe(1);
-  expect(m.distance).toBeGreaterThan(75000);
+  expect(m.distance).toBeGreaterThan(20000);
   expect(m.speed()).toBe(264);
   expect(maxObjects).toBeLessThan(30);
 });
@@ -196,4 +196,43 @@ it("a returning wall cannot teleport a fallen runner back into the corridor", ()
     expect(p.alive).toBe(false);
     expect(side === 1 ? p.y > 160 : p.y < 10).toBe(true);
   }
+});
+
+it("round clocks use uncapped elapsed time, draw without points, and reset", () => {
+ const m = new GravityMatch(1);
+ m.advanceClock(119);
+ expect(m.remaining).toBe(1);
+ m.advanceClock(5);
+ expect(m.remaining).toBe(0);
+ expect(m.timedOut).toBe(true);
+ expect(m.scores).toEqual([0,0]);
+ expect(m.flip(0)).toBe(false);
+ m.advanceClock(30);
+ m.step(1.2, false);
+ expect(m.remaining).toBe(120);
+ expect(m.round).toBe(2);
+ expect(m.age).toBe(0);
+ expect(m.speed()).toBe(120);
+ expect(m.timedOut).toBe(false);
+ m.step(1/120, false);
+ expect(m.remaining).toBe(120);
+});
+
+it("every round changes map with reproducible, balanced random selection", () => {
+ const counts: Record<string, number> = {};
+ for(let seed = 0; seed < 100; seed++) {
+   const a = new GravityMatch(seed), b = new GravityMatch(seed);
+   for(let round = 0; round < 30; round++) {
+     const previous = a.map.id;
+     for(const m of [a,b]) {m.advanceClock(120); m.step(1.2, false);}
+     expect(a.map.id).not.toBe(previous);
+     expect(a.map.id).toBe(b.map.id);
+     expect(a.obstacles).toEqual(b.obstacles);
+     expect(a.remaining).toBe(120);
+     expect(a.distance).toBe(0);
+     counts[a.map.id] = (counts[a.map.id] ?? 0) + 1;
+   }
+ }
+ expect(Object.keys(counts)).toHaveLength(4);
+ for(const count of Object.values(counts)) expect(count).toBeGreaterThan(600);
 });

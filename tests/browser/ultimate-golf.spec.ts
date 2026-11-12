@@ -189,7 +189,7 @@ test("a complete Temple run uses real touch shots, banks its score and persists 
   await page.clock.install();
   await page.clock.pauseAt(new Date(Date.now() + 100));
   await page.getByRole("button", { name: "1 Player Casual" }).click();
-  await page.getByRole("button", { name: "Easy", exact: true }).click();
+  await page.getByRole("button", { name: "Medium", exact: true }).click();
   await page.clock.runFor(32);
   await page.getByRole("button", { name: /Lost Temple/ }).click();
   expect((await state(page)).scene.game.course).toBe("temple");

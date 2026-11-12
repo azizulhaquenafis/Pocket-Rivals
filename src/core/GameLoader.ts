@@ -23,3 +23,8 @@ export async function loadTutorial(
 ) {
   await (await exportsFor(id)).tutorial?.(variant, ui);
 }
+
+/** Fetch only the selected game while its setup is open. No factory or listeners yet. */
+export async function preloadGame(id: string) {
+  await exportsFor(id);
+}

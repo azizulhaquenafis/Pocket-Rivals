@@ -51,7 +51,7 @@ test("new games enter tournaments automatically and a real new-game round crowns
   await page.getByLabel("Number of rounds").selectOption("1");
   await page.getByRole("button", { name: "Choose games" }).click();
   for (const name of [
-    "Gravity Runner · Random map",
+    "Gravity Runner",
     "Happy Birds",
     "Spike Attacks",
   ])

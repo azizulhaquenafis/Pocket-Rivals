@@ -8,7 +8,7 @@ import { course, runners } from "./GravityArt";
 import { GravityAI } from "./AI";
 export class GravityGame implements MiniGame {
   private ctx!: GameContext;
-  private m = new GravityMatch(freshSeed());
+  private m!: GravityMatch;
   private ai?: GravityAI;
   private g!: Phaser.GameObjects.Graphics;
   private clip!: Phaser.GameObjects.Graphics;
@@ -27,11 +27,10 @@ export class GravityGame implements MiniGame {
     this.clip.fillStyle(0xffffff).fillRoundedRect(22, 110, 376, 542, 22);
     this.mask = this.clip.createGeometryMask();
     this.g.setMask(this.mask);
-    this.m = new GravityMatch(this.m.seed, ctx.options.variant);
     if (ctx.options.mode === "ai") {
       this.ai = new GravityAI(ctx.options.difficulty);
-      this.m = new GravityMatch(this.ai.personality.seed, ctx.options.variant);
     }
+    this.m = new GravityMatch(this.ai?.personality.seed ?? freshSeed());
     ctx.input.tap((x, y) => {
       if (x >= 24 && x <= 396 && y >= 112 && y <= 650)
         this.flip(y < 380 ? 1 : 0);
@@ -41,7 +40,7 @@ export class GravityGame implements MiniGame {
     ctx.setHint("");
     ctx.setScore(0, 0);
     this.view.reset(this.m);
-    ctx.setClock("", false);
+    ctx.setClock("2:00", false);
     ctx.audio.play("start");
     this.draw();
   }
@@ -54,12 +53,13 @@ export class GravityGame implements MiniGame {
   }
   update(dt: number) {
     if (this.paused || this.done) return;
+    this.m.advanceClock(dt);
     this.fixed.advance(dt, (h) => {
       this.view.capture(this.m);
       if (this.ai?.update(this.m)) this.flip(1, true);
       const before = this.m.players.map((p) => ({ alive: p.alive, vy: p.vy }));
       const round = this.m.round;
-      this.m.step(h);
+      this.m.step(h, false);
       if (round !== this.m.round) {
         this.view.reset(this.m);
         this.ctx.audio.play("start", 0.65);
@@ -78,6 +78,13 @@ export class GravityGame implements MiniGame {
       this.score = this.m.scores.join();
       this.ctx.setScore(...this.m.scores);
     }
+    const seconds = Math.ceil(this.m.remaining);
+    this.ctx.setClock(
+      this.m.timedOut
+        ? "ROUND DRAW"
+        : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
+      seconds <= 10,
+    );
     this.renderState = this.view.sample(
       this.m,
       this.fixed.fraction,
@@ -93,7 +100,12 @@ export class GravityGame implements MiniGame {
   private draw() {
     const g = this.g;
     g.clear();
-    course(g, this.m, this.renderState?.distance ?? this.m.distance);
+    course(
+      g,
+      this.m,
+      this.renderState?.distance ?? this.m.distance,
+      this.renderState?.age ?? this.m.age,
+    );
     runners(g, this.m, this.renderState);
   }
   pause() {
@@ -118,6 +130,8 @@ export class GravityGame implements MiniGame {
       map: this.m.map.id,
       speed: this.m.speed(),
       age: this.m.age,
+      remaining: this.m.remaining,
+      timedOut: this.m.timedOut,
       patterns: [...this.m.patterns],
       renderState: this.renderState,
       distance: this.m.distance,
