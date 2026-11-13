@@ -92,13 +92,15 @@ test("Arcade has independent high scores, Snake controls, pause and game over", 
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  await expect(page.locator("[data-game]")).toHaveCount(2);
+  await expect(page.locator("[data-game]")).toHaveCount(7);
   await page.screenshot({ path: "docs/arcade.png" });
   await page
     .getByRole("button", { name: "Play Classic Snake", exact: true })
     .click();
   await expect.poll(async () => (await state(page)).state).toBe("playing");
-  await page.getByRole("button", {name:"Sunlit Meadow",exact:true}).click();
+  await page
+    .getByRole("button", { name: "Sunlit Meadow", exact: true })
+    .click();
   await page.locator("[data-start]").click();
   await page.waitForTimeout(250);
   await tap(page, 210, 574);
@@ -136,6 +138,7 @@ test("Star Patrol touch firing, keyboard controls, responsive layout and pooled 
   await page
     .getByRole("button", { name: "Play Star Patrol", exact: true })
     .click();
+  await page.getByRole("button", { name: "Medium", exact: true }).click();
   await expect.poll(async () => (await state(page)).state).toBe("playing");
   await page.waitForTimeout(750);
   const b = (await page.locator("canvas").boundingBox())!,

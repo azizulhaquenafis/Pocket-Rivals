@@ -71,3 +71,8 @@ Penfight and Ultimate Golf opt into InputManager’s captured native pointer dra
 Opposite-side presentation is centralized in `shared/utilities/DeviceLayout.ts`: coarse primary pointer with no hover uses mobile/tablet rotation; mouse and hybrid mouse devices remain upright. TurnView, host scores, quiz panels, Lumberjack touch mapping, and Happy Birds labels share this policy. Physics and keyboard rules do not change by device.
 
 Selecting a duel preloads only its lazy exports while the setup dialog is open. Factories and listeners are still created by GameHost after Play; no game engines are fetched at menu startup. Snake has a game-owned map/tier picker and shared grid rules/rendering for all gardens.
+
+## Expanded Solo Arcade
+Five independently discovered modules add Tower Stack, Orbit Hop, Color Switch, Perfect Pour and Pocket Climber. Ricochet, Pocket Pinball and Slide Escape are preserved under `src/future-games/`, outside discovery. Their rules remain local; the lazy shared ArcadeGame base manages graphics/text resources, fixed stepping, guarded inputs, pause, difficulty selection and host results. Tiny SVG previews are packaged as separate assets and lazy-loaded through the existing card markup. No new engine enters the menu payload. See SOLO_ARCADE_EXPANSION.md for controls, finite level counts and validation.
+
+All seven active solo games offer Medium, Hard and Impossible. Snake retains its own map/tier picker; the other six use a lazy, disposable ArcadeSetup overlay. No simulation or gameplay input runs behind this overlay. Each rules engine owns its tier parameters; personal bests remain per game, preserving existing records.

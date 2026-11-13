@@ -34,6 +34,11 @@ export class GameManager {
   readonly renderScale = Math.min(window.devicePixelRatio || 1, 2);
   readonly host: GameHost;
   readonly game: Phaser.Game;
+  private markHostReady!: () => void;
+  private hostReady = new Promise<void>((resolve) => {
+    this.markHostReady = resolve;
+  });
+  private loadingTimer?: number;
   private transition = document.createElement("div");
   private menu: MainMenu;
   private tournamentView: TournamentScene;
@@ -75,7 +80,11 @@ export class GameManager {
       callbacks: {
         postBoot: (game) => {
           game.scene.add("GameHost", this.host, false);
-          if (this.state === "menu") game.loop.sleep();
+          this.markHostReady();
+          // postBoot precedes loop.start: sleeping here would be undone by Phaser.
+          game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+            if (this.state === "menu") game.loop.sleep();
+          });
         },
       },
     });
@@ -89,7 +98,8 @@ export class GameManager {
     this.disposers.push(() => resize.disconnect());
     this.transition.className = "game-transition";
     this.transition.innerHTML =
-      '<span class="transition-mark">p<span>r.</span></span><b>One little moment…</b>';
+      '<span class="transition-mark">p<span>r.</span></span><b>One little moment…</b><button class="text-button">Back to games</button>';
+    this.transition.querySelector("button")!.onclick = () => this.goMenu();
     this.transition.hidden = true;
     document.querySelector("#app")!.append(this.transition);
     this.menu = new MainMenu(this, this.menuRoot);
@@ -162,9 +172,14 @@ export class GameManager {
     this.token = token;
     this.state = "loading";
     this.scores.beginRound();
-    this.run++;
+    const run = ++this.run;
     if (!token && !restoredState) this.storage.writeRecord(MATCH_KEY, null);
     this.transition.hidden = false;
+    this.watchLoading();
+    // Fetch while the renderer boots, but never start an unregistered scene.
+    void preloadGame(id).catch(() => {});
+    await this.hostReady;
+    if (run !== this.run) return;
     this.game.loop.wake();
     this.resizeGame();
     if (this.game.scene.isActive("GameHost")) this.game.scene.stop("GameHost");
@@ -174,6 +189,22 @@ export class GameManager {
       restoredState,
       run: this.run,
     });
+    // The user may have paused while renderer boot was pending.
+    if (this.state !== "loading") this.host.pauseGame();
+  }
+  private clearLoading() {
+    window.clearTimeout(this.loadingTimer);
+    this.loadingTimer = undefined;
+  }
+  private watchLoading() {
+    this.clearLoading();
+    const run = this.run;
+    this.loadingTimer = window.setTimeout(() => {
+      if (run === this.run && this.state === "loading" && !document.hidden)
+        this.showError(
+          new Error("The game download did not finish. Please retry."),
+        );
+    }, 12000);
   }
   private resizeGame() {
     const responsive = this.active && getGame(this.active.gameId).responsive;
@@ -190,6 +221,7 @@ export class GameManager {
   }
   onReady(run: number) {
     if (run !== this.run) return;
+    this.clearLoading();
     this.menuRoot.hidden = true;
     document.querySelector("#app")!.classList.add("in-game");
     this.transition.hidden = true;
@@ -288,6 +320,7 @@ export class GameManager {
   }
   pause(reason = "pause") {
     if (this.state !== "playing" && this.state !== "loading") return;
+    this.clearLoading();
     this.host.pauseGame();
     this.state = "paused";
     this.audio.play("tap");
@@ -318,7 +351,8 @@ export class GameManager {
   private resume() {
     this.modal.close();
     this.audio.unlock();
-    this.state = "playing";
+    this.state = this.host.ready ? "playing" : "loading";
+    if (this.state === "loading") this.watchLoading();
     this.host.resumeGame();
   }
   private background() {
@@ -333,6 +367,7 @@ export class GameManager {
     else this.goMenu();
   }
   goMenu() {
+    this.clearLoading();
     this.run++;
     this.transition.hidden = true;
     this.modal.close();
@@ -394,12 +429,16 @@ export class GameManager {
       });
   }
   showError(error: unknown) {
+    this.clearLoading();
+    this.run++;
+    this.state = "paused";
     this.transition.hidden = true;
+    this.game.scene.stop("GameHost");
     console.error(error);
     this.host.pauseGame();
     this.modal.show(
-      '<h2 id="dialog-title">That game took a break.</h2><p>Return to the collection and try again.</p><button class="primary-button" data-action="menu">Back to games</button>',
-      { menu: () => this.goMenu() },
+      '<h2 id="dialog-title">That game took a break.</h2><p>Return to the collection, or reload to retry the download.</p><button class="primary-button" data-action="menu">Back to games</button><button class="text-button" data-action="reload">Reload games</button>',
+      { menu: () => this.goMenu(), reload: () => location.reload() },
       "",
       () => this.goMenu(),
     );
@@ -414,10 +453,13 @@ export class GameManager {
     };
   }
   dispose() {
+    this.clearLoading();
+    this.run++;
     this.disposers.forEach((fn) => fn());
     this.audio.dispose();
     this.diagnostics.dispose();
     this.transition.remove();
     this.game.destroy(true);
+    this.game.loop.wake();
   }
 }

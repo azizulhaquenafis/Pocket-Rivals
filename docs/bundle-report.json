@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-DA0pgfXF.js",
-      "bytes": 72398,
-      "gzip": 22524
+      "file": "assets/index-Bku4zugx.js",
+      "bytes": 76877,
+      "gzip": 23735
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -50,8 +50,13 @@
     }
   ],
   "lazyGames": [
+    "src/arcade/color-switch/index.ts",
+    "src/arcade/orbit-hop/index.ts",
+    "src/arcade/perfect-pour/index.ts",
+    "src/arcade/pocket-climber/index.ts",
     "src/arcade/snake/index.ts",
     "src/arcade/space-shooter/index.ts",
+    "src/arcade/tower-stack/index.ts",
     "src/games/air-hockey/index.ts",
     "src/games/connect-four/index.ts",
     "src/games/dots-and-boxes/index.ts",
@@ -69,5 +74,5 @@
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 357958
+  "totalInitialGzip": 359169
 }

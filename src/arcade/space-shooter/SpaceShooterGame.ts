@@ -1,3 +1,4 @@
+import { ArcadeSetup } from "../../shared/arcade/ArcadeSetup";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { label } from "../../shared/components/drawing";
@@ -6,6 +7,8 @@ import { freshSeed, MatchRandom } from "../../shared/ai/MatchRandom";
 import { ShooterWorld } from "./ShooterWorld";
 import { drawShooter } from "./ShooterArt";
 export class SpaceShooterGame implements MiniGame {
+  private setup?: ArcadeSetup;
+  private started = false;
   private ctx!: GameContext;
   private world = new ShooterWorld(new MatchRandom(freshSeed()).next);
   private g!: Phaser.GameObjects.Graphics;
@@ -44,7 +47,14 @@ export class SpaceShooterGame implements MiniGame {
     ctx.setHint("");
     ctx.input.drag(
       (x, y) => {
-        if (this.paused || x < 24 || x > 396 || y < 400 || y > 650)
+        if (
+          !this.started ||
+          this.paused ||
+          x < 24 ||
+          x > 396 ||
+          y < 400 ||
+          y > 650
+        )
           return false;
         this.target = x;
         this.dragging = true;
@@ -61,9 +71,28 @@ export class SpaceShooterGame implements MiniGame {
       },
     );
     this.draw();
+    this.setup = new ArcadeSetup(
+      {
+        title: "Star Patrol",
+        tiers: [
+          "Steady formations, slower attacks and generous warning flashes.",
+          "Quicker formations and more frequent enemy fire.",
+          "Fast projectiles, short warnings and relentless attacks.",
+        ],
+      },
+      (tier) => {
+        this.world = new ShooterWorld(new MatchRandom(freshSeed()).next, tier);
+        this.started = true;
+        this.age = 0;
+        this.keys.clear();
+        this.clock.reset();
+        ctx.audio.play("start", 0.5);
+        this.draw();
+      },
+    );
   }
   update(dt: number) {
-    if (this.paused || this.reported) return;
+    if (!this.started || this.paused || this.reported) return;
     this.age += Math.min(dt, 0.1);
     const w = this.world,
       before = {
@@ -130,14 +159,17 @@ export class SpaceShooterGame implements MiniGame {
   }
   pause() {
     this.paused = true;
+    this.setup?.setPaused(true);
     this.dragging = false;
     this.clock.reset();
   }
   resume() {
     this.paused = false;
+    this.setup?.setPaused(false);
     this.clock.reset();
   }
   dispose() {
+    this.setup?.destroy();
     this.reported = true;
     this.g.destroy();
     this.mask.destroy();
@@ -149,6 +181,8 @@ export class SpaceShooterGame implements MiniGame {
   snapshot() {
     const w = this.world;
     return {
+      started: this.started,
+      difficulty: w.difficulty,
       player: { ...w.player },
       score: w.score,
       lives: w.lives,

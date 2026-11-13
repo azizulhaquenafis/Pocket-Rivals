@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250">
+  <g
+    stroke="#242b32"
+    stroke-width="6"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  >
+    <path
+      d="M90 130a60 60 0 0 1 120 0"
+      fill="none"
+      stroke="#f49b58"
+      stroke-width="18"
+    />
+    <path
+      d="M210 130a60 60 0 0 1-120 0"
+      fill="none"
+      stroke="#58addb"
+      stroke-width="18"
+    />
+    <circle cx="150" cy="190" r="12" fill="#f49b58" />
+  </g>
+</svg>

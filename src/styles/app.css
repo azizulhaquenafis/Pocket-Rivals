@@ -332,7 +332,8 @@ button:active {
   pointer-events: none;
   z-index: 1;
 }
-.card-art svg {
+.card-art svg,
+.card-art img {
   width: 100%;
   height: 100%;
 }

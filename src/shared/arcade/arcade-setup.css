@@ -1,0 +1,81 @@
+.arcade-setup {
+  position: absolute;
+  inset: 14% 0 10%;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  background: #f8f5ebed;
+  overflow: auto;
+}
+.arcade-setup[hidden] {
+  display: none;
+}
+.arcade-setup section {
+  width: min(100%, 360px);
+  display: grid;
+  gap: 12px;
+  margin: auto;
+}
+.arcade-setup h2 {
+  text-align: center;
+  font-size: clamp(20px, 4vh, 28px);
+  margin: 0 0 4px;
+}
+.arcade-tier {
+  display: grid;
+  gap: 5px;
+  text-align: left;
+  border: 3px solid #242b32;
+  border-radius: 20px;
+  padding: 15px 18px;
+  background: #e2ecd6;
+  color: #242b32;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #242b32;
+  font: inherit;
+}
+.arcade-tier:nth-of-type(2) {
+  background: #d4eaf2;
+}
+.arcade-tier:nth-of-type(3) {
+  background: #e4d8ed;
+}
+.arcade-tier b {
+  font-size: 21px;
+}
+.arcade-tier span {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.arcade-tier:hover {
+  transform: translateY(-2px);
+}
+.arcade-tier:focus-visible {
+  outline: 3px solid #f49b58;
+  outline-offset: 3px;
+}
+@media (max-height: 500px) {
+  .arcade-setup {
+    inset: 12% 0 6%;
+  }
+  .arcade-setup section {
+    gap: 7px;
+    width: min(90%, 490px);
+  }
+  .arcade-tier {
+    padding: 8px 14px;
+    grid-template-columns: 110px 1fr;
+    align-items: center;
+  }
+  .arcade-tier b {
+    font-size: 17px;
+  }
+  .arcade-tier span {
+    font-size: 12px;
+  }
+  .arcade-setup h2 {
+    font-size: 18px;
+  }
+}

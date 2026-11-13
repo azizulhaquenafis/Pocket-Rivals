@@ -13,6 +13,7 @@ test("production Star Patrol launches with mobile and desktop controls", async (
   await page
     .getByRole("button", { name: "Play Star Patrol", exact: true })
     .click();
+  await page.getByRole("button", { name: "Medium", exact: true }).click();
   await expect(page.locator("canvas")).toBeVisible();
   await page.waitForTimeout(900);
   const box = (await page.locator("canvas").boundingBox())!;
@@ -60,6 +61,7 @@ test("Star Patrol earns real loot, advances levels and freezes gear on pause", a
   await page
     .getByRole("button", { name: "Play Star Patrol", exact: true })
     .click();
+  await page.getByRole("button", { name: "Medium", exact: true }).click();
   const snapshot = () => page.evaluate(() => (window as any).__POCKET__);
   await expect.poll(async () => (await snapshot()).state).toBe("playing");
   await page.clock.install();

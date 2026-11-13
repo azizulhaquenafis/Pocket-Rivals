@@ -8,10 +8,19 @@ const modules = import.meta.glob<GameExports>([
   "../games/*/index.ts",
   "../arcade/*/index.ts",
 ]);
-async function exportsFor(id: string) {
+const pending = new Map<string, Promise<GameExports>>();
+function exportsFor(id: string) {
   const load = modules[modulePath(id)];
   if (!load) throw Error(`Missing game factory: ${id}`);
-  return load();
+  let task = pending.get(id);
+  if (!task) {
+    task = load().catch((error) => {
+      pending.delete(id);
+      throw error;
+    });
+    pending.set(id, task);
+  }
+  return task;
 }
 export async function loadGame(id: string, options: MatchOptions) {
   return (await exportsFor(id)).default(options);

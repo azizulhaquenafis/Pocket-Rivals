@@ -25,6 +25,7 @@ export class GameHost extends Phaser.Scene {
   private run = 0;
   private texts: Phaser.GameObjects.Text[] = [];
   private lastTime = 0;
+  private firstRender?: () => void;
   private clockText!: Phaser.GameObjects.Text;
   private hint!: Phaser.GameObjects.Text;
   constructor(private app: GameManager) {
@@ -97,7 +98,9 @@ export class GameHost extends Phaser.Scene {
             86,
             this.options.mode === "ai" ? "BLUE AI   0" : "BLUE   0",
             18,
-          ).setRotation(this.options.mode === "local" && oppositeSideLayout() ? Math.PI : 0),
+          ).setRotation(
+            this.options.mode === "local" && oppositeSideLayout() ? Math.PI : 0,
+          ),
         ];
       } else {
         rounded(g, 80, 70, 260, 32, 12, theme.blue, 2);
@@ -119,12 +122,13 @@ export class GameHost extends Phaser.Scene {
           return;
         }
         this.module = module;
+        const best = this.app.arcade.best(this.id);
         module.initialize({
           reportAI: (ms) => this.app.diagnostics.computation(ms),
-          bestScore: this.app.arcade.best(this.id),
+          bestScore: best,
           setArcadeHUD: (score, detail) => {
             this.texts[0]?.setText(
-              `SCORE  ${score}    BEST  ${Math.max(score, this.app.arcade.best(this.id))}`,
+              `SCORE  ${score}    BEST  ${Math.max(score, best)}`,
             );
             this.texts[1]?.setText(detail);
           },
@@ -144,10 +148,12 @@ export class GameHost extends Phaser.Scene {
           saveState: (state) => this.app.checkpoint(this.run, state),
           input: this.controls!,
           audio: this.app.audio,
-          setClock: (text, urgent) =>
-            this.clockText
-              ?.setText(text)
-              .setColor(urgent ? "#b2462c" : "#697474"),
+          setClock: (text, urgent) => {
+            this.clockText?.setText(text);
+            const color = urgent ? "#b2462c" : "#697474";
+            if (this.clockText && this.clockText.style.color !== color)
+              this.clockText.setColor(color);
+          },
           setScore: (a, b) => this.setScore(a, b),
           setHint: (text) => this.hint?.setText(text),
           finish: (result) => this.finish(result),
@@ -160,10 +166,12 @@ export class GameHost extends Phaser.Scene {
           module.pause();
         }
         this.lastTime = performance.now();
-        this.game.events.once(Phaser.Core.Events.POST_RENDER, () => {
+        this.firstRender = () => {
           if (this.alive && generation === this.generation)
             this.app.onReady(this.run);
-        });
+          this.firstRender = undefined;
+        };
+        this.game.events.once(Phaser.Core.Events.POST_RENDER, this.firstRender);
       })
       .catch((error) => {
         if (this.alive && generation === this.generation)
@@ -197,11 +205,12 @@ export class GameHost extends Phaser.Scene {
       dt = this.lastTime ? (now - this.lastTime) / 1000 : 0;
     this.lastTime = now;
     if (this.ready && !this.paused) this.module?.update(dt);
-    this.app.diagnostics.frame(
-      dt,
-      this.game.scene.getScenes(true).length,
-      this.textures.getTextureKeys().length,
-    );
+    if (this.app.diagnostics.enabled)
+      this.app.diagnostics.frame(
+        dt,
+        this.game.scene.getScenes(true).length,
+        this.textures.getTextureKeys().length,
+      );
   }
   pauseGame() {
     this.paused = true;
@@ -216,10 +225,18 @@ export class GameHost extends Phaser.Scene {
     this.module?.resume();
   }
   private cleanup() {
+    if (this.firstRender)
+      this.game.events.off(Phaser.Core.Events.POST_RENDER, this.firstRender);
+    this.firstRender = undefined;
     this.alive = false;
     this.ready = false;
-    this.module?.dispose();
+    const module = this.module;
     this.module = undefined;
+    try {
+      module?.dispose();
+    } catch (error) {
+      console.error("Game cleanup failed", error);
+    }
     this.controls?.dispose();
     this.controls = undefined;
     this.texts = [];

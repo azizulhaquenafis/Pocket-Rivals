@@ -1,3 +1,4 @@
+import type { Difficulty } from "../../shared/contracts/AIController";
 import {
   POWERUPS,
   ORDINARY_LOOT_INTERVAL,
@@ -108,7 +109,10 @@ export class ShooterWorld {
   private lastLife = -Infinity;
   private dropSerial = 0;
   private shotCount = 0;
-  constructor(private random = Math.random) {
+  constructor(
+    private random = Math.random,
+    readonly difficulty: Difficulty = "medium",
+  ) {
     this.spawnWave();
   }
   spawnWave() {
@@ -124,7 +128,10 @@ export class ShooterWorld {
   get speed() {
     let killed = 0;
     for (const e of this.enemies) if (!e.alive) killed++;
-    return waveSpeed(this.wave, killed);
+    return (
+      waveSpeed(this.wave, killed) *
+      { medium: 1, hard: 1.2, impossible: 1.4 }[this.difficulty]
+    );
   }
   get weaponName() {
     return this.laser > 0
@@ -150,7 +157,15 @@ export class ShooterWorld {
       previousX: x,
       previousY: y,
       vx,
-      vy: vy ?? (enemy ? Math.min(340, 155 + this.wave * 13) : -490),
+      vy:
+        vy ??
+        (enemy
+          ? Math.min(
+              400,
+              (155 + this.wave * 13) *
+                { medium: 1, hard: 1.15, impossible: 1.3 }[this.difficulty],
+            )
+          : -490),
       enemy,
       active: true,
       damage: !enemy && this.laser > 0 ? 2 : 1,
@@ -179,7 +194,11 @@ export class ShooterWorld {
     this.shotSerial++;
   }
   private attack(e: Enemy) {
-    const speed = Math.min(340, 155 + this.wave * 13);
+    const speed = Math.min(
+      400,
+      (155 + this.wave * 13) *
+        { medium: 1, hard: 1.15, impossible: 1.3 }[this.difficulty],
+    );
     if (e.kind === 3 || e.kind === 5) {
       const dx = this.player.x - e.x,
         dy = this.player.y - e.y;
@@ -361,8 +380,13 @@ export class ShooterWorld {
         front[
           Math.min(front.length - 1, Math.floor(this.random() * front.length))
         ];
-      if (e && !e.charge) e.charge = e.kind === 5 ? 0.55 : 0.38;
-      this.enemyClock = attackInterval(this.wave);
+      if (e && !e.charge)
+        e.charge =
+          (e.kind === 5 ? 0.55 : 0.38) *
+          { medium: 1, hard: 0.85, impossible: 0.7 }[this.difficulty];
+      this.enemyClock =
+        attackInterval(this.wave) *
+        { medium: 1, hard: 0.8, impossible: 0.65 }[this.difficulty];
     }
     for (const p of this.projectiles) {
       if (!p.active) continue;

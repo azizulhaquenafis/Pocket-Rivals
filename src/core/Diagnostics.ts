@@ -19,6 +19,9 @@ export class Diagnostics {
       document.body.append(this.panel);
     }
   }
+  get enabled() {
+    return !!this.panel;
+  }
   loaded(id: string) {
     this.modules.add(id);
   }
