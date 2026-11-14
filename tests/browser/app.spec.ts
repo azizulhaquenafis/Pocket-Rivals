@@ -143,6 +143,7 @@ for (const name of ["Pong", "Air Hockey"])
 test("repeated switching releases every input listener and game object", async ({
   page,
 }) => {
+  test.setTimeout(90000); // Twelve full launch/exit cycles, including touch animation.
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   for (let i = 0; i < 12; i++) {
@@ -150,7 +151,7 @@ test("repeated switching releases every input listener and game object", async (
     await start(page, name);
     const s = await snapshot(page);
     expect(s.scene.inputListeners).toBe(
-      name === "Tic-Tac-Toe" ? 1 : name === "Pong" ? 6 : 5,
+      name === "Tic-Tac-Toe" ? 1 : 6,
     );
     expect(s.scene.children).toBeLessThan(20);
     await menu(page);

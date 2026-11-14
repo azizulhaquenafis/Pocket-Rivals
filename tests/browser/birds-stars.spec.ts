@@ -19,15 +19,19 @@ test("star race shows real collectibles; a hit animates gray to color through th
   page.on("pageerror", (e) => errors.push(e.message));
   await page.clock.install();
   await launch(page);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 60_000));
   expect((await game(page)).goal).toBe(15);
   expect((await game(page)).stars).toHaveLength(1);
   expect((await game(page)).remaining).toBeUndefined();
-  await page.clock.runFor(2200);
+  // Advance to the first actual contact, independent of page startup time.
+  for (let i = 0; i < 60 && (await game(page)).players[0].alive; i++)
+    await page.clock.runFor(50);
   let s = await game(page);
   expect(s.players[0].alive).toBe(false);
   expect(s.players[0].recovery).toBeGreaterThan(2);
   expect(s.renderState[0].saturation).toBe(0);
   const scores = s.scores;
+  const impactDistance = Math.abs(s.players[0].x - 140);
   const serial = s.players[0].flapSerial;
   await page.keyboard.press("Space");
   expect((await game(page)).players[0].flapSerial).toBe(serial);
@@ -42,13 +46,14 @@ test("star race shows real collectibles; a hit animates gray to color through th
   expect(s.players[0].recovery).toBeGreaterThan(0);
   expect(s.renderState[0].saturation).toBeGreaterThan(0);
   expect(s.renderState[0].saturation).toBeLessThan(1);
-  expect(Math.abs(s.players[0].x - 140)).toBeLessThan(15);
+  expect(Math.abs(s.players[0].x - 140)).toBeLessThan(impactDistance);
   expect(s.scores).toEqual(scores);
   await page.screenshot({ path: "docs/happy-stars-return.png" });
-  await page.clock.runFor(1200);
+  await page.clock.runFor(Math.ceil(s.players[0].recovery * 1000) + 40);
   s = await game(page);
   expect(s.players[0].alive).toBe(true);
   expect(s.players[0].recovery).toBe(0);
+  expect(Math.abs(s.players[0].x - 140)).toBeLessThan(8);
   expect(s.renderState[0].saturation).toBe(1);
   await page.screenshot({ path: "docs/happy-stars-flying.png" });
   await page.keyboard.press("Escape");

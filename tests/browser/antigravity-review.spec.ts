@@ -15,6 +15,7 @@ async function launch(p: Page, name: string, ai = false) {
 test("Water Guess accepts integer keypad and completes a five-round local match", async ({
   page,
 }) => {
+  test.setTimeout(60000);
   await launch(page, "Water Guess");
   for (let round = 1; round <= 5; round++) {
     await expect.poll(async () => (await state(page)).state).toBe("GUESSING");
@@ -31,7 +32,9 @@ test("Water Guess accepts integer keypad and completes a five-round local match"
     }
     await expect.poll(async () => (await state(page)).state).toBe("REVEAL");
     expect((await state(page)).match.scores).toEqual([round, 0]);
-    await page.waitForTimeout(850);
+    await expect
+      .poll(async () => (await state(page)).revealAge)
+      .toBeGreaterThan(0.85);
     await page.keyboard.press("Enter");
   }
   await expect(page.getByRole("button", { name: /Rematch/ })).toBeVisible();

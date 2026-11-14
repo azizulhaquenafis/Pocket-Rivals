@@ -7,7 +7,7 @@ export default {
     name: "Orbit Hop",
     description: "A small leap through space.",
     instructions:
-      "Tap/Space to launch along the arrow. Gravity bends flight. Land on higher planets. Three lives.",
+      "Tap/Space to launch along the arrow. Enter a planet’s halo and its gravity curves your flight toward the surface. Reach higher planets. Missing the arena costs a life. Three lives.",
     color: "#d8cde8",
     accent: "#d8cde8",
     order: 32,

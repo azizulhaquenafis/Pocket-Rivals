@@ -8,7 +8,7 @@ Map trap families: ice icicles/frost blocks; green roots/brambles; blue sinusoid
 
 ObstacleGeometry is authoritative for rendering and collision: triangle/trapezoid/convex silhouettes use SAT against the 26×18 runner footprint; jets change depth with seeded time and phase gates actually open. Pass the same round age to gameplay, renderer and AI forecasts. Open phase gates warn before activation. Runnable platform faces use swept landing; front penetration and returning-wall rescue are rejected. 120 Hz integration, gravity 900, 160 ms legal flip lock. No runner-to-runner collision or AI exemptions.
 
-AI forecasts use the same advanceRunner, age-dependent speed and moving trap phases. Difficulty controls reaction distribution, visible lookahead and one/two-flip search. Safe movement remains stable. Seeded replay uses MatchRandom.
+AI forecasts use the same advanceRunner, age-dependent speed and moving trap phases. Difficulty controls reaction distribution, visible lookahead and one/two-flip search. Medium uses approximately .62s lookahead and .30s observations; Hard uses 1.45s/.085s and Impossible 1.75s/.04s. Safe movement remains stable. Seeded replay uses MatchRandom. Balance checks measure legal survival distributions; do not require Medium to solve every route or manufacture errors for stronger tiers.
 
 GravityView interpolates presentation only. GravityArt/TrapArt retain one masked Graphics; no extra RAF/textures. Round numbers are removed from the rail. Dispose graphics and mask; host owns input cleanup.
 

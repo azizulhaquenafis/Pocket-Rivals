@@ -1,5 +1,6 @@
 import type { GameMetadata } from "../../shared/contracts/GameModule";
-import preview from "./assets/preview.svg?raw";
+import image from "./assets/preview.svg?url&no-inline";
+const preview = `<img src="${image}" alt="" loading="lazy" decoding="async"/>`;
 
 const preview4x4 = `<svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="11" y="11" width="6" height="6" rx="1.2" fill="#f49b58"/><rect x="17" y="17" width="6" height="6" rx="1.2" fill="#58addb"/><path d="M11 11h12M11 17h12M17 23h6M11 11v12M17 11v12M23 11v12" stroke="#242b32" stroke-width="1.5" stroke-linecap="round"/><path d="M5 5h24M5 11h24M5 17h24M5 23h24M5 29h24" stroke="#242b32" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="0 6"/></svg>`;
 

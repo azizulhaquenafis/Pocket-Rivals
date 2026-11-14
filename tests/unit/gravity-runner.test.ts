@@ -33,9 +33,9 @@ it("simultaneous falls replay; legal survival points finish at three", () => {
   expect(m.flip(1)).toBe(false);
 });
 for (const d of ["medium", "hard", "impossible"] as const)
-it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () => {
+  it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () => {
     for (let seed = 0; seed < 100; seed++) {
-      await new Promise<void>(resolve=>setImmediate(resolve));
+      await new Promise<void>((resolve) => setImmediate(resolve));
       const m = new GravityMatch(seed),
         a = new GravityAI(d, seed);
       for (let i = 0; i < 36000 && !m.winner; i++) {
@@ -45,11 +45,13 @@ it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () =>
       expect(m.winner, `${d} seed ${seed}`).toBe(2);
       expect(m.scores[1]).toBe(3);
     }
-});
+  });
 for (const d of ["medium", "hard", "impossible"] as const)
-it(`${d}: 100 seeds traverse two minutes of increasingly fast shared hazards`, async () => {
+  it(`${d}: 100 seeded legal routes retain distinct difficulty`, async () => {
+    let duration = 0,
+      survived = 0;
     for (let seed = 0; seed < 100; seed++) {
-      await new Promise<void>(resolve=>setImmediate(resolve));
+      await new Promise<void>((resolve) => setImmediate(resolve));
       const m = new GravityMatch(seed),
         a = new GravityAI(d, seed);
       let flips = 0,
@@ -66,13 +68,25 @@ it(`${d}: 100 seeds traverse two minutes of increasingly fast shared hazards`, a
         if (m.between) break;
       }
       expect(m.round, `${d} seed ${seed}`).toBe(1);
-      expect(m.players[1].alive, `${d} seed ${seed}`).toBe(true);
-      expect(m.age).toBeGreaterThan(119);
-      expect(railLandings).toBeGreaterThan(100);
-      expect(flips).toBeGreaterThan(15);
+      duration += m.age;
+      if (m.players[1].alive) survived++;
+      expect(m.age).toBeGreaterThan(8);
+      if (d !== "medium") {
+        expect(m.players[1].alive, `${d} seed ${seed}`).toBe(true);
+        expect(m.age).toBeGreaterThan(119);
+        expect(railLandings).toBeGreaterThan(100);
+        expect(flips).toBeGreaterThan(15);
+      }
       expect(m.winner).toBeNull();
     }
-}, 120000);
+    console.info(
+      `Gravity ${d}: mean ${duration / 100}s; full rounds ${survived}/100`,
+    );
+    if (d === "medium") {
+      expect(duration / 100).toBeGreaterThan(60);
+      expect(duration / 100).toBeLessThan(115);
+    }
+  }, 120000);
 it("four maps select reproducibly, random seeds cover all themes, and explicit maps work", () => {
   const chosen = new Set<string>();
   for (let seed = 0; seed < 100; seed++) {
@@ -199,40 +213,44 @@ it("a returning wall cannot teleport a fallen runner back into the corridor", ()
 });
 
 it("round clocks use uncapped elapsed time, draw without points, and reset", () => {
- const m = new GravityMatch(1);
- m.advanceClock(119);
- expect(m.remaining).toBe(1);
- m.advanceClock(5);
- expect(m.remaining).toBe(0);
- expect(m.timedOut).toBe(true);
- expect(m.scores).toEqual([0,0]);
- expect(m.flip(0)).toBe(false);
- m.advanceClock(30);
- m.step(1.2, false);
- expect(m.remaining).toBe(120);
- expect(m.round).toBe(2);
- expect(m.age).toBe(0);
- expect(m.speed()).toBe(120);
- expect(m.timedOut).toBe(false);
- m.step(1/120, false);
- expect(m.remaining).toBe(120);
+  const m = new GravityMatch(1);
+  m.advanceClock(119);
+  expect(m.remaining).toBe(1);
+  m.advanceClock(5);
+  expect(m.remaining).toBe(0);
+  expect(m.timedOut).toBe(true);
+  expect(m.scores).toEqual([0, 0]);
+  expect(m.flip(0)).toBe(false);
+  m.advanceClock(30);
+  m.step(1.2, false);
+  expect(m.remaining).toBe(120);
+  expect(m.round).toBe(2);
+  expect(m.age).toBe(0);
+  expect(m.speed()).toBe(120);
+  expect(m.timedOut).toBe(false);
+  m.step(1 / 120, false);
+  expect(m.remaining).toBe(120);
 });
 
 it("every round changes map with reproducible, balanced random selection", () => {
- const counts: Record<string, number> = {};
- for(let seed = 0; seed < 100; seed++) {
-   const a = new GravityMatch(seed), b = new GravityMatch(seed);
-   for(let round = 0; round < 30; round++) {
-     const previous = a.map.id;
-     for(const m of [a,b]) {m.advanceClock(120); m.step(1.2, false);}
-     expect(a.map.id).not.toBe(previous);
-     expect(a.map.id).toBe(b.map.id);
-     expect(a.obstacles).toEqual(b.obstacles);
-     expect(a.remaining).toBe(120);
-     expect(a.distance).toBe(0);
-     counts[a.map.id] = (counts[a.map.id] ?? 0) + 1;
-   }
- }
- expect(Object.keys(counts)).toHaveLength(4);
- for(const count of Object.values(counts)) expect(count).toBeGreaterThan(600);
+  const counts: Record<string, number> = {};
+  for (let seed = 0; seed < 100; seed++) {
+    const a = new GravityMatch(seed),
+      b = new GravityMatch(seed);
+    for (let round = 0; round < 30; round++) {
+      const previous = a.map.id;
+      for (const m of [a, b]) {
+        m.advanceClock(120);
+        m.step(1.2, false);
+      }
+      expect(a.map.id).not.toBe(previous);
+      expect(a.map.id).toBe(b.map.id);
+      expect(a.obstacles).toEqual(b.obstacles);
+      expect(a.remaining).toBe(120);
+      expect(a.distance).toBe(0);
+      counts[a.map.id] = (counts[a.map.id] ?? 0) + 1;
+    }
+  }
+  expect(Object.keys(counts)).toHaveLength(4);
+  for (const count of Object.values(counts)) expect(count).toBeGreaterThan(600);
 });

@@ -251,7 +251,7 @@ export class GameHost extends Phaser.Scene {
       inputListeners: this.controls?.listenerCount ?? 0,
       pointers: this.controls?.players.map((p) => ({ ...p })),
       game: this.module?.snapshot?.(),
-      children: this.children.length,
+      children: this.children?.length ?? 0,
     };
   }
 }

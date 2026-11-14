@@ -153,17 +153,31 @@ it("recovery moves smoothly to the middle and restores all body colors without a
   }
 });
 it("all difficulties finish genuine 15-star races across 100 seeds using legal flaps", () => {
-  for (const d of ["medium", "hard", "impossible"] as const)
+  const means: number[] = [],
+    recoveries: number[] = [];
+  for (const d of ["medium", "hard", "impossible"] as const) {
+    let totalTime = 0,
+      totalRecoveries = 0;
     for (let seed = 0; seed < 100; seed++) {
       const m = new BirdsMatch(seed),
         a = new BirdsAI(d, seed);
       for (let i = 0; i < 120 * 240 && !m.winner; i++) {
         if (a.update(1 / 120, m)) expect(m.flap(1)).toBe(true);
+        const alive = m.players[1].alive;
         m.step(1 / 120);
+        if (alive && !m.players[1].alive) totalRecoveries++;
       }
+      totalTime += m.total;
       expect(m.winner, `${d} seed ${seed}: ${m.scores}`).toBe(2);
       expect(m.scores[1]).toBe(15);
     }
+    means.push(totalTime / 100);
+    recoveries.push(totalRecoveries / 100);
+  }
+  // Strength is measured across complete legal races, not just reaction labels.
+  expect(means[1]).toBeLessThan(means[0] * 0.9);
+  expect(means[2]).toBeLessThan(means[1] * 0.95);
+  expect(recoveries[2]).toBeLessThan(recoveries[1] * 0.5);
 }, 120000);
 it("a race does not expire before either participant collects fifteen", () => {
   const m = new BirdsMatch(1);
@@ -218,4 +232,27 @@ it("one shared star ranges across the arena without fixed slots or nearby repeat
           (s) => s.x >= x && s.x < x + 68 && s.y >= y && s.y < y + 80,
         ).length,
       ).toBeGreaterThan(30);
+});
+
+it("Impossible forecasting is deterministic, read-only, and inert after a finish", () => {
+  const a = new BirdsMatch(83),
+    b = new BirdsMatch(83);
+  const ai = new BirdsAI("impossible", 83),
+    replay = new BirdsAI("impossible", 83);
+  for (let i = 0; i < 120 * 10; i++) {
+    const before = JSON.stringify(a);
+    const flap = ai.update(1 / 120, a);
+    expect(JSON.stringify(a)).toBe(before);
+    expect(replay.update(1 / 120, b)).toBe(flap);
+    if (flap) {
+      expect(a.flap(1)).toBe(true);
+      expect(b.flap(1)).toBe(true);
+    }
+    a.step(1 / 120);
+    b.step(1 / 120);
+  }
+  expect(a.players).toEqual(b.players);
+  expect(a.scores).toEqual(b.scores);
+  a.winner = 2;
+  expect(ai.update(10, a)).toBe(false);
 });

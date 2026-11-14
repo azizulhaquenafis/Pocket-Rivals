@@ -18,14 +18,14 @@ export class GravityAI {
     this.wait -= dt;
     if (this.wait > 0) return false;
     this.wait = this.personality.sample(
-      { medium: 0.23, hard: 0.085, impossible: 0.04 }[this.difficulty],
+      { medium: 0.3, hard: 0.085, impossible: 0.04 }[this.difficulty],
       { medium: 0.045, hard: 0.018, impossible: 0.008 }[this.difficulty],
       0.025,
     );
     if (m.players[1].cooldown > 0) return false;
     const horizon = Math.min(
       410 / m.speed(),
-      { medium: 0.85, hard: 1.45, impossible: 1.75 }[this.difficulty] +
+      { medium: 0.62, hard: 1.45, impossible: 1.75 }[this.difficulty] +
         this.personality.tempo * 0.025,
     );
     const h = 1 / 120,

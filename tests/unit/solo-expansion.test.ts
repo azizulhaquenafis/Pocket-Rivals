@@ -125,6 +125,8 @@ it("Color rings enforce the visible color, checkpoint progress and three lives",
   expect(w.lives).toBe(2);
   expect(w.grace).toBeGreaterThan(0);
   w.grace = 0;
+  // Match the interior of a colored arc, not the seam touched by two colors.
+  w.angle = Math.PI / 4;
   w.y = w.center + 75;
   w.color = w.ringColor(w.y);
   w.step(1 / 120);

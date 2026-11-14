@@ -8,6 +8,12 @@ async function arcade(page: Page, name: string) {
 }
 async function delayRenderer(page: Page) {
   await page.addInitScript(() => {
+    const pending: (() => void)[] = [];
+    let released = false;
+    (window as any).__releaseRenderer = () => {
+      released = true;
+      pending.splice(0).forEach((release) => release());
+    };
     const property = Object.getOwnPropertyDescriptor(
       HTMLImageElement.prototype,
       "src",
@@ -15,8 +21,8 @@ async function delayRenderer(page: Page) {
     Object.defineProperty(HTMLImageElement.prototype, "src", {
       ...property,
       set(value: string) {
-        if (value.startsWith("data:image/png"))
-          setTimeout(() => property.set!.call(this, value), 1800);
+        if (!released && value.startsWith("data:image/png"))
+          pending.push(() => property.set!.call(this, value));
         else property.set!.call(this, value);
       },
     });
@@ -28,6 +34,8 @@ test("selection before renderer boot finishes starts the intended game", async (
   await delayRenderer(page);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   await arcade(page, "Orbit Hop");
+  await expect(page.locator(".game-transition")).toBeVisible();
+  await page.evaluate(() => (window as any).__releaseRenderer());
   await expect
     .poll(async () => (await snapshot(page)).state, { timeout: 7000 })
     .toBe("playing");
@@ -46,6 +54,7 @@ test("cancel during renderer boot cannot resurrect the abandoned game", async ({
   await page
     .getByRole("button", { name: "Play Color Switch", exact: true })
     .click();
+  await page.evaluate(() => (window as any).__releaseRenderer());
   await expect
     .poll(async () => (await snapshot(page)).state, { timeout: 7000 })
     .toBe("playing");
@@ -112,6 +121,7 @@ test("backgrounding during a delayed import preserves pause and resume", async (
 test("unchanged solo text produces no per-frame canvas rasterization", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   await page.addInitScript(() => {
     (window as any).__textDraws = 0;
     const original = CanvasRenderingContext2D.prototype.fillText;

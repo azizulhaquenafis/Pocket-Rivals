@@ -8,4 +8,4 @@ User-requested precision variation: Impossible samples a legal target once per s
 
 StrikePhysics owns presentation-only ballistic puck flight and bell contact; ImpactRing is a damped spring. Both use the existing bounded fixed-step loop. A perfect score reaches the bell; non-perfect trajectories peak below it. Scores still come exclusively from Rules. Scale labels alternate lanes. Popup and ring motion pause with gameplay and have no independent timers.
 
-Needle presentation maps normalized -1..1 to -90..90 degrees (180-degree sweep); scoring and AI sample that same normalized needle.
+Needle presentation maps normalized -1..1 to -90..90 degrees (180-degree sweep); scoring and AI sample that same normalized needle. NeedleGeometry keeps the 54-unit pointer and its tip entirely inside the machine throughout the sweep; do not extend it past the tower sides.

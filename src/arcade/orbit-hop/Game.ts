@@ -7,14 +7,15 @@ export class Game extends ArcadeGame {
   protected challenge = {
     title: "Orbit Hop",
     tiers: [
-      "Slower orbits, larger planets and a flight preview.",
-      "Faster orbits, smaller landings and a short aim arrow.",
-      "Fast orbits and compact planets. Time each launch.",
+      "Wide gravity fields, relaxed orbits and a curved flight guide.",
+      "Smaller planets, longer leaps and a short launch arrow.",
+      "Distant tiny planets, tight gravity fields and no aim guide.",
     ] as const,
   };
   protected configure(tier: Difficulty) {
     this.w = new OrbitWorld(Math.random, tier);
   }
+  private landingAge = 1;
   private previewAge = -1;
   private path: { x: number; y: number }[] = [];
   private trail: { x: number; y: number }[] = [];
@@ -27,7 +28,11 @@ export class Game extends ArcadeGame {
   }
   protected step(dt: number) {
     const lives = this.w.lives;
+    const wasOrbiting = this.w.orbit;
     this.w.step(dt);
+    this.landingAge += dt;
+    if (!wasOrbiting && this.w.orbit && this.w.lives === lives)
+      this.landingAge = 0;
     if (!this.w.orbit) {
       this.trail.push({ x: this.w.ball.x, y: this.w.ball.y });
       if (this.trail.length > 18) this.trail.shift();
@@ -39,7 +44,6 @@ export class Game extends ArcadeGame {
       g = this.g;
     this.board(0xe5ddf0);
     g.fillStyle(0xc7b8df, 0.3).fillEllipse(315, 265, 290, 190);
-    g.lineStyle(1, 0xffffff, 0.45).strokeEllipse(210, 380, 320, 440);
     g.fillStyle(0xffffff, 0.7);
     for (let i = 0; i < 25; i++)
       g.fillCircle(
@@ -49,7 +53,39 @@ export class Game extends ArcadeGame {
       );
     for (const p of w.planets) {
       const y = p.y + w.camera;
-      if (y < 80 || y > 700) continue;
+      const field = w.fieldRadius(p);
+      if (y + field < 112 || y - field > 650) continue;
+      const next = p.id === w.highest + 1;
+      // The outer boundary is the actual attraction range, not a decorative hitbox.
+      g.fillStyle(next ? 0xffffff : 0xb6a2d3, next ? 0.14 : 0.08).fillCircle(
+        p.x,
+        y,
+        field,
+      );
+      g.lineStyle(1.5, 0x74608e, next ? 0.28 : 0.13).strokeCircle(
+        p.x,
+        y,
+        field,
+      );
+      g.lineStyle(1, 0xffffff, 0.28).strokeCircle(p.x, y, p.r + 8);
+      if (next) {
+        for (let n = 0; n < 8; n++) {
+          const a = (n * Math.PI) / 4 + this.age * 0.12;
+          g.fillStyle(0xffffff, 0.6).fillCircle(
+            p.x + Math.cos(a) * field,
+            y + Math.sin(a) * field,
+            1.5,
+          );
+        }
+      }
+      if (p.id === w.current && this.landingAge < 0.7) {
+        const t = this.landingAge / 0.7;
+        g.lineStyle(3, 0xffffff, (1 - t) * 0.8).strokeCircle(
+          p.x,
+          y,
+          p.r + 9 + t * 26,
+        );
+      }
       if (p.id === w.highest + 1 && this.difficulty === "medium")
         g.lineStyle(2, 0xffffff, 0.65).strokeCircle(
           p.x,
@@ -62,7 +98,14 @@ export class Game extends ArcadeGame {
         p.r * 1.9,
         12,
       );
-      circle(g, p.x, y, p.r, p.id % 2 ? 0xf49b58 : 0x58addb, 3);
+      circle(
+        g,
+        p.x,
+        y,
+        p.r,
+        [0x58addb, 0xf49b58, 0xafd197, 0xb7a3d5][p.id % 4],
+        3,
+      );
       g.fillStyle(0xffffff, 0.25).fillCircle(
         p.x - p.r * 0.3,
         y - p.r * 0.3,
@@ -73,7 +116,21 @@ export class Game extends ArcadeGame {
         y + p.r * 0.25,
         p.r * 0.2,
       );
-      g.lineStyle(2, 0xffffff, 0.4).strokeEllipse(p.x, y, p.r * 2.7, p.r * 0.6);
+      if (p.id % 3 === 0) {
+        g.lineStyle(3, 0x74608e, 0.55).strokeEllipse(
+          p.x,
+          y + 3,
+          p.r * 2.8,
+          p.r * 0.6,
+        );
+      } else if (p.id % 3 === 1) {
+        g.lineStyle(3, 0xffffff, 0.3).lineBetween(
+          p.x - p.r * 0.65,
+          y + p.r * 0.2,
+          p.x + p.r * 0.65,
+          y + p.r * 0.2,
+        );
+      }
     }
     for (let i = 0; i < this.trail.length; i++) {
       const p = this.trail[i];
@@ -111,7 +168,8 @@ export class Game extends ArcadeGame {
         9 + (1 - w.grace / 0.45) * 20,
       );
     circle(g, b.x, y, 7, w.grace ? 0xaaaaaa : 0xfffdf5, 2);
-    this.text("status", 210, 136, `PLANET ${w.highest + 1}`, 14);
+    g.fillStyle(0xfffdf5, 0.92).fillRoundedRect(37, 122, 88, 25, 12);
+    this.text("status", 81, 134, `PLANET ${w.highest + 1}`, 11);
   }
   protected state() {
     return {
@@ -133,6 +191,10 @@ export class Game extends ArcadeGame {
       ball: { ...this.w.ball },
       planets: this.w.planets,
       current: this.w.current,
+      gravityFields: this.w.planets.map((p) => ({
+        id: p.id,
+        radius: this.w.fieldRadius(p),
+      })),
       highest: this.w.highest,
     };
   }

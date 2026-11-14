@@ -1,6 +1,12 @@
 import { selectMap, type SpikeMap } from "./Maps";
 import { MatchRandom } from "../../shared/ai/MatchRandom";
-import { attackDepth, movePlayer, pistonHits, type Side } from "./ArenaPhysics";
+import {
+  attackDepth,
+  movePlayer,
+  separatePlayers,
+  pistonHits,
+  type Side,
+} from "./ArenaPhysics";
 export type Phase = "warning" | "extend" | "hold" | "retract" | "recover";
 export interface Survivor {
   x: number;
@@ -145,8 +151,22 @@ export class SpikeMatch {
         this.phaseAge = 0;
       }
     } else if (this.phaseAge >= 0.18) this.nextWave();
+    const resting = this.players.map(
+      (p) => Math.hypot(p.tx - p.x, p.ty - p.y) < 0.001,
+    );
     for (const p of this.players) {
       movePlayer(p, p.tx - p.x, p.ty - p.y, dt, this.map.blocks);
+    }
+    if (this.players.every((p) => p.alive))
+      separatePlayers(this.players[0], this.players[1], this.map.blocks);
+    // Being pushed must not invent a movement command back to an old idle spot.
+    this.players.forEach((p, i) => {
+      if (resting[i]) {
+        p.tx = p.x;
+        p.ty = p.y;
+      }
+    });
+    for (const p of this.players) {
       for (let lane = 0; lane < 4; lane++)
         if (
           pistonHits(

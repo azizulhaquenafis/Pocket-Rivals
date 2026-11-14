@@ -121,8 +121,11 @@ export class AirHockey implements MiniGame {
         this.possession.side ? `${Math.ceil(this.possession.remaining)}s` : "",
       )
       .setPosition(348, this.possession.side === 1 ? 619 : 143)
-      .setColor(this.possession.remaining <= 5 ? "#ae432c" : "#62858b")
       .setAlpha(this.possession.remaining <= 5 ? 1 : 0.7);
+    const possessionColor =
+      this.possession.remaining <= 5 ? "#ae432c" : "#62858b";
+    if (this.possessionLabel.style.color !== possessionColor)
+      this.possessionLabel.setColor(possessionColor);
     this.sinceSave += dt;
     if (this.sinceSave >= 1) {
       this.sinceSave = 0;

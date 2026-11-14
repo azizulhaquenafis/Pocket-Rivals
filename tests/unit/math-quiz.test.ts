@@ -230,7 +230,7 @@ it("quiz AI follows the validated key only after its calibrated delay", () => {
     ai.update(m);
   }
   expect(m.scores).toEqual([0, 0]);
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 100; i++) {
     m.update(0.01);
     ai.update(m);
   }

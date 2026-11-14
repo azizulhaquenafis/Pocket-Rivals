@@ -2,6 +2,7 @@ import type { Difficulty } from "../contracts/AIController";
 import "./arcade-setup.css";
 export interface ArcadeChallenge {
   title: string;
+  instructions?: string;
   tiers: readonly [string, string, string];
 }
 /** Lazy, module-owned overlay. No physics or input starts behind the picker. */
@@ -14,6 +15,16 @@ export class ArcadeSetup {
     const title = document.createElement("h2");
     title.textContent = "Pick your challenge";
     panel.append(title);
+    if (info.instructions) {
+      const details = document.createElement("details");
+      details.className = "arcade-instructions";
+      const summary = document.createElement("summary");
+      summary.textContent = "How to play";
+      const body = document.createElement("p");
+      body.textContent = info.instructions;
+      details.append(summary, body);
+      panel.append(details);
+    }
     for (const [i, tier] of (
       ["medium", "hard", "impossible"] as const
     ).entries()) {

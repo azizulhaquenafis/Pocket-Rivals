@@ -5,6 +5,35 @@ export interface Planet {
   y: number;
   r: number;
 }
+export const ORBIT_TIERS = {
+  medium: {
+    radius: 27,
+    gap: 188,
+    spread: 132,
+    field: 62,
+    pull: 420,
+    speed: 290,
+    orbit: 1.05,
+  },
+  hard: {
+    radius: 23,
+    gap: 204,
+    spread: 164,
+    field: 48,
+    pull: 390,
+    speed: 305,
+    orbit: 1.4,
+  },
+  impossible: {
+    radius: 19,
+    gap: 218,
+    spread: 188,
+    field: 36,
+    pull: 360,
+    speed: 320,
+    orbit: 1.75,
+  },
+} as const;
 export class OrbitWorld {
   planets: Planet[] = [{ id: 0, x: 210, y: 540, r: 35 }];
   current = 0;
@@ -22,7 +51,33 @@ export class OrbitWorld {
     private random = Math.random,
     readonly difficulty: Difficulty = "medium",
   ) {
+    this.planets[0].r = this.tuning.radius + 3;
+    this.ball.x = 210 + this.planets[0].r + 8;
     this.extend();
+  }
+  get tuning() {
+    return ORBIT_TIERS[this.difficulty];
+  }
+  fieldRadius(p: Planet) {
+    return p.r + this.tuning.field;
+  }
+  /** Finite, smoothly tapered gravity. Outside a halo, flight is ballistic. */
+  gravityAt(x: number, y: number) {
+    let ax = 0,
+      ay = 0;
+    for (const p of this.planets) {
+      if (p.id === this.current && this.flight < 0.3) continue;
+      const dx = p.x - x,
+        dy = p.y - y,
+        d = Math.hypot(dx, dy);
+      const radius = this.fieldRadius(p);
+      if (d <= 1 || d >= radius) continue;
+      const t = Math.min(1, (radius - d) / (radius - p.r - 8));
+      const a = this.tuning.pull * t * t * (3 - 2 * t);
+      ax += (a * dx) / d;
+      ay += (a * dy) / d;
+    }
+    return { x: ax, y: ay };
   }
   get planet() {
     return this.planets.find((p) => p.id === this.current)!;
@@ -32,11 +87,12 @@ export class OrbitWorld {
       const p = this.planets.at(-1)!;
       this.planets.push({
         id: p.id + 1,
-        x: Math.max(85, Math.min(335, p.x + (this.random() - 0.5) * 150)),
-        y: p.y - 145 - this.random() * 25,
-        r:
-          { medium: 30, hard: 26, impossible: 23 }[this.difficulty] +
-          this.random() * 8,
+        x: Math.max(
+          96,
+          Math.min(324, p.x + (this.random() - 0.5) * this.tuning.spread),
+        ),
+        y: p.y - this.tuning.gap - this.random() * 28,
+        r: this.tuning.radius + this.random() * 4,
       });
     }
     this.planets = this.planets.filter(
@@ -47,8 +103,8 @@ export class OrbitWorld {
     if (this.done || !this.orbit || this.grace > 0) return false;
     this.orbit = false;
     this.flight = 0;
-    this.ball.vx = Math.sin(this.angle) * 270;
-    this.ball.vy = -Math.cos(this.angle) * 270;
+    this.ball.vx = Math.sin(this.angle) * this.tuning.speed;
+    this.ball.vy = -Math.cos(this.angle) * this.tuning.speed;
     return true;
   }
   private rescue() {
@@ -85,26 +141,14 @@ export class OrbitWorld {
     if (this.done) return;
     this.grace = Math.max(0, this.grace - dt);
     if (this.orbit) {
-      this.angle -=
-        { medium: 1.05, hard: 1.4, impossible: 1.75 }[this.difficulty] * dt;
+      this.angle -= this.tuning.orbit * dt;
       const p = this.planet;
       this.ball.x = p.x + Math.cos(this.angle) * (p.r + 8);
       this.ball.y = p.y + Math.sin(this.angle) * (p.r + 8);
     } else {
       const b = this.ball;
       this.flight += dt;
-      let ax = 0,
-        ay = 0;
-      for (const p of this.planets) {
-        const dx = p.x - b.x,
-          dy = p.y - b.y,
-          d = Math.hypot(dx, dy);
-        if (d > 1) {
-          const a = Math.min(160, 180000 / (d * d));
-          ax += (a * dx) / d;
-          ay += (a * dy) / d;
-        }
-      }
+      const { x: ax, y: ay } = this.gravityAt(b.x, b.y);
       b.vx += ax * dt;
       b.vy += ay * dt;
       const speed = Math.hypot(b.vx, b.vy);

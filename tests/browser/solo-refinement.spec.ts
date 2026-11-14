@@ -43,6 +43,7 @@ test("all solo difficulty choices launch, remain idle before selection, and clea
 test("Orbit miss resolves promptly through real launch input", async ({
   page,
 }) => {
+  await page.clock.install();
   await page.goto("/");
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
@@ -51,20 +52,18 @@ test("Orbit miss resolves promptly through real launch input", async ({
     .getByRole("button", { name: "Play Orbit Hop", exact: true })
     .click();
   await page.getByRole("button", { name: "Medium", exact: true }).click();
-  await expect
-    .poll(
-      async () => Math.abs(Math.abs((await snapshot(page)).angle) - Math.PI),
-      { intervals: [20], timeout: 6000 },
-    )
-    .toBeLessThan(0.12);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+  // Move to a downward launch using the real clock, never mutate world state.
+  for (let i = 0; i < 400; i++) {
+    const angle = (await snapshot(page)).angle;
+    if (Math.abs(Math.cos(angle) + 1) < 0.002) break;
+    await page.clock.runFor(20);
+  }
+  expect(Math.cos((await snapshot(page)).angle)).toBeLessThan(-0.998);
   await page.keyboard.press("Space");
-  await expect
-    .poll(async () => (await snapshot(page)).lives, {
-      intervals: [20],
-      timeout: 1500,
-    })
-    .toBe(2);
-  await page.waitForTimeout(550);
+  await page.clock.runFor(1500);
+  expect((await snapshot(page)).lives).toBe(2);
+  await page.clock.runFor(550);
   expect((await snapshot(page)).lives).toBe(2);
 });
 test("removed cards stay hidden and redesigned previews load locally", async ({

@@ -11,7 +11,7 @@ import {
   type WaterRoundResult,
 } from "./WaterGuessRules";
 import { WaterGuessAI } from "./WaterGuessAI";
-import { WaterRenderer, TUBE } from "./WaterRenderer";
+import { WaterRenderer } from "./WaterRenderer";
 
 interface KeyButton {
   label: string;
@@ -36,10 +36,7 @@ export class WaterGuessGame implements MiniGame {
   private buttonTexts: Phaser.GameObjects.Text[] = [];
 
   private bannerTitle!: Phaser.GameObjects.Text;
-  private promptText!: Phaser.GameObjects.Text;
   private inputBufferText!: Phaser.GameObjects.Text;
-  private p1StatusText!: Phaser.GameObjects.Text;
-  private p2StatusText!: Phaser.GameObjects.Text;
   private revealText!: Phaser.GameObjects.Text;
 
   private buttons: KeyButton[] = [];
@@ -63,69 +60,14 @@ export class WaterGuessGame implements MiniGame {
       this.ai = new WaterGuessAI(ctx.options.difficulty, this.random.seed);
     }
 
-    // Header & Info Texts
-    this.bannerTitle = label(
-      ctx.scene,
-      210,
-      126,
-      "WATER GUESS · ROUND 1/5",
-      14,
-      "#242b32",
-    );
-    this.bannerTitle.setFontStyle("700").setDepth(2);
-    this.uiTexts.push(this.bannerTitle);
-
-    // Guesser Prompt (whose turn it is)
-    this.promptText = label(
-      ctx.scene,
-      210,
-      480,
-      "ORANGE: ENTER GUESS (0.01% PRECISION)",
-      13,
-      "#e67e22",
-    );
-    this.promptText.setFontStyle("800").setDepth(2);
-    this.uiTexts.push(this.promptText);
-
-    // Live Input buffer display
-    this.inputBufferText = label(ctx.scene, 210, 502, "— %", 16, "#242b32");
-    this.inputBufferText.setFontStyle("900").setDepth(2);
-    this.uiTexts.push(this.inputBufferText);
-
-    // Lock Status for P1 & P2
-    this.p1StatusText = label(
-      ctx.scene,
-      88,
-      140,
-      "ORANGE: WAITING",
-      11,
-      "#e67e22",
-    );
-    this.p1StatusText.setFontStyle("700").setDepth(2);
-    this.uiTexts.push(this.p1StatusText);
-
-    this.p2StatusText = label(
-      ctx.scene,
-      332,
-      140,
-      "BLUE: WAITING",
-      11,
-      "#2980b9",
-    );
-    this.p2StatusText.setFontStyle("700").setDepth(2);
-    this.uiTexts.push(this.p2StatusText);
-
-    // Reveal Result text in bottom panel
-    this.revealText = label(ctx.scene, 210, 552, "", 13, "#242b32");
-    this.revealText.setFontStyle("700").setDepth(3).setAlpha(0);
-    this.uiTexts.push(this.revealText);
+    this.bannerTitle = label(ctx.scene, 210, 129, "1 / 5", 11);
+    this.inputBufferText = label(ctx.scene, 210, 502, "— %", 18);
+    this.revealText = label(ctx.scene, 210, 381, "", 54);
+    this.revealText.setAlpha(0);
+    this.uiTexts.push(this.bannerTitle, this.inputBufferText, this.revealText);
 
     this.setupKeypad();
     this.view = new TurnView(ctx.scene, [this.g, ...this.uiTexts]);
-    this.promptText.setVisible(false);
-    this.p1StatusText.setVisible(false);
-    this.p2StatusText.setVisible(false);
-    this.bannerTitle.setFontSize(11);
     this.setupInputs();
 
     this.startRound();
@@ -157,7 +99,7 @@ export class WaterGuessGame implements MiniGame {
       addKey(r2[i], 28 + i * 72, 564, 64, 34, () => this.appendDigit(r2[i]));
     }
 
-    // Row 3: ".", "DEL", "CONFIRM"
+    // Row 3: delete and submit
     addKey("⌫ DEL", 28, 604, 148, 34, () => this.backspace());
     addKey("CONFIRM", 184, 604, 204, 34, () => this.submitCurrentGuess());
 
@@ -187,13 +129,14 @@ export class WaterGuessGame implements MiniGame {
       if (this.paused || this.reported) return;
 
       if (this.state === "REVEAL") {
+        if (x < 24 || x > 396 || y < 112 || y > 650) return;
         if (this.revealAge > 0.8) {
           this.advanceNext();
         }
         return;
       }
 
-      if (this.state !== "GUESSING" || !this.view.ready) return;
+      if (!this.canGuess) return;
 
       // Check button clicks
       for (const b of this.buttons) {
@@ -233,10 +176,15 @@ export class WaterGuessGame implements MiniGame {
       (code) => {
         if (this.paused || this.reported) return;
         if (this.state === "REVEAL") {
-          if (this.revealAge > 0.8) this.advanceNext();
+          if (
+            this.view.ready &&
+            this.revealAge > 0.8 &&
+            (code === "Enter" || code === "Space")
+          )
+            this.advanceNext();
           return;
         }
-        if (this.state !== "GUESSING" || !this.view.ready) return;
+        if (!this.canGuess) return;
 
         if (/^(Digit|Numpad)[0-9]$/.test(code)) {
           const char = code.replace("Digit", "").replace("Numpad", "");
@@ -269,19 +217,18 @@ export class WaterGuessGame implements MiniGame {
     }
   }
 
-  private updateBufferDisplay() {
-    this.inputBufferText.setFontSize(16);
-    const pName = this.activeGuesser === 0 ? "ORANGE" : this.ai ? "AI" : "BLUE";
-    const color = this.activeGuesser === 0 ? "#e67e22" : "#2980b9";
-    this.promptText
-      .setText(`${pName}: ENTER GUESS (0.01% PRECISION)`)
-      .setColor(color);
+  private get canGuess() {
+    return (
+      this.state === "GUESSING" &&
+      this.view.ready &&
+      this.match.guesses[this.activeGuesser] === null
+    );
+  }
 
-    if (this.inputBuffer.length === 0) {
-      this.inputBufferText.setText("— %");
-    } else {
-      this.inputBufferText.setText(`${this.inputBuffer}%`);
-    }
+  private updateBufferDisplay() {
+    this.inputBufferText
+      .setFontSize(18)
+      .setText(this.inputBuffer.length === 0 ? "— %" : `${this.inputBuffer}%`);
   }
 
   private startRound() {
@@ -290,7 +237,7 @@ export class WaterGuessGame implements MiniGame {
     this.inputBuffer = "";
     this.roundResult = undefined;
     this.revealAge = 0;
-    this.revealText.setAlpha(0);
+    this.revealText.setAlpha(0).setScale(1);
     this.bannerTitle.setVisible(true);
 
     const isSudden = this.match.isSuddenDeath;
@@ -303,15 +250,10 @@ export class WaterGuessGame implements MiniGame {
     // AI locks its guess automatically if in AI mode
     if (this.ai) {
       this.aiWait = this.random.sample(1.45, 0.35, 1.0);
-      this.p2StatusText.setText("AI: LOCKED ✓").setColor("#27ae60");
       this.activeGuesser = 0; // Human is Player 1
-    } else {
-      this.p2StatusText.setText("BLUE: WAITING").setColor("#2980b9");
     }
 
     this.view.set(!this.ai && this.activeGuesser === 1);
-    this.p1StatusText.setText("ORANGE: WAITING").setColor("#e67e22");
-    this.promptText.setAlpha(1);
     this.inputBufferText.setAlpha(1);
     this.updateBufferDisplay();
     this.buttonTexts.forEach((t) => t.setAlpha(1));
@@ -319,7 +261,7 @@ export class WaterGuessGame implements MiniGame {
   }
 
   private submitCurrentGuess() {
-    if (this.inputBuffer.length === 0 || !this.view.ready) return;
+    if (this.inputBuffer.length === 0 || !this.canGuess) return;
     const val = parsePercentInput(this.inputBuffer);
 
     const ok = this.match.submit(this.activeGuesser, val);
@@ -331,12 +273,6 @@ export class WaterGuessGame implements MiniGame {
     }
 
     this.ctx.audio.play("wood");
-
-    if (this.activeGuesser === 0) {
-      this.p1StatusText.setText("ORANGE: LOCKED ✓").setColor("#27ae60");
-    } else {
-      this.p2StatusText.setText("BLUE: LOCKED ✓").setColor("#27ae60");
-    }
 
     this.inputBuffer = "";
 
@@ -357,12 +293,18 @@ export class WaterGuessGame implements MiniGame {
     if (this.state !== "GUESSING" || this.reported) return;
     this.state = "REVEAL";
     this.revealAge = 0;
-    this.view.set(false);
     this.buttonTexts.forEach((t) => t.setAlpha(0));
     this.roundResult = this.match.resolveRound();
     this.ctx.setScore(this.match.scores[0], this.match.scores[1]);
 
     const res = this.roundResult;
+    // Local mobile players see the result from the winner's side. A tied
+    // round keeps the current orientation; desktop and AI stay upright.
+    this.view.set(
+      !this.ai &&
+        (res.winner === 2 ||
+          (res.winner === "draw" && this.activeGuesser === 1)),
+    );
     if (res.winner === 1) {
       this.ctx.audio.play("capture");
     } else if (res.winner === 2) {
@@ -378,7 +320,6 @@ export class WaterGuessGame implements MiniGame {
       .setText(formatPercent(res.actual))
       .setAlpha(1);
 
-    this.promptText.setAlpha(0);
     this.inputBufferText.setAlpha(0);
   }
 
@@ -428,7 +369,10 @@ export class WaterGuessGame implements MiniGame {
         this.updateBufferDisplay();
       }
     } else if (this.state === "REVEAL") {
-      this.revealAge += dt;
+      // Do not consume the readable reveal while turning to its recipient.
+      if (this.view.ready) this.revealAge += dt;
+      const pop = Math.min(1, this.revealAge / 0.24);
+      this.revealText.setScale(0.92 + 0.08 * (1 - Math.pow(1 - pop, 3)));
       // Auto-advance after 3.2s if player doesn't tap
       if (this.revealAge > 3.2) {
         this.advanceNext();
@@ -470,6 +414,11 @@ export class WaterGuessGame implements MiniGame {
 
     if (this.state === "REVEAL") return;
 
+    const available = this.match.guesses[this.activeGuesser] === null;
+    const enabled = available && this.state === "GUESSING" && this.view.ready;
+    this.inputBufferText.setAlpha(available ? 1 : 0);
+    for (const text of this.buttonTexts) text.setAlpha(enabled ? 1 : 0.38);
+
     // 2. Tube & Water
     const waterLevel =
       this.state === "FILLING"
@@ -495,7 +444,7 @@ export class WaterGuessGame implements MiniGame {
         } else if (b.label === "⌫ DEL") {
           btnColor = 0xf5b7b1;
         }
-        rounded(g, b.x, b.y, b.w, b.h, 10, btnColor, 2);
+        rounded(g, b.x, b.y, b.w, b.h, 10, enabled ? btnColor : 0xe7e8e5, 2);
       }
     }
   }
@@ -525,6 +474,9 @@ export class WaterGuessGame implements MiniGame {
       inputBuffer: this.inputBuffer,
       scores: [...this.match.scores],
       round: this.match.round,
+      roundWinner: this.roundResult?.winner,
+      keypadEnabled: this.canGuess,
+      revealAge: this.revealAge,
     };
   }
 }

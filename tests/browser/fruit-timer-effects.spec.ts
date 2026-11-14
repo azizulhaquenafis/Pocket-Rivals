@@ -29,17 +29,21 @@ test("fruit decoys cause recoverable cooldown, real fruit splits, sound plays an
   await audioSpy(page);
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
+  await page.clock.install();
   await open(page, "Fruit Duel");
-  await expect
-    .poll(
-      async () => {
-        const s = await state(page);
-        return s.phase === "active" && !s.isFruit;
-      },
-      { timeout: 12000 },
-    )
-    .toBe(true);
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
+  const reach = async (fruit: boolean) => {
+    for (let i = 0; i < 120; i++) {
+      const s = await state(page);
+      if (s.phase === "active" && s.isFruit === fruit && s.cooldowns[0] === 0)
+        return;
+      await page.clock.runFor(100);
+    }
+    throw Error("No eligible object appeared");
+  };
+  await reach(false);
   await page.keyboard.press("Space");
+  await page.clock.runFor(40);
   await expect
     .poll(async () => (await state(page)).cooldowns[0])
     .toBeGreaterThan(0);
@@ -50,21 +54,14 @@ test("fruit decoys cause recoverable cooldown, real fruit splits, sound plays an
   await page.keyboard.press("Escape");
   const paused = await state(page);
   await page.screenshot({ path: "docs/fruit-decoy.png" });
-  await page.waitForTimeout(250);
+  await page.clock.runFor(250);
   expect(await state(page)).toEqual(paused);
   await page.getByRole("button", { name: /Keep playing/ }).click();
-  await expect
-    .poll(
-      async () => {
-        const s = await state(page);
-        return s.phase === "active" && s.isFruit && s.cooldowns[0] === 0;
-      },
-      { timeout: 10000 },
-    )
-    .toBe(true);
+  await reach(true);
   await page.keyboard.press("Space");
+  await page.clock.runFor(40);
   await expect.poll(async () => (await state(page)).scores[0]).toBe(1);
-  await page.waitForTimeout(230);
+  await page.clock.runFor(230);
   await page.screenshot({ path: "docs/fruit-sliced.png" });
   const notes = await page.evaluate(() => (window as any).__notes);
   expect(notes).toContain(110);

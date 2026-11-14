@@ -76,6 +76,7 @@ export class MathGame implements MiniGame {
       round: this.m.round,
       time: this.m.time,
       winner: this.m.winner,
+      ai: this.ai?.snapshot(),
     };
   }
 }

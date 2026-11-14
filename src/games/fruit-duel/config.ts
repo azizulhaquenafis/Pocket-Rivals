@@ -1,5 +1,6 @@
 import type { GameMetadata } from "../../shared/contracts/GameModule";
-import preview from "./assets/preview.svg?raw";
+import image from "./assets/preview.svg?url&no-inline";
+const preview = `<img src="${image}" alt="" loading="lazy" decoding="async"/>`;
 export default {
   id: "fruit-duel",
   name: "Fruit Duel",

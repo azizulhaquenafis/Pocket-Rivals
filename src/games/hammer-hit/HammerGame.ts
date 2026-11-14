@@ -1,5 +1,6 @@
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { StrikePhysics, ImpactRing } from "./StrikePhysics";
+import { needleTip, NEEDLE_LENGTH } from "./NeedleGeometry";
 import type Phaser from "phaser";
 import { TurnView, turnBackground } from "../../shared/components/TurnView";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
@@ -439,12 +440,16 @@ export class HammerGame implements MiniGame {
       ? this.model.locked[activePlayer]
       : this.model.position(activePlayer);
 
-    const needleAngle = needlePos * (Math.PI / 2); // full 180-degree sweep
     const pivotX = 210 + shakeX;
     const pivotY = 614 + shakeY;
-    const needleLen = 70;
-    const tipX = pivotX + Math.sin(needleAngle) * needleLen;
-    const tipY = pivotY - Math.cos(needleAngle) * needleLen;
+    const tip = needleTip(needlePos);
+    const tipX = tip.x + shakeX,
+      tipY = tip.y + shakeY;
+
+    g.lineStyle(2, theme.ink, 0.18);
+    g.beginPath();
+    g.arc(pivotX, pivotY, NEEDLE_LENGTH, Math.PI, Math.PI * 2);
+    g.strokePath();
 
     // Draw needle
     g.lineStyle(4, theme.ink);

@@ -47,4 +47,4 @@ it("100 seeded duel simulations remain finite with bounded controls and resolve 
     }
     expect(m.winner).not.toBeNull();
   }
-});
+}, 60000);

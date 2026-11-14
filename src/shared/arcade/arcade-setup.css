@@ -79,3 +79,16 @@
     font-size: 18px;
   }
 }
+
+.arcade-instructions {
+  font-size: 14px;
+  line-height: 1.5;
+}
+.arcade-instructions summary {
+  cursor: pointer;
+  padding: 8px;
+  text-align: center;
+}
+.arcade-instructions p {
+  margin: 4px 10px 10px;
+}

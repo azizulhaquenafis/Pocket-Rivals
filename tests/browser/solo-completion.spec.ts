@@ -20,6 +20,7 @@ test("Perfect Pour: real hold/release completes ten vessels and records a score"
   test.setTimeout(60000);
   await page.clock.install();
   await launch(page, "Perfect Pour");
+  await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
   for (let round = 1; round <= 10; round++) {
     const w = await state(page);
     expect(w.round).toBe(round);

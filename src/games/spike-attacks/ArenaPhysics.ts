@@ -168,3 +168,25 @@ export function movePlayer(
               : oldY;
   }
 }
+
+/** Equal-mass, inelastic body contact. Correct both bodies symmetrically after
+ * their legal movement; a stationary player yields, opposing drives balance.
+ * Every correction still respects cover and arena walls. No bounce or jitter.
+ */
+export function separatePlayers(
+  a: Point,
+  b: Point,
+  blocks: readonly Block[] = BLOCKS,
+) {
+  for (let i = 0; i < 12; i++) {
+    const dx = b.x - a.x,
+      dy = b.y - a.y;
+    const distance = Math.hypot(dx, dy);
+    const overlap = RADIUS * 2 - distance;
+    if (overlap < 0.0001) return;
+    const nx = distance > 1e-9 ? dx / distance : 1;
+    const ny = distance > 1e-9 ? dy / distance : 0;
+    movePlayer(a, (-nx * overlap) / 2, (-ny * overlap) / 2, 1, blocks);
+    movePlayer(b, (nx * overlap) / 2, (ny * overlap) / 2, 1, blocks);
+  }
+}

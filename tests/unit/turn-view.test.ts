@@ -1,6 +1,10 @@
-import { it, expect, vi } from "vitest";
+import { it, expect, vi, afterEach } from "vitest";
 import { TurnView, turnBackground } from "../../src/shared/components/TurnView";
+afterEach(() => vi.unstubAllGlobals());
 it("turn view rotates module content, inverts input, blocks transition, and destroys owned objects", () => {
+  vi.stubGlobal("matchMedia", (q: string) => ({
+    matches: q.includes("coarse"),
+  }));
   const root = {
     add: vi.fn(),
     setRotation: vi.fn(),
