@@ -51,6 +51,13 @@ test("Orbit miss resolves promptly through real launch input", async ({
   await page
     .getByRole("button", { name: "Play Orbit Hop", exact: true })
     .click();
+  // Verify How to play & planet guide is available before entering Orbit Hop.
+  const guideSummary = page.locator(".arcade-instructions summary");
+  await expect(guideSummary).toContainText(/How to play/i);
+  await guideSummary.click();
+  await expect(page.locator(".arcade-guide li")).toHaveCount(5);
+  await expect(page.locator(".arcade-guide")).toContainText("Dense Cores");
+  await expect(page.locator(".arcade-guide")).toContainText("Gas & Ice Giants");
   await page.getByRole("button", { name: "Medium", exact: true }).click();
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));
   // Move to a downward launch using the real clock, never mutate world state.

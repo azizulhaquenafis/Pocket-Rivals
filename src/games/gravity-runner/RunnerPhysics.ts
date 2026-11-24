@@ -22,9 +22,14 @@ export interface Obstacle {
     | "jet"
     | "buoy"
     | "crystal"
-    | "phase";
-  motion?: "along" | "across" | "piston";
+    | "phase"
+    | "snowball"
+    | "spore"
+    | "jelly"
+    | "orb";
+  motion?: "along" | "across" | "piston" | "orbit";
   range?: number;
+  crossRange?: number;
   phase?: number;
   period?: number;
 }

@@ -204,7 +204,7 @@ test("Domino Lab completes six puzzles through real inputs, saves score and rema
   page,
 }) => {
   test.setTimeout(120000);
-  const { DominoWorld } = await import("../../src/arcade/domino-lab/Rules");
+  const { DominoWorld } = await import("../../src/future-games/domino-lab/Rules");
   await page.clock.install();
   await open(page, "Domino Lab");
   await page.clock.pauseAt(await page.evaluate(() => Date.now() + 1000));

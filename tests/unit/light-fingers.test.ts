@@ -1,7 +1,7 @@
 import { it, expect } from "vitest";
 import { LightMatch } from "../../src/games/light-fingers/Rules";
 import { LightAI } from "../../src/games/light-fingers/AI";
-it("Light Fingers applies cooldown without changing scores for early taps and rejects multi-tap exploits", () => {
+it("Light Fingers applies longer cooldown without changing scores for early taps and rejects multi-tap exploits", () => {
   const m = new LightMatch(() => 0);
   m.tap(0);
   m.tap(0);
@@ -9,7 +9,10 @@ it("Light Fingers applies cooldown without changing scores for early taps and re
   expect(m.scores).toEqual([0, 0]);
   expect(m.canTap(0)).toBe(false);
   expect(m.tap(0)).toBe(false);
-  m.update(0.1);
+  m.update(1.4);
+  expect(m.canTap(0)).toBe(false);
+  m.update(1.1);
+  expect(m.canTap(0)).toBe(true);
   expect(m.scores).toEqual([0, 0]);
 });
 it("Light Fingers cannot accept a claim until the shared signal is presented", () => {

@@ -1,17 +1,86 @@
-<svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
-  <g stroke="#242b32" stroke-width="4" stroke-linejoin="round">
-    <path d="M119 104l-36 67h72Z" fill="#f49b58" />
-    <rect x="110" y="128" width="18" height="28" rx="8" fill="#58addb" />
-    <path d="M110 180l9 22 9-22" fill="#fffdf5" />
-    <rect x="43" y="35" width="44" height="31" rx="8" fill="#58addb" />
-    <rect x="130" y="28" width="44" height="31" rx="8" fill="#b8d998" />
-    <path
-      d="M55 46v6m19-6v6m69-13v6m19-6v6M49 66l-6 9m36-9 6 9m51-16-6 9m36-9 6 9"
-    />
-    <path
-      d="M118 74V60m-90 62h12m-6-6v12m149 18h12m-6-6v12"
-      stroke="#fffdf5"
-      stroke-linecap="round"
-    />
+<svg viewBox="0 0 280 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- Soft cosmic nebula backdrop accents -->
+  <circle cx="142" cy="108" r="88" fill="#bfb7db" opacity=".55"/>
+  <circle cx="88" cy="76" r="46" fill="#a6b5df" opacity=".36"/>
+  <circle cx="198" cy="138" r="44" fill="#d3b2d9" opacity=".38"/>
+  <!-- Distant ringed pastel planet -->
+  <g transform="translate(46 58) rotate(-22)" stroke="#242b32" stroke-width="3.2" stroke-linecap="round">
+    <ellipse cx="0" cy="0" rx="22" ry="6.5" fill="none" stroke="#f7d688" stroke-width="4"/>
+    <circle cx="0" cy="0" r="12" fill="#e8a4bc"/>
+    <path d="M-8-4q6-3 13-1" fill="none" stroke="#ffd8e6" stroke-width="2.4"/>
+    <path d="M-21 1.5A22 6.5 0 0 0 21 1.5" fill="none" stroke="#f7d688" stroke-width="3.6"/>
+  </g>
+  <!-- Twinkling stars & 4-point sparkles -->
+  <g fill="#fffdf5">
+    <path d="M236 42l3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"/>
+    <path d="M44 156l2.4 6.5 6.5 2.4-6.5 2.4-2.4 6.5-2.4-6.5-6.5-2.4 6.5-2.4Z" opacity=".92"/>
+    <path d="M234 156l2 5.5 5.5 2-5.5 2-2 5.5-2-5.5-5.5-2 5.5-2Z" opacity=".85"/>
+    <circle cx="88" cy="28" r="3"/>
+    <circle cx="192" cy="24" r="2.6" opacity=".88"/>
+    <circle cx="246" cy="108" r="2.8" opacity=".85"/>
+    <circle cx="32" cy="112" r="2.5" opacity=".8"/>
+  </g>
+  <!-- Triple glowing laser bolts streaking upward from the hero fighter -->
+  <g stroke-linecap="round">
+    <path d="M140 100V74" stroke="#85d7f5" stroke-width="10" opacity=".45"/>
+    <path d="M140 100V74" stroke="#fffdf5" stroke-width="4.5"/>
+    <path d="M114 114l-14-26" stroke="#85d7f5" stroke-width="8" opacity=".4"/>
+    <path d="M114 114l-14-26" stroke="#fffdf5" stroke-width="3.8"/>
+    <path d="M166 114l14-26" stroke="#85d7f5" stroke-width="8" opacity=".4"/>
+    <path d="M166 114l14-26" stroke="#fffdf5" stroke-width="3.8"/>
+  </g>
+  <g stroke="#242b32" stroke-width="4.4" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Left alien scout (sky-blue winged invader) -->
+    <g transform="translate(82 62) rotate(-10)">
+      <path d="M-16 0l-12 10 12 2Z" fill="#58addb"/>
+      <path d="M16 0l12 10-12 2Z" fill="#58addb"/>
+      <path d="M-9 12l-4 7m22-7l4 7" stroke-width="3.8"/>
+      <rect x="-18" y="-12" width="36" height="24" rx="10" fill="#58addb"/>
+      <path d="M-10-7h20" stroke="#a6e0fb" stroke-width="2.8"/>
+      <rect x="-11" y="-3" width="22" height="8.5" rx="3.5" fill="#242b32" stroke="none"/>
+      <circle cx="-5" cy="1.2" r="2.4" fill="#fffdf5" stroke="none"/>
+      <circle cx="5" cy="1.2" r="2.4" fill="#fffdf5" stroke="none"/>
+    </g>
+    <!-- Right alien scout (mint-green invader) -->
+    <g transform="translate(198 66) rotate(10)">
+      <path d="M-16 0l-12 10 12 2Z" fill="#9bc97b"/>
+      <path d="M16 0l12 10-12 2Z" fill="#9bc97b"/>
+      <path d="M-9 12l-4 7m22-7l4 7" stroke-width="3.8"/>
+      <rect x="-18" y="-12" width="36" height="24" rx="10" fill="#9bc97b"/>
+      <path d="M-10-7h20" stroke="#d5f0b8" stroke-width="2.8"/>
+      <rect x="-11" y="-3" width="22" height="8.5" rx="3.5" fill="#242b32" stroke="none"/>
+      <circle cx="-5" cy="1.2" r="2.4" fill="#fffdf5" stroke="none"/>
+      <circle cx="5" cy="1.2" r="2.4" fill="#fffdf5" stroke="none"/>
+    </g>
+    <!-- Center-top Ace Cruiser with shield hit burst -->
+    <g transform="translate(140 40)">
+      <path d="M-16 11v9m16-9v10m16-10v9" stroke-width="4.4"/>
+      <rect x="-28" y="-14" width="56" height="27" rx="10" fill="#a288c9"/>
+      <path d="M-18-8h36" stroke="#d9c8f2" stroke-width="3"/>
+      <rect x="-14" y="-2" width="28" height="9" rx="4" fill="#242b32" stroke="none"/>
+      <circle cx="-6" cy="2.5" r="2.6" fill="#ffd970" stroke="none"/>
+      <circle cx="6" cy="2.5" r="2.6" fill="#ffd970" stroke="none"/>
+    </g>
+    <!-- Impact sparkle burst right beneath the Ace Cruiser -->
+    <path d="M140 58l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z" fill="#ffe27a" stroke-width="3"/>
+    <!-- Twin glowing thruster flames under the hero starfighter -->
+    <path d="M126 177l6 22 6-22Z" fill="#ffe27a" stroke-width="3.6"/>
+    <path d="M142 177l6 22 6-22Z" fill="#ffe27a" stroke-width="3.6"/>
+    <path d="M133 176l7 28 7-28Z" fill="#fffdf5" stroke-width="3.6"/>
+    <!-- Hero Starfighter (swept wings, wingtip cannons, orange hull & domed blue cockpit) -->
+    <!-- Wingtip laser cannons -->
+    <path d="M107 152v-19m66 19v-19" stroke-width="5"/>
+    <!-- Outer swept wings -->
+    <path d="M140 107l-52 60 22 10 30-11 30 11 22-10Z" fill="#f49b58"/>
+    <!-- Cream wing trim stripes -->
+    <path d="M111 153l16-19m42 19l-16-19" stroke="#ffd8a8" stroke-width="3.8"/>
+    <!-- Central sleek fuselage -->
+    <path d="M140 96l-21 79h42Z" fill="#f49b58"/>
+    <path d="M140 96l-13 50h26Z" fill="#ffba7a" stroke="none"/>
+    <path d="M140 96l-21 79h42Z" fill="none"/>
+    <!-- Glossy sky-blue domed glass cockpit -->
+    <rect x="130" y="128" width="20" height="30" rx="10" fill="#58addb" stroke-width="4.2"/>
+    <path d="M135 135v12" stroke="#c7eeff" stroke-width="3.4"/>
+    <circle cx="135" cy="151" r="1.7" fill="#fffdf5" stroke="none"/>
   </g>
 </svg>

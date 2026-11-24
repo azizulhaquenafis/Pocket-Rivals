@@ -11,3 +11,5 @@ Final integration checks: 238 unit tests and 37 browser scenarios passed. Produc
 16 October update: Flappy Jump and Car Duel are deferred under `src/future-games/` with intact source/assets and active unit tests. Their browser specs are retained in `tests/future/`. They are absent from active discovery, tournament pools and production bundles.
 
 16 October follow-up: Archery Duel and Chicken Jump are also deferred intact under `src/future-games/`. Active rivalry count is now 15, plus Ultimate Golf and two arcade games. Spike Attacks now follows the supplied shared-arena piston reference, with progressively tougher attacks. See SPIKE_ATTACKS_REFINEMENT.md for verification.
+
+24 November: Pocket Drift, Magnet Dash, Tiny Foundry, Shadow Step and Domino Lab preserved under src/future-games for a future update. Paper Glider remains active. Rule tests retained; combined browser suite archived under tests/future. Active collection: eight solo games and sixteen rivalry games.

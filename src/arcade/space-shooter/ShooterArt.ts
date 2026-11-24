@@ -58,6 +58,48 @@ export function powerIcon(
       .fillTriangle(-8, -1, 8, -1, 0, 9);
   g.restore();
 }
+function brokenHeart(g: G, x: number, y: number, age: number) {
+  const t = Math.max(0, Math.min(1, age / 0.95));
+  const alpha = t < 0.45 ? 1 : Math.max(0, 1 - (t - 0.45) / 0.55);
+  if (alpha <= 0.01) return;
+  const crack = Math.max(0, (t - 0.16) / 0.84);
+  const pop = t < 0.16 ? 0.85 + 0.25 * (t / 0.16) : 1.1 - 0.1 * crack;
+  const rise = -22 * t + 10 * t * t;
+  const split = crack * 12;
+  const tilt = crack * 0.38;
+  const left = [
+    { x: 0, y: -5 },
+    { x: -3, y: -11 },
+    { x: -10, y: -12 },
+    { x: -14, y: -6 },
+    { x: -12, y: 2 },
+    { x: 0, y: 12 },
+    { x: -2, y: 5 },
+    { x: 2, y: 0 },
+  ];
+  const right = [
+    { x: 0, y: -5 },
+    { x: 3, y: -11 },
+    { x: 10, y: -12 },
+    { x: 14, y: -6 },
+    { x: 12, y: 2 },
+    { x: 0, y: 12 },
+    { x: -2, y: 5 },
+    { x: 2, y: 0 },
+  ];
+  for (const [side, pts] of [
+    [-1, left],
+    [1, right],
+  ] as const) {
+    g.save();
+    g.translateCanvas(x + side * split, y + rise);
+    g.rotateCanvas(side * tilt);
+    g.scaleCanvas(pop, pop);
+    g.fillStyle(0xe86f68, alpha).fillPoints(pts, true);
+    g.lineStyle(2.5, theme.ink, alpha).strokePoints(pts, true);
+    g.restore();
+  }
+}
 export function drawShooter(
   g: G,
   w: ShooterWorld,
@@ -66,6 +108,12 @@ export function drawShooter(
   firing: boolean,
 ) {
   g.clear();
+  const shaking = w.lifeLost.active && w.lifeLost.age < 0.34;
+  const shakePower = shaking ? Math.pow(1 - w.lifeLost.age / 0.34, 1.5) : 0;
+  const sx = shaking ? Math.sin(w.lifeLost.age * 78) * 4.5 * shakePower : 0;
+  const sy = shaking ? Math.cos(w.lifeLost.age * 64) * 3 * shakePower : 0;
+  g.save();
+  if (shaking) g.translateCanvas(sx, sy);
   rounded(g, 24, 112, 372, 538, 20, 0xd8d4e6, 4);
   g.fillGradientStyle(0xe3dfec, 0xe3dfec, 0xc7c4dc, 0xc7c4dc).fillRoundedRect(
     28,
@@ -271,5 +319,13 @@ export function drawShooter(
       x,
       y + 23 + Math.sin(age * 35) * 3,
     );
+  if (w.lifeLost.active) {
+    brokenHeart(g, w.lifeLost.x, w.lifeLost.y, w.lifeLost.age);
+    if (w.lifeLost.age < 0.36) {
+      const flash = (1 - w.lifeLost.age / 0.36) * 0.28;
+      g.lineStyle(10, 0xe86f68, flash).strokeRoundedRect(29, 117, 362, 528, 17);
+    }
+  }
   g.lineStyle(4, theme.ink).strokeRoundedRect(24, 112, 372, 538, 20);
+  g.restore();
 }

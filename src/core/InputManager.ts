@@ -190,7 +190,10 @@ export class InputManager {
   press(codes: string[], callback: (code: string) => void) {
     const keyboard = this.scene.input.keyboard;
     if (!keyboard) return;
+    const seen = new WeakSet<KeyboardEvent>();
     const handler = (event: KeyboardEvent) => {
+      if (seen.has(event)) return;
+      seen.add(event);
       if (this.enabled && !event.repeat && codes.includes(event.code)) {
         event.preventDefault();
         callback(event.code);

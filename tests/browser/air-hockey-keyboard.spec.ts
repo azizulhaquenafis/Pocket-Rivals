@@ -18,37 +18,37 @@ test("Air Hockey keyboard moves both players in 2P mode with WASD and Arrows", a
 }) => {
   await start(page);
 
-  // Player 0 (Orange) uses WASD: move left and up
-  await page.keyboard.down("KeyA");
-  await page.keyboard.down("KeyW");
+  // Player 0 (Orange, lower half) uses Arrows: move left and up
+  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("ArrowUp");
   await expect.poll(async () => (await mallets(page))[0].x).toBeLessThan(190);
   await expect.poll(async () => (await mallets(page))[0].y).toBeLessThan(550);
-  await page.keyboard.up("KeyA");
-  await page.keyboard.up("KeyW");
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowUp");
 
   // Player 0 moves right and down
-  await page.keyboard.down("KeyD");
-  await page.keyboard.down("KeyS");
-  await expect.poll(async () => (await mallets(page))[0].x).toBeGreaterThan(230);
-  await expect.poll(async () => (await mallets(page))[0].y).toBeGreaterThan(570);
-  await page.keyboard.up("KeyD");
-  await page.keyboard.up("KeyS");
-
-  // Player 1 (Blue) uses Arrows: move right and down towards net
   await page.keyboard.down("ArrowRight");
   await page.keyboard.down("ArrowDown");
-  await expect.poll(async () => (await mallets(page))[1].x).toBeGreaterThan(230);
-  await expect.poll(async () => (await mallets(page))[1].y).toBeGreaterThan(200);
+  await expect.poll(async () => (await mallets(page))[0].x).toBeGreaterThan(230);
+  await expect.poll(async () => (await mallets(page))[0].y).toBeGreaterThan(570);
   await page.keyboard.up("ArrowRight");
   await page.keyboard.up("ArrowDown");
 
+  // Player 1 (Blue, upper half) uses WASD: move right and down towards net
+  await page.keyboard.down("KeyD");
+  await page.keyboard.down("KeyS");
+  await expect.poll(async () => (await mallets(page))[1].x).toBeGreaterThan(230);
+  await expect.poll(async () => (await mallets(page))[1].y).toBeGreaterThan(200);
+  await page.keyboard.up("KeyD");
+  await page.keyboard.up("KeyS");
+
   // Player 1 moves left and up towards back rail
-  await page.keyboard.down("ArrowLeft");
-  await page.keyboard.down("ArrowUp");
+  await page.keyboard.down("KeyA");
+  await page.keyboard.down("KeyW");
   await expect.poll(async () => (await mallets(page))[1].x).toBeLessThan(190);
   await expect.poll(async () => (await mallets(page))[1].y).toBeLessThan(170);
-  await page.keyboard.up("ArrowLeft");
-  await page.keyboard.up("ArrowUp");
+  await page.keyboard.up("KeyA");
+  await page.keyboard.up("KeyW");
 
   // Pause test: pause clears input and stops mallets
   await page.keyboard.press("Escape");

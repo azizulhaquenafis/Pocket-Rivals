@@ -1,1 +1,104 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120" fill="none"><g stroke="#242b32" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="46" y="11" width="98" height="99" rx="10" fill="#efc2a7"/><path d="M48 44h94M48 77h94M80 13v95m35-95v95" stroke="#f9ddc2" stroke-width="1.5"/><rect x="25" y="56" width="8" height="19" rx="3" fill="#827c75"/><path d="M33 58h29v14H33" fill="#bc9168"/><path d="M36 61h23" stroke="#dfb98d" stroke-width="2"/><path d="m62 58 15 7-15 7z" fill="#fffdf5"/><rect x="81" y="2" width="23" height="7" rx="3" fill="#827c75"/><path d="M85 9v20h15V9" fill="#bc9168"/><path d="M88 11v15" stroke="#dfb98d" stroke-width="2"/><path d="m85 29 7.5 13 7.5-13z" fill="#fffdf5"/><rect x="151" y="76" width="7" height="19" rx="3" fill="#827c75"/><path d="M151 78h-9v14h9" fill="#bc9168"/><path d="m142 78-10 7 10 7z" fill="#fffdf5"/><rect x="55" y="23" width="22" height="22" rx="5" fill="#675770" stroke="none"/><rect x="55" y="19" width="22" height="22" rx="5" fill="#a38caa"/><path d="M60 23h11" stroke="#c2adc8" stroke-width="1.5"/><rect x="104" y="56" width="23" height="23" rx="5" fill="#675770" stroke="none"/><rect x="104" y="52" width="23" height="23" rx="5" fill="#a38caa"/><path d="M109 56h12" stroke="#c2adc8" stroke-width="1.5"/><rect x="110" y="90" width="22" height="18" rx="5" fill="#675770" stroke="none"/><rect x="110" y="86" width="22" height="18" rx="5" fill="#a38caa"/><path d="M115 90h12" stroke="#c2adc8" stroke-width="1.5"/><circle cx="83" cy="88" r="10" fill="#f49b58"/><rect x="77" y="82" width="12" height="6" rx="2.5" fill="#fffdf5" stroke-width="1.5"/><path d="M84 84v2" stroke-width="1.5"/><circle cx="122" cy="33" r="10" fill="#58addb"/><rect x="116" y="27" width="12" height="6" rx="2.5" fill="#fffdf5" stroke-width="1.5"/><path d="M121 29v2" stroke-width="1.5"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220">
+  <!-- Soft cream glow framing the arena on the warm parchment card -->
+  <circle cx="140" cy="112" r="88" fill="#fffdf5" opacity=".36"/>
+
+  <g stroke="#242b32" stroke-width="4.4" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Arena board shadow + warm terracotta tile floor -->
+    <rect x="48" y="24" width="174" height="170" rx="20" fill="#242b32" opacity=".14" stroke="none"/>
+    <rect x="48" y="18" width="174" height="170" rx="20" fill="#efc2a7"/>
+    <!-- Subtle floor grid tiles -->
+    <path d="M52 74h166M52 130h166M106 22v162M164 22v162" stroke="#fae0c6" stroke-width="2.4"/>
+    <rect x="48" y="18" width="174" height="170" rx="20" fill="none"/>
+
+    <!-- Top wall spike plunging down into the center lane -->
+    <rect x="115" y="5" width="38" height="13" rx="5" fill="#7f7a74"/>
+    <path d="M122 18v32h24V18Z" fill="#c2946a"/>
+    <path d="M127 22v24" stroke="#e4be93" stroke-width="3.2"/>
+    <path d="M122 50l12 21 12-21Z" fill="#fffdf5"/>
+    <path d="M134 50v19l10-19Z" fill="#dce6eb" stroke="none"/>
+    <path d="M122 50l12 21 12-21Z" fill="none"/>
+
+    <!-- Left wall spike bursting right across upper-mid lane -->
+    <rect x="30" y="82" width="13" height="36" rx="5" fill="#7f7a74"/>
+    <path d="M43 88h44v24H43Z" fill="#c2946a"/>
+    <path d="M47 93h36" stroke="#e4be93" stroke-width="3.2"/>
+    <path d="M87 88l22 12-22 12Z" fill="#fffdf5"/>
+    <path d="M87 100h20l-20 10Z" fill="#dce6eb" stroke="none"/>
+    <path d="M87 88l22 12-22 12Z" fill="none"/>
+    <!-- Motion streak lines behind spike thrust -->
+    <path d="M115 94h10m-7 12h12" stroke="#fffdf5" stroke-width="3" opacity=".88"/>
+
+    <!-- Right wall spike bursting left across mid-lower lane (clears card arrow button!) -->
+    <rect x="227" y="106" width="13" height="36" rx="5" fill="#7f7a74"/>
+    <path d="M227 112h-34v24h34Z" fill="#c2946a"/>
+    <path d="M223 117h-26" stroke="#e4be93" stroke-width="3.2"/>
+    <path d="M193 112l-21 12 21 12Z" fill="#fffdf5"/>
+    <path d="M193 124h-19l19 10Z" fill="#dce6eb" stroke="none"/>
+    <path d="M193 112l-21 12 21 12Z" fill="none"/>
+
+    <!-- Sculpted 3D purple-slate cover blocks -->
+    <rect x="64" y="38" width="38" height="34" rx="8" fill="#6b5975" stroke="none"/>
+    <rect x="64" y="32" width="38" height="34" rx="8" fill="#a38caa"/>
+    <path d="M72 39h22" stroke="#cbb6d2" stroke-width="3"/>
+    <rect x="64" y="32" width="38" height="34" rx="8" fill="none"/>
+
+    <rect x="128" y="96" width="36" height="34" rx="8" fill="#6b5975" stroke="none"/>
+    <rect x="128" y="90" width="36" height="34" rx="8" fill="#a38caa"/>
+    <path d="M136 97h20" stroke="#cbb6d2" stroke-width="3"/>
+    <rect x="128" y="90" width="36" height="34" rx="8" fill="none"/>
+
+    <!-- Orange P1 Headband Mascot taking cover (big clear joyful face!) -->
+    <g transform="translate(94 148) scale(1.13)">
+      <!-- Ground contact shadow -->
+      <ellipse cx="0" cy="21" rx="17" ry="4.5" fill="#242b32" opacity=".18" stroke="none"/>
+      <!-- Fluttering white headband tail -->
+      <path d="M-15-9q-12-5-20 1 7 6 19 4Z" fill="#fffdf5" stroke-width="3.6"/>
+      <!-- Cute pill shoes -->
+      <rect x="-14" y="12" width="10.5" height="10" rx="5" fill="#242b32" stroke="none" transform="rotate(14 -9 17)"/>
+      <rect x="4" y="12" width="10.5" height="10" rx="5" fill="#242b32" stroke="none" transform="rotate(-10 9 17)"/>
+      <!-- Chubby rounded orange bean body -->
+      <rect x="-17" y="-19" width="34" height="35" rx="15" fill="#f49b58" stroke-width="4"/>
+      <path d="M-10 3v7" stroke="#ffca94" stroke-width="3" fill="none"/>
+      <path d="M-9-15q5-2.5 11-1.5" stroke="#ffca94" stroke-width="2.8" fill="none"/>
+      <!-- Crisp white ninja headband -->
+      <rect x="-16.5" y="-11.5" width="33" height="6" rx="2.4" fill="#fffdf5" stroke-width="3.2"/>
+      <!-- Big crystal-clear glossy eyes + bright white catchlights -->
+      <circle cx="-1" cy="2" r="3.4" fill="#242b32" stroke="none"/>
+      <circle cx="0" cy="0.8" r="1.2" fill="#fffdf5" stroke="none"/>
+      <circle cx="10" cy="2" r="3.4" fill="#242b32" stroke="none"/>
+      <circle cx="11" cy="0.8" r="1.2" fill="#fffdf5" stroke="none"/>
+      <!-- Cute cheek blush & expressive smile -->
+      <ellipse cx="-6.2" cy="6.2" rx="3.2" ry="1.8" fill="#de7342" stroke="none" opacity=".7"/>
+      <path d="M2 7.5q2.8 3 5.8 0" fill="none" stroke-width="2.5"/>
+    </g>
+
+    <!-- Blue P2 Headband Mascot darting behind cover (big clear playful face!) -->
+    <g transform="translate(182 62) scale(1.11)">
+      <!-- Ground contact shadow -->
+      <ellipse cx="0" cy="21" rx="17" ry="4.5" fill="#242b32" opacity=".18" stroke="none"/>
+      <!-- Fluttering white headband tail (streaming right) -->
+      <path d="M15-9q12-5 20 1-7 6-19 4Z" fill="#fffdf5" stroke-width="3.6"/>
+      <!-- Cute pill shoes -->
+      <rect x="-14.5" y="12" width="10.5" height="10" rx="5" fill="#242b32" stroke="none" transform="rotate(10 -9 17)"/>
+      <rect x="3.5" y="12" width="10.5" height="10" rx="5" fill="#242b32" stroke="none" transform="rotate(-14 9 17)"/>
+      <!-- Chubby rounded sky-blue bean body -->
+      <rect x="-17" y="-19" width="34" height="35" rx="15" fill="#58addb" stroke-width="4"/>
+      <path d="M10 3v7" stroke="#a8e0fb" stroke-width="3" fill="none"/>
+      <path d="M-2-16q6-1 11 1.5" stroke="#a8e0fb" stroke-width="2.8" fill="none"/>
+      <!-- Crisp white ninja headband -->
+      <rect x="-16.5" y="-11.5" width="33" height="6" rx="2.4" fill="#fffdf5" stroke-width="3.2"/>
+      <!-- Big crystal-clear glossy eyes + bright white catchlights (looking left at action!) -->
+      <circle cx="-10" cy="2" r="3.4" fill="#242b32" stroke="none"/>
+      <circle cx="-11" cy="0.8" r="1.2" fill="#fffdf5" stroke="none"/>
+      <circle cx="1" cy="2" r="3.4" fill="#242b32" stroke="none"/>
+      <circle cx="0" cy="0.8" r="1.2" fill="#fffdf5" stroke="none"/>
+      <!-- Cute cheek blush & expressive grin -->
+      <ellipse cx="6.2" cy="6.2" rx="3.2" ry="1.8" fill="#3b8dbe" stroke="none" opacity=".7"/>
+      <path d="M-7.8 7.5q2.8 3 5.8 0" fill="none" stroke-width="2.5"/>
+    </g>
+  </g>
+
+  <!-- Crisp danger/action sparkle accents -->
+  <path d="M238 30l2.8 7 7 2.8-7 2.8-2.8 7-2.8-7-7-2.8 7-2.8Z" fill="#ffe066" stroke="#242b32" stroke-width="2.4" stroke-linejoin="round"/>
+  <circle cx="34" cy="148" r="3.5" fill="#fffdf5"/>
+</svg>

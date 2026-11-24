@@ -1,12 +1,93 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250">
-  <g
-    stroke="#242b32"
-    stroke-width="6"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-  >
-    <path d="m90 65 15 130h90l15-130" fill="#fffdf5" />
-    <path d="m103 135 5 57h84l5-57" fill="#58addb" stroke="none" />
-    <path d="M80 125h140" stroke="#f49b58" stroke-dasharray="7 7" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220">
+  <!-- Soft bright halo behind the glass so it pops cleanly on the sky-blue card -->
+  <circle cx="140" cy="134" r="76" fill="#fffdf5" opacity=".42"/>
+  <circle cx="140" cy="134" r="54" fill="#fffdf5" opacity=".32"/>
+
+  <!-- Subtle resting shadow beneath the tumbler -->
+  <ellipse cx="140" cy="201" rx="64" ry="8" fill="#242b32" opacity=".15"/>
+
+  <!-- Glass tumbler back wall & rim interior -->
+  <path d="M78 86 L92 185 Q94 197 106 197 H174 Q186 197 188 185 L202 86 Z" fill="#fffdf5"/>
+  <ellipse cx="140" cy="86" rx="62" ry="9.5" fill="#e4f3fa" stroke="#242b32" stroke-width="4.4"/>
+
+  <!-- Blue liquid inside the glass with bottom depth gradient & curved meniscus -->
+  <path d="M84.5 132 L92 185 Q94 195 106 195 H174 Q186 195 188 185 L195.5 132 Z" fill="#58addb"/>
+  <!-- Deeper shaded lower third for tactile volume -->
+  <path d="M89.2 166 L92 185 Q94 195 106 195 H174 Q186 195 188 185 L190.8 166 Q140 174 89.2 166 Z" fill="#3a8ec0"/>
+  <!-- Glowing water surface meniscus -->
+  <ellipse cx="140" cy="132" rx="55.5" ry="7.5" fill="#95ddfc"/>
+  <!-- Surface ripple rings around the incoming pour impact -->
+  <ellipse cx="140" cy="132" rx="30" ry="3.8" fill="none" stroke="#fffdf5" stroke-width="2.4" opacity=".82"/>
+  <ellipse cx="140" cy="132" rx="16" ry="2.2" fill="none" stroke="#fffdf5" stroke-width="2.2" opacity=".95"/>
+
+  <!-- Playful rising fizz bubbles inside the liquid -->
+  <g fill="#d9f4ff" opacity=".85">
+    <circle cx="114" cy="172" r="5.2"/>
+    <circle cx="125" cy="154" r="3.4"/>
+    <circle cx="163" cy="166" r="4.6"/>
+    <circle cx="154" cy="180" r="2.8"/>
+    <circle cx="136" cy="164" r="2.6"/>
+  </g>
+
+  <!-- Overhead dispenser faucet (lavender housing + golden valve wheel + dark spout) -->
+  <g stroke="#242b32" stroke-width="4.2" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Top supply stem -->
+    <rect x="129" y="8" width="22" height="14" rx="4" fill="#7c6e8c"/>
+    <!-- Golden valve lever on the right -->
+    <path d="M167 30 h16" stroke-width="5.2"/>
+    <circle cx="187" cy="30" r="7.5" fill="#f6cc58" stroke-width="4"/>
+    <circle cx="185.5" cy="28" r="2" fill="#fff5b8" stroke="none"/>
+    <!-- Main dispenser body -->
+    <rect x="110" y="18" width="60" height="26" rx="9" fill="#9a8aa9"/>
+    <path d="M120 25 h40" stroke="#cbbde0" stroke-width="3.2"/>
+    <path d="M120 38 h40" stroke="#756685" stroke-width="3"/>
+    <rect x="110" y="18" width="60" height="26" rx="9" fill="none"/>
+    <!-- Tapered spout nozzle -->
+    <path d="M130 44 h20 l-3.5 13 h-13 Z" fill="#414b56"/>
+  </g>
+
+  <!-- Pouring water stream + trailing droplets + surface splash crown -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- Main glossy pouring stream -->
+    <path d="M134.5 57 Q136 96 136 132 H144 Q144 96 145.5 57 Z" fill="#58addb" stroke="#242b32" stroke-width="3.6"/>
+    <!-- Vertical stream sheen -->
+    <path d="M138.5 64 v58" stroke="#d9f4ff" stroke-width="2.6"/>
+    <!-- Splash crown & leaping droplets right where stream meets surface -->
+    <path d="M133 130 Q125 117 119 121 Q125 127 127 132 Z" fill="#7fd1f7" stroke="#242b32" stroke-width="2.8"/>
+    <path d="M147 130 Q155 117 161 121 Q155 127 153 132 Z" fill="#7fd1f7" stroke="#242b32" stroke-width="2.8"/>
+    <!-- Tiny flying splash droplets & trailing pour drops -->
+    <path d="M121 104 Q116 111 121 114 Q126 111 121 104 Z" fill="#7fd1f7" stroke="#242b32" stroke-width="2.6"/>
+    <path d="M159 101 Q155 107 159 110 Q163 107 159 101 Z" fill="#7fd1f7" stroke="#242b32" stroke-width="2.6"/>
+    <circle cx="129" cy="76" r="3.4" fill="#95ddfc" stroke="#242b32" stroke-width="2.4"/>
+    <circle cx="152" cy="83" r="2.8" fill="#fffdf5" stroke="#242b32" stroke-width="2.2"/>
+  </g>
+
+  <!-- Glass measurement tick marks & glossy foreground specular highlights -->
+  <g stroke-linecap="round">
+    <!-- Subtle measurement ticks on right glass wall -->
+    <path d="M178 112 h10 M181 122 h6 M176 146 h9 M179 162 h6 M174 176 h8" stroke="#242b32" stroke-width="2.6" opacity=".32"/>
+    <!-- Bright left glass reflection bar -->
+    <path d="M89 102 L100 180" stroke="#fffdf5" stroke-width="7" opacity=".76"/>
+    <path d="M101 186 L102 188" stroke="#fffdf5" stroke-width="5.5" opacity=".7"/>
+    <!-- Crisp outer glass contour & front rim arc -->
+    <path d="M78 86 L92 185 Q94 197 106 197 H174 Q186 197 188 185 L202 86" fill="none" stroke="#242b32" stroke-width="4.8" stroke-linejoin="round"/>
+    <path d="M78 86 A62 9.5 0 0 0 202 86" fill="none" stroke="#242b32" stroke-width="4.4"/>
+  </g>
+
+  <!-- Signature warm orange target fill line + crisp side pointer chevrons -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <!-- Subtle cream halo under orange dashed line for crisp legibility across blue/white -->
+    <path d="M68 128 H212" stroke="#fffdf5" stroke-width="7.2" stroke-dasharray="10 8" opacity=".82"/>
+    <path d="M68 128 H212" stroke="#f49b58" stroke-width="4.4" stroke-dasharray="10 8"/>
+    <!-- Left & right orange target marker arrows -->
+    <path d="M44 119 L61 128 L44 137 Z" fill="#f49b58" stroke="#242b32" stroke-width="3.6"/>
+    <path d="M236 119 L219 128 L236 137 Z" fill="#f49b58" stroke="#242b32" stroke-width="3.6"/>
+  </g>
+
+  <!-- Golden "PERFECT!" 4-point sparkles -->
+  <g stroke="#242b32" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M224 72 l3.8 9.5 9.5 3.8 -9.5 3.8 -3.8 9.5 -3.8 -9.5 -9.5 -3.8 9.5 -3.8 Z" fill="#ffe066"/>
+    <path d="M56 76 l2.6 6.6 6.6 2.6 -6.6 2.6 -2.6 6.6 -2.6 -6.6 -6.6 -2.6 6.6 -2.6 Z" fill="#fffdf5" stroke="none"/>
+    <path d="M236 164 l2.4 6 6 2.4 -6 2.4 -2.4 6 -2.4 -6 -6 -2.4 6 -2.4 Z" fill="#fffdf5" stroke="none"/>
   </g>
 </svg>

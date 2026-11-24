@@ -9,7 +9,7 @@ export default {
     instructions:
       "Auto-bounce; drag or hold arrows/A/D to steer. Collect stars and avoid warned falling rocks. Do not fall behind.",
     color: "#dce8cf",
-    accent: "#dce8cf",
+    accent: "#b5d19d",
     order: 37,
     tag: "SOLO ARCADE",
     category: "arcade",

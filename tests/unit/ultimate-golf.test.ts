@@ -8,6 +8,7 @@ import {
   hitRotated,
 } from "../../src/games/mini-golf/ultimate/GolfCollision";
 import {
+  GolfKeyboardAim,
   GolfView,
   shotVector,
 } from "../../src/games/mini-golf/ultimate/GolfInput";
@@ -142,6 +143,31 @@ describe("Ultimate Golf native port", () => {
     expect(u.used).toBe(true);
     expect(w.dynamics.safe(w.ball)).toBe(true);
   });
+  it("applies strong, noticeable magnetic, whirlpool and gravity well pull on rolling balls", () => {
+    // Foundry electromagnet pulls a ball passing through its lane strongly inward
+    const foundry = new GolfPhysics(courses[0], 1);
+    const mag = courses[0].fields[0];
+    Object.assign(foundry.ball, { x: mag.x + 120, y: mag.y - 120 });
+    foundry.shoot(0, 320);
+    run(foundry, 0.35);
+    expect(foundry.ball.vx).toBeLessThan(-120);
+
+    // Shoreline whirlpool pulls strongly toward its center from the neighboring causeway
+    const shoreline = new GolfPhysics(courses[1], 1);
+    const whirl = courses[1].fields[0];
+    Object.assign(shoreline.ball, { x: whirl.x, y: whirl.y + 125 });
+    shoreline.shoot(280, 0);
+    run(shoreline, 0.25);
+    expect(shoreline.ball.vy).toBeLessThan(-35);
+    expect(shoreline.recoveries).toBe(0);
+
+    // Event Horizon central gravity well visibly curves a shot crossing the narrow bridge
+    const horizon = new GolfPhysics(courses[2], 1);
+    Object.assign(horizon.ball, { x: 860, y: 500 });
+    horizon.shoot(320, 0);
+    run(horizon, 0.35);
+    expect(horizon.ball.vy).toBeGreaterThan(80);
+  });
   it("temple bridge cracks, regenerates, plates open doors and recovery clears outer plates", () => {
     const w = new GolfPhysics(courses[3]),
       d = w.dynamics;
@@ -187,6 +213,52 @@ describe("Ultimate Golf native port", () => {
         shotVector(v.unproject(v.project(a)), v.unproject(v.project(b))).x,
       ).toBeCloseTo(-312.5);
     }
+  });
+  it("supports conventional keyboard aiming, Shift precision, Up/Down power and Space charge/release", () => {
+    const kb = new GolfKeyboardAim();
+    const start = courses[0].start,
+      hole = courses[0].hole;
+    kb.reset(start, hole);
+    const a0 = kb.angle;
+    // ArrowRight rotates clockwise; Shift reduces angular rate for fine aim
+    kb.step(0.2, new Set(["ArrowRight"]), start, hole);
+    const deltaNormal = kb.angle - a0;
+    expect(deltaNormal).toBeGreaterThan(0.3);
+    const a1 = kb.angle;
+    kb.step(0.2, new Set(["ArrowRight", "ShiftLeft"]), start, hole);
+    const deltaFine = kb.angle - a1;
+    expect(deltaFine).toBeGreaterThan(0);
+    expect(deltaFine).toBeLessThan(deltaNormal * 0.35);
+
+    // ArrowUp / ArrowDown dial preset power within legal bounds
+    const p0 = kb.power;
+    kb.step(0.3, new Set(["ArrowUp"]), start, hole);
+    expect(kb.power).toBeGreaterThan(p0);
+    kb.step(0.5, new Set(["ArrowDown"]), start, hole);
+    expect(kb.power).toBeLessThan(p0);
+
+    // Hold Space oscillates power up and bounces back down; releasing Space fires a legal shot
+    kb.beginCharge(start, hole);
+    for (let i = 0; i < 60; i++) {
+      expect(kb.step(1 / 60, new Set(["Space"]), start, hole)).toBeNull();
+    }
+    expect(kb.chargePower).toBeGreaterThan(0.8);
+    // Keep holding to confirm ping-pong bounce back down
+    for (let i = 0; i < 30; i++) {
+      kb.step(1 / 60, new Set(["Space"]), start, hole);
+    }
+    expect(kb.chargePower).toBeLessThan(0.95);
+    const shot = kb.step(1 / 60, new Set(), start, hole);
+    expect(shot).not.toBeNull();
+    expect(Math.hypot(shot!.x, shot!.y)).toBeGreaterThan(50);
+    expect(Math.hypot(shot!.x, shot!.y)).toBeLessThanOrEqual(650.001);
+    expect(kb.charging).toBe(false);
+
+    // Cancelling mid-charge does not fire when Space is later released
+    kb.beginCharge(start, hole);
+    kb.step(0.2, new Set(["Space"]), start, hole);
+    kb.cancel();
+    expect(kb.step(0.02, new Set(), start, hole)).toBeNull();
   });
   it("bounds the space preview and never mutates live state", () => {
     const w = new GolfPhysics(courses[2], 0);

@@ -4,40 +4,176 @@ import type {
   MatchOptions,
   MiniGame,
 } from "../../../shared/contracts/GameModule";
-import type { Difficulty } from "../../../shared/contracts/AIController";
 import { theme } from "../../../core/ThemeManager";
 import { courses } from "./courses";
 import { GolfRenderer } from "./GolfRenderer";
-import { GolfView, shotVector } from "./GolfInput";
+import {
+  GOLF_KEY_CODES,
+  GolfKeyboardAim,
+  GolfView,
+  shotVector,
+} from "./GolfInput";
 import { difficulties, strokeLimit, type GolfDifficulty } from "./GolfRules";
 import { GolfUI } from "./components/GolfUI";
 import { courseArt } from "./components/CourseArt";
 import { modeArt } from "./components/ModeArt";
 import { CasualMode } from "./modes/CasualMode";
 import { LocalVersusMode } from "./modes/LocalVersusMode";
-import { AIChallengeMode } from "./modes/AIChallengeMode";
 import { recordCompetition } from "./modes/CompetitiveStats";
 import { timeText } from "./modes/CompetitionRules";
-type Mode = "casual" | "local" | "ai";
+
+type Mode = "casual" | "local";
+
+const COURSE_LEGENDS: Record<
+  string,
+  ReadonlyArray<{ swatch: string; label: string; detail: string }>
+> = {
+  foundry: [
+    {
+      swatch: "linear-gradient(135deg,#4a5159 50%,#f0b04c 50%)",
+      label: "Conveyor Belt",
+      detail: "Pushes ball along chevrons",
+    },
+    {
+      swatch: "radial-gradient(circle at 35% 35%,#4a8a96,#222830 70%)",
+      label: "Oil Spill",
+      detail: "Ultra-slick gliding puddle",
+    },
+    {
+      swatch: "linear-gradient(90deg,#e5594c 50%,#4c9be5 50%)",
+      label: "Electromagnet",
+      detail: "Strong inward pull & trap",
+    },
+    {
+      swatch: "radial-gradient(circle,#ffe47a,#e85a30 70%)",
+      label: "Molten Lava",
+      detail: "Resets to your last shot",
+    },
+    {
+      swatch: "linear-gradient(90deg,#3a4149 25%,#e5594c 50%,#3a4149 75%)",
+      label: "Laser Gate",
+      detail: "Pulses on & off — time it",
+    },
+    {
+      swatch: "linear-gradient(135deg,#f2a341 50%,#4d5860 50%)",
+      label: "Piston & Blades",
+      detail: "Timed steel deflectors",
+    },
+  ],
+  shoreline: [
+    {
+      swatch: "repeating-linear-gradient(0deg,#e6c387 0 6px,#b88c52 6px 8px)",
+      label: "Tidal Bridge",
+      detail: "Floods when the tide rises",
+    },
+    {
+      swatch: "radial-gradient(circle,#0d2f3e,#2e89a6 65%,#8be0ea)",
+      label: "Whirlpool",
+      detail: "Strong spiral ocean pull",
+    },
+    {
+      swatch: "linear-gradient(135deg,#dfa957,#f0cb82)",
+      label: "Sand Bunker",
+      detail: "Heavy drag slows your roll",
+    },
+    {
+      swatch: "linear-gradient(135deg,#99dbe0,#dff9fb)",
+      label: "Wet Sand",
+      detail: "Glossy fast-sliding patch",
+    },
+    {
+      swatch: "linear-gradient(90deg,#64c4d4,#b6f0f7 50%,#64c4d4)",
+      label: "Shallow Ford",
+      detail: "Safe water with side drift",
+    },
+    {
+      swatch: "radial-gradient(circle,#fffdf5 35%,#ef6c4d 36%)",
+      label: "Lifebuoy Bumper",
+      detail: "Extra-bouncy spring ring",
+    },
+  ],
+  horizon: [
+    {
+      swatch: "radial-gradient(circle,#261842 30%,#d89ef0 55%,#4f3b7d)",
+      label: "Gravity Well",
+      detail: "Strongly curves moving balls",
+    },
+    {
+      swatch: "radial-gradient(circle,#1b162e 30%,#f29e57 65%,#58addb)",
+      label: "Paired Portals",
+      detail: "Color-matched warp arrows",
+    },
+    {
+      swatch: "linear-gradient(135deg,#8ee3f5,#e8fbff)",
+      label: "Cryo Ice",
+      detail: "Near-zero friction slide",
+    },
+    {
+      swatch: "linear-gradient(90deg,#7c96f0,#c8dcff 50%,#7c96f0)",
+      label: "Ion Wind",
+      detail: "Pushes ball along streams",
+    },
+    {
+      swatch: "radial-gradient(circle,#fffdf5 25%,#58addb 65%)",
+      label: "Visiting UFO",
+      detail: "Lifts a still ball elsewhere",
+    },
+    {
+      swatch: "linear-gradient(90deg,#2a2444 25%,#f05a6d 50%,#2a2444 75%)",
+      label: "Plasma Laser",
+      detail: "Wait for the off window",
+    },
+  ],
+  temple: [
+    {
+      swatch: "repeating-linear-gradient(0deg,#dfba81 0 6px,#8c663b 6px 8px)",
+      label: "Cracked Bridge",
+      detail: "Planks crumble once crossed",
+    },
+    {
+      swatch: "radial-gradient(circle,#9c621d,#dfa852 55%,#f7d48b)",
+      label: "Quicksand",
+      detail: "Don't stop! Sinks after 3s",
+    },
+    {
+      swatch: "radial-gradient(circle,#6d4b33,#9c7050)",
+      label: "Swamp Mud",
+      detail: "Thick drag slows your ball",
+    },
+    {
+      swatch: "linear-gradient(135deg,#94dbd3,#e0faf7)",
+      label: "Polished Jade",
+      detail: "Slick floor glides farther",
+    },
+    {
+      swatch: "radial-gradient(circle,#fffdf5 28%,#f1d583 32%,#58addb 85%)",
+      label: "Runic Plates",
+      detail: "Unlock linked temple doors",
+    },
+    {
+      swatch: "linear-gradient(90deg,#5b6d52 25%,#e55b4d 50%,#5b6d52 75%)",
+      label: "Dart Trap",
+      detail: "Pulses across stone halls",
+    },
+  ],
+};
+
 export class UltimateGolfGame implements MiniGame {
   private ctx!: GameContext;
   private ui!: GolfUI;
   private casual = new CasualMode();
   private local?: LocalVersusMode;
-  private race?: AIChallengeMode;
-  private mode: Mode = "local";
-  private difficulty: Difficulty = "medium";
+  private mode: Mode = "casual";
   constructor(private initialOptions?: MatchOptions) {
     if (initialOptions) this.applyOptions(initialOptions);
   }
   private applyOptions(options: MatchOptions) {
     if (options.variant === "casual") {
       this.mode = "casual";
-    } else if (options.mode === "ai") {
-      this.mode = "ai";
-      this.difficulty = options.difficulty ?? "medium";
-    } else {
+    } else if (options.mode === "local") {
       this.mode = "local";
+    } else {
+      this.mode = "casual";
     }
   }
   private plan = [0];
@@ -48,21 +184,17 @@ export class UltimateGolfGame implements MiniGame {
   private paused = false;
   private aim: ReturnType<typeof shotVector> | null = null;
   private anchor: { x: number; y: number } | null = null;
+  private kb = new GolfKeyboardAim();
+  private heldKeys: ReadonlySet<string> = new Set();
   private impacts = 0;
   private recoveries = 0;
   private get world() {
-    return this.mode === "casual"
-      ? this.casual.world
-      : this.mode === "local"
-        ? this.local?.world
-        : this.race?.worlds[0];
+    return this.mode === "casual" ? this.casual.world : this.local?.world;
   }
   private get course() {
     return this.mode === "casual"
       ? this.casual.course
-      : this.mode === "local"
-        ? this.plan[this.local!.hole]
-        : this.plan[this.race!.holes[0]];
+      : this.plan[this.local!.hole];
   }
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -70,10 +202,45 @@ export class UltimateGolfGame implements MiniGame {
     this.ui = new GolfUI((action) => {
       if (!this.paused) this.action(action);
     });
-    ctx.input.press(["KeyF", "KeyR"], (code) => {
-      if (this.phase === "playing")
-        this.action(code === "KeyF" ? "focus" : "retry");
-    });
+    this.heldKeys = ctx.input.keys([...GOLF_KEY_CODES]);
+    ctx.input.press(
+      ["KeyF", "KeyZ", "KeyR", "KeyC", "Backspace", "Space", "Enter"],
+      (code) => {
+        if (this.paused) return;
+        if (this.phase === "ready" && (code === "Space" || code === "Enter")) {
+          this.action("begin");
+          return;
+        }
+        if (this.phase === "help" && code === "Enter") {
+          this.action("close-help");
+          return;
+        }
+        if (this.phase !== "playing") return;
+        if (code === "KeyF" || code === "KeyZ") {
+          this.action("focus");
+        } else if (code === "KeyR") {
+          this.action("retry");
+        } else if (code === "KeyC" || code === "Backspace") {
+          this.cancel();
+        } else if (
+          code === "Space" &&
+          this.world?.shootable &&
+          !this.anchor &&
+          !this.view.transitioning
+        ) {
+          this.kb.beginCharge(this.world.ball, courses[this.course].hole);
+          this.aim = this.kb.vector();
+        } else if (
+          code === "Enter" &&
+          this.world?.shootable &&
+          !this.anchor &&
+          this.kb.active &&
+          !this.kb.charging
+        ) {
+          this.fireShot(this.kb.vector());
+        }
+      },
+    );
     ctx.input.drag(
       (x, y) => {
         if (
@@ -83,6 +250,7 @@ export class UltimateGolfGame implements MiniGame {
           !this.view.contains({ x, y })
         )
           return false;
+        this.kb.cancel();
         this.anchor = this.view.unproject({ x, y });
         this.aim = shotVector(this.anchor, this.anchor);
         return true;
@@ -94,7 +262,7 @@ export class UltimateGolfGame implements MiniGame {
       (x, y) => {
         if (this.phase === "playing" && this.anchor && this.world) {
           const v = shotVector(this.anchor, this.view.unproject({ x, y }));
-          if (this.world.shoot(v.x, v.y)) ctx.audio.play("hit");
+          this.fireShot(v);
         }
         this.cancel();
       },
@@ -102,6 +270,12 @@ export class UltimateGolfGame implements MiniGame {
       { outside: true },
     );
     this.modes();
+  }
+  private fireShot(v: { x: number; y: number }) {
+    if (this.world?.shoot(v.x, v.y)) {
+      this.ctx.audio.play("hit");
+      this.cancel();
+    }
   }
   private action(action: string) {
     this.ctx.audio.play("tap");
@@ -124,17 +298,13 @@ export class UltimateGolfGame implements MiniGame {
       return;
     }
     if (action.startsWith("mode:")) {
-      this.mode = action.split(":")[1] as Mode;
+      const next = action.split(":")[1];
+      this.mode = next === "local" ? "local" : "casual";
       this.select();
       return;
     }
     if (action.startsWith("difficulty:")) {
       this.casual.difficulty = Number(action.split(":")[1]) as GolfDifficulty;
-      this.select();
-      return;
-    }
-    if (action.startsWith("ai:")) {
-      this.difficulty = action.split(":")[1] as Difficulty;
       this.select();
       return;
     }
@@ -147,8 +317,7 @@ export class UltimateGolfGame implements MiniGame {
       return;
     }
     if (action === "begin") {
-      if (this.mode === "local") this.local?.begin();
-      else this.race?.begin();
+      this.local?.begin();
       this.showPlay();
       return;
     }
@@ -176,9 +345,9 @@ export class UltimateGolfGame implements MiniGame {
     }
     if (action === "help" && this.phase === "playing") {
       this.cancel();
-      this.race?.pause();
       this.phase = "help";
-      this.ui.help(courses[this.course].tip);
+      const c = courses[this.course];
+      this.ui.help(c.tip, "Back to play", COURSE_LEGENDS[c.id]);
       return;
     }
     if (action === "focus" && this.phase === "playing" && this.world) {
@@ -192,18 +361,13 @@ export class UltimateGolfGame implements MiniGame {
         this.startCompetitionOrCasual([this.casual.course]);
       else {
         this.cancel();
-        this.race?.pause();
         this.phase = "confirm";
-        this.ui.help(
+        this.ui.confirm(
+          "End attempt?",
           "Forfeit this attempt? Your opponent keeps their result.",
           "Keep playing",
-        );
-        const panel = this.ui.field.querySelector(".help")!;
-        panel.querySelector("h2")!.textContent = "End attempt?";
-        panel.querySelectorAll("p")[1]?.remove();
-        panel.insertAdjacentHTML(
-          "beforeend",
-          '<button data-action="forfeit">Forfeit attempt</button>',
+          "forfeit",
+          "Forfeit attempt",
         );
       }
       return;
@@ -214,19 +378,17 @@ export class UltimateGolfGame implements MiniGame {
     }
     if (action === "forfeit") {
       this.local?.forfeit();
-      this.race?.forfeit();
       this.afterCompetition();
     }
   }
   private cancel() {
     this.anchor = null;
     this.aim = null;
+    this.kb.cancel();
     this.ui?.meter(null);
   }
   private release() {
     this.cancel();
-    this.race?.dispose();
-    this.race = undefined;
     this.local = undefined;
     this.renderer?.dispose();
     this.renderer = undefined;
@@ -240,23 +402,22 @@ export class UltimateGolfGame implements MiniGame {
       `<div class="golf-modes">${(
         [
           [
-            "local",
-            "2 Player Challenge",
-            "Challenge a friend to finish first.",
-            "#f9d7b5",
-          ],
-          ["ai", "1 Player vs AI", "Race against a smart opponent.", "#c8e7eb"],
-          [
             "casual",
-            "1 Player Casual",
-            "Complete courses, earn points, beat your best.",
+            "1 Player",
+            "Casual — Complete courses, earn points, beat your best.",
             "#d9e9bc",
+          ],
+          [
+            "local",
+            "2 Players",
+            "Challenge a friend on this device — fewest strokes wins.",
+            "#f9d7b5",
           ],
         ] as const
       )
         .map(
           ([mode, title, desc, color]) =>
-            `<button class="golf-mode" data-action="mode:${mode}" style="background:${color}">${modeArt(mode)}<span><strong>${title}</strong><small>${desc}</small></span></button>`,
+            `<button class="golf-mode" data-action="mode:${mode}" style="background:${color}">${modeArt(mode)}<span><strong>${title}</strong> <small>${desc}</small></span></button>`,
         )
         .join("")}</div>`,
     );
@@ -268,12 +429,10 @@ export class UltimateGolfGame implements MiniGame {
       "Ultimate Golf",
       this.mode === "casual"
         ? `Personal best · ${this.casual.progress.total}`
-        : this.mode === "ai"
-          ? "Race against AI"
-          : "Hot-seat race",
+        : "2 Player hot-seat",
     );
     this.ui.screen(
-      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${courseArt(c)}<strong>${c.name}</strong><small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode !== "casual" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : this.mode === "ai" ? `<div class="golf-choice">${(["medium", "hard", "impossible"] as const).map((d) => `<button data-action="ai:${d}" aria-pressed="${d === this.difficulty}">${d[0].toUpperCase() + d.slice(1)}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Player match</button>' : '<button data-action="mode:casual">Casual solo practice</button>'}</div>`,
+      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${courseArt(c)}<strong>${c.name}</strong><small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode === "local" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Players</button>' : '<button data-action="mode:casual">1 Player (Casual)</button>'}</div>`,
     );
   }
   private startCompetitionOrCasual(plan: number[]) {
@@ -284,24 +443,17 @@ export class UltimateGolfGame implements MiniGame {
       this.casual.start(plan[0]);
       this.showPlay();
     } else {
-      if (this.mode === "local") this.local = new LocalVersusMode(plan, seed);
-      else
-        this.race = new AIChallengeMode(
-          plan,
-          seed,
-          this.difficulty,
-          this.ctx.reportAI,
-        );
+      this.local = new LocalVersusMode(plan, seed);
       this.ready();
     }
   }
   private ready() {
     this.phase = "ready";
     this.cancel();
-    const p = this.mode === "local" ? this.local!.player + 1 : 1;
-    this.ui.title(this.mode === "local" ? `Player ${p}` : "You vs AI");
+    const p = this.local!.player + 1;
+    this.ui.title(`Player ${p}`);
     this.ui.screen(
-      `<h2>${this.mode === "local" ? `Player ${p}, ready?` : "Ready to race?"}</h2><p>${courses[this.course].name}${this.plan.length > 1 ? ` · Course ${this.mode === "local" ? this.local!.hole + 1 : 1} of ${this.plan.length}` : ""}</p><p>Fewest strokes wins. Time breaks ties.<br>3 minutes per course · ${strokeLimit(courses[this.course], 0)} strokes</p>${this.mode === "local" && p === 2 ? "<p>Pass the device. Same courses, same conditions.</p>" : ""}<div class="golf-actions"><button class="golf-primary" data-action="begin">Start attempt</button></div>`,
+      `<h2>Player ${p}, ready?</h2><p>${courses[this.course].name}${this.plan.length > 1 ? ` · Course ${this.local!.hole + 1} of ${this.plan.length}` : ""} · ${strokeLimit(courses[this.course], 0)} strokes</p><div class="golf-actions"><button class="golf-primary" data-action="begin">Start attempt</button></div>`,
     );
   }
   private showPlay() {
@@ -319,6 +471,7 @@ export class UltimateGolfGame implements MiniGame {
     this.renderer = new GolfRenderer(this.ctx.scene, this.view);
     this.renderedWorld = this.world;
     this.impacts = this.recoveries = 0;
+    if (this.world) this.kb.reset(this.world.ball, courses[this.course].hole);
   }
   private casualResult() {
     this.phase = "result";
@@ -332,7 +485,7 @@ export class UltimateGolfGame implements MiniGame {
     );
   }
   private afterCompetition() {
-    const competition = this.mode === "local" ? this.local! : this.race!;
+    const competition = this.local!;
     if (competition.phase === "playing") return;
     if (competition.phase !== "complete") {
       this.ready();
@@ -341,24 +494,23 @@ export class UltimateGolfGame implements MiniGame {
     this.phase = "result";
     this.cancel();
     const result = competition.winner;
-    recordCompetition(this.mode === "local" ? "local" : "ai", result);
+    recordCompetition("local", result);
     this.ctx.audio.play(result === "draw" ? "draw" : "win");
-    const names = this.mode === "ai" ? ["You", "AI"] : ["Player 1", "Player 2"];
+    const names = ["Player 1", "Player 2"];
     this.ui.title(
-      "Race results",
+      "Match results",
       this.plan.length === 1
         ? courses[this.plan[0]].name
         : "Four-course challenge",
     );
     this.ui.screen(
-      `<h2>${result === "draw" ? "A draw!" : `${names[result - 1]} ${result === 1 && this.mode === "ai" ? "win" : "wins"}!`}</h2><table class="golf-result-table"><thead><tr><th>Golfer</th><th>Strokes</th><th>Time</th></tr></thead><tbody>${competition.totals.map((r, i) => `<tr><th>${names[i]}</th><td>${r.strokes + (this.mode === "ai" && !r.completed && competition.attempts[i].length === 0 ? this.race!.worlds[i].strokes : 0)}</td><td>${r.completed ? timeText(r.time) : "DNF"}</td></tr>`).join("")}</tbody></table><p>${result === "draw" ? "Neither golfer takes the win." : competition.totals.some((r) => r.completed) ? "Completed courses first. Strokes, then time." : "An attempt ended before completion."}</p><div class="golf-actions"><button class="golf-primary" data-action="rematch">Rematch</button><button data-action="courses">New race</button><button data-action="exit">Back to all games</button></div>`,
+      `<h2>${result === "draw" ? "A draw!" : `${names[result - 1]} wins!`}</h2><table class="golf-result-table"><thead><tr><th>Golfer</th><th>Strokes</th><th>Time</th></tr></thead><tbody>${competition.totals.map((r, i) => `<tr><th>${names[i]}</th><td>${r.strokes}</td><td>${r.completed ? timeText(r.time) : "DNF"}</td></tr>`).join("")}</tbody></table><p>${result === "draw" ? "Neither golfer takes the win." : competition.totals.some((r) => r.completed) ? "Completed courses first. Strokes, then time." : "An attempt ended before completion."}</p><div class="golf-actions"><button class="golf-primary" data-action="rematch">Rematch</button><button data-action="courses">Courses</button><button data-action="exit">Back to all games</button></div>`,
     );
   }
   update(dt: number) {
     if (this.paused || this.phase !== "playing" || !this.world) return;
     if (this.mode === "casual") this.casual.update(dt);
-    else if (this.mode === "local") this.local!.update(dt);
-    else this.race!.update(dt);
+    else this.local!.update(dt);
     const w = this.world;
     if (this.renderedWorld !== w) {
       this.attachWorld();
@@ -366,19 +518,26 @@ export class UltimateGolfGame implements MiniGame {
       this.view.follow(w.ball, 1);
     }
     if (!w.shootable) this.cancel();
-    if (!this.anchor) this.view.follow(w.ball, 1 - Math.exp(-dt * 12));
+    if (w.shootable && !this.anchor && !this.view.transitioning) {
+      const fired = this.kb.step(
+        dt,
+        this.heldKeys,
+        w.ball,
+        courses[this.course].hole,
+      );
+      if (fired) {
+        this.fireShot(fired);
+      } else if (this.kb.active) {
+        this.aim = this.kb.vector();
+      }
+    }
+    if (!this.anchor && !this.kb.charging)
+      this.view.follow(w.ball, 1 - Math.exp(-dt * 12));
     const playerColor =
       this.mode === "local" && this.local?.player === 1
         ? theme.blue
         : theme.orange;
-    this.renderer?.draw(
-      w,
-      this.aim,
-      this.mode === "ai" && this.race!.holes[0] === this.race!.holes[1]
-        ? this.race!.worlds[1].ball
-        : undefined,
-      playerColor,
-    );
+    this.renderer?.draw(w, this.aim, undefined, playerColor);
     if (w.impacts !== this.impacts) {
       this.ctx.audio.play("hit");
       this.impacts = w.impacts;
@@ -387,44 +546,21 @@ export class UltimateGolfGame implements MiniGame {
       this.cancel();
       this.recoveries = w.recoveries;
     }
-    const elapsed =
-      this.mode === "local"
-        ? this.local!.elapsed
-        : this.mode === "ai"
-          ? this.race!.elapsed[0]
-          : 0;
+    const elapsed = this.mode === "local" ? this.local!.elapsed : 0;
     const prefix =
       this.mode === "local" ? `Player ${this.local!.player + 1} · ` : "";
     this.ui.title(
       courses[this.course].name,
       `${prefix}${w.strokes}/${w.limit} strokes${this.mode !== "casual" ? ` · ${timeText(elapsed)}` : ""}`,
     );
-    const playerDone =
-      this.mode === "ai" && this.race!.attempts[0].length === this.plan.length;
     this.ui.message(
-      playerDone
-        ? "You finished! Waiting for AI..."
-        : w.messageTime > 0
-          ? w.message
-          : w.dynamics.ufo.warning
-            ? "UFO approaching"
-            : "",
+      w.messageTime > 0
+        ? w.message
+        : w.dynamics.ufo.warning
+          ? "UFO approaching"
+          : "",
     );
     this.ui.meter(this.aim?.power ?? null);
-    if (this.mode === "ai") {
-      const r = this.race!;
-      const aiDone = r.attempts[1].length === this.plan.length;
-      if (aiDone) {
-        const totalAI = r.totals[1];
-        this.ui.rival(
-          `AI finished · ${totalAI.strokes} strokes (${timeText(totalAI.time)})`,
-        );
-      } else {
-        this.ui.rival(
-          `AI · ${r.worlds[1].strokes} strokes${this.plan.length > 1 ? ` · ${r.holes[1] + 1}/${this.plan.length}` : ""}`,
-        );
-      }
-    }
     if (this.mode === "casual") {
       if (w.status !== "playing") this.casualResult();
     } else this.afterCompetition();
@@ -438,7 +574,6 @@ export class UltimateGolfGame implements MiniGame {
   pause() {
     this.paused = true;
     this.cancel();
-    this.race?.pause();
     this.world?.resetAccumulator();
     this.ui.pause(true);
   }
@@ -447,6 +582,18 @@ export class UltimateGolfGame implements MiniGame {
     this.world?.resetAccumulator();
     this.ui.pause(false);
     this.resize();
+  }
+  toggleHelp() {
+    if (this.paused) return false;
+    if (this.phase === "playing") {
+      this.action("help");
+      return true;
+    }
+    if (this.phase === "help") {
+      this.action("close-help");
+      return true;
+    }
+    return false;
   }
   dispose() {
     this.release();
@@ -463,7 +610,13 @@ export class UltimateGolfGame implements MiniGame {
         center: { ...this.view.center },
         bounds: this.view.bounds,
       },
-      aiming: !!this.anchor,
+      aiming: !!this.anchor || this.kb.active,
+      keyboard: {
+        active: this.kb.active,
+        charging: this.kb.charging,
+        angle: this.kb.angle,
+        power: this.kb.charging ? this.kb.chargePower : this.kb.power,
+      },
       progress: [...this.casual.progress.best],
       competition: this.local
         ? {
@@ -472,14 +625,7 @@ export class UltimateGolfGame implements MiniGame {
             elapsed: this.local.elapsed,
             attempts: this.local.attempts,
           }
-        : this.race
-          ? {
-              phase: this.race.phase,
-              elapsed: this.race.elapsed,
-              opponent: this.race.worlds[1].snapshot(),
-              ai: this.race.ai.snapshot(),
-            }
-          : null,
+        : null,
       ...this.world?.snapshot(),
     };
   }

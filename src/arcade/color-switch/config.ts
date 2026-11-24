@@ -7,7 +7,7 @@ export default {
     name: "Color Switch",
     description: "A colorful climb. A new shape around every corner.",
     instructions:
-      "Tap or Space to hop through your matching color. Drag left/right while touching, or use A/D and arrow keys to steer inside the path. Rotating rings, triangles, squares and moving gates lead through five-stage chapters. Each cleared shape is a safe checkpoint. Three lives.",
+      "Tap the screen or press Space to hop. Drag or use the arrow keys to steer through matching colors. Keep bouncing inside shapes until your color comes around, then hop out. Cross the dashed line to switch colors. Three hearts.",
     color: "#e2d8ec",
     accent: "#e2d8ec",
     order: 34,

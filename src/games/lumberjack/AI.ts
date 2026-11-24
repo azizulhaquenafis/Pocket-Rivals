@@ -53,8 +53,9 @@ export class LumberAI {
     if (m.phase !== "playing" || !m.players[1].alive) return null;
     if (!Number.isFinite(dt) || dt <= 0) return null;
     this.wait -= Math.min(dt, 0.1);
-    // Match.chop is the sole action path; honor its human contact debounce too.
-    if (this.wait > 0 || m.players[1].cooldown > 0) return null;
+    // Match.chop is the sole action path; honor its human contact debounce and stun too.
+    if (this.wait > 0 || m.players[1].cooldown > 0 || m.players[1].stun > 0)
+      return null;
     const p = this.personality,
       v = m.players[1],
       pace = PACING[this.difficulty];
@@ -64,7 +65,7 @@ export class LumberAI {
     if (legal.length === 2) {
       // These seven segments are visible to humans. No hidden future branches.
       const room = (s: Side) => {
-        for (let i = 2; i < 7; i++) if (m.pattern[v.score + i] === s) return i;
+        for (let i = 2; i < 7; i++) if (m.pattern[v.index + i] === s) return i;
         return 7;
       };
       side =
@@ -72,7 +73,7 @@ export class LumberAI {
           ? p.side
           : p.role === 1
             ? v.side
-            : p.role === 3 && m.pattern[v.score + 2] !== v.side
+            : p.role === 3 && m.pattern[v.index + 2] !== v.side
               ? v.side
               : room(-1) === room(1)
                 ? p.side

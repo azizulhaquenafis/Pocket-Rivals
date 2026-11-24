@@ -25,8 +25,8 @@ it("solo arrows and WASD both control Orange; local keyboards remain independent
     y: -1,
   });
   const both = new Set(["KeyD", "ArrowLeft"]);
-  expect(keyboardDirection(both, 0, false)).toEqual({ x: 1, y: 0 });
-  expect(keyboardDirection(both, 1, false)).toEqual({ x: -1, y: 0 });
+  expect(keyboardDirection(both, 0, false)).toEqual({ x: -1, y: 0 });
+  expect(keyboardDirection(both, 1, false)).toEqual({ x: 1, y: 0 });
   expect(keyboardDirection(new Set(["KeyA", "ArrowRight"]), 0, true)).toEqual({
     x: 0,
     y: 0,

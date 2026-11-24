@@ -38,8 +38,11 @@ export class BirdsGame implements MiniGame {
       if (x >= 24 && x <= 396 && y >= 112 && y <= 650)
         this.flap(y < 380 ? 1 : 0);
     });
-    ctx.input.press(["Space", "KeyA"], () => this.flap(0));
-    ctx.input.press(["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"], () =>
+    ctx.input.press(
+      ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+      () => this.flap(0),
+    );
+    ctx.input.press(["KeyW", "KeyA", "KeyS", "KeyD"], () =>
       this.flap(this.ai ? 0 : 1),
     );
     ctx.input.press(["Enter", "KeyL"], () => this.flap(1));

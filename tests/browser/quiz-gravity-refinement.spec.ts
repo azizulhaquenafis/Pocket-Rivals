@@ -35,7 +35,7 @@ test("Gravity foreground round deadline, pause, reset and live clock", async ({
   expect(next.map).not.toBe(draw.map);
   expect(next.remaining).toBeGreaterThan(115); // Browser screenshots/commands also consume foreground time.
   expect(next.remaining).toBeLessThanOrEqual(120);
-  expect(next.speed).toBe(120);
+  expect(next.speed).toBe(145);
 });
 test("long quiz equations scroll on touch without answering or overflowing the page", async ({
   page,

@@ -1,1 +1,45 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#f8f5eb"/><path d="M96 38v116" stroke="#242b32" stroke-width="5" stroke-dasharray="8 8"/><rect x="35" y="52" width="38" height="89" rx="19" fill="#f49b58" stroke="#242b32" stroke-width="7" transform="rotate(-15 54 96)"/><rect x="119" y="52" width="38" height="89" rx="19" fill="#58addb" stroke="#242b32" stroke-width="7" transform="rotate(15 138 96)"/><circle cx="97" cy="96" r="17" fill="#fffdf5" stroke="#242b32" stroke-width="6"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <defs>
+    <clipPath id="badge">
+      <rect x="14" y="14" width="164" height="164" rx="40"/>
+    </clipPath>
+  </defs>
+  <!-- Grounded playful offset drop shadow -->
+  <rect x="14" y="21" width="164" height="164" rx="40" fill="#242b32" opacity=".18"/>
+  <!-- Split Orange (P1) vs Blue (P2) Rivalry Squircle Badge -->
+  <g clip-path="url(#badge)">
+    <!-- Sky Blue (Player 2 / upper-right half) -->
+    <rect x="14" y="14" width="164" height="164" fill="#58addb"/>
+    <path d="M108 14 H178 V178 H142 Z" fill="#4699c9" opacity=".32"/>
+    <path d="M98 22 H164 Q172 22 172 30 V58" fill="none" stroke="#a6e2fc" stroke-width="6" stroke-linecap="round" opacity=".65"/>
+    <!-- Warm Orange (Player 1 / lower-left half) -->
+    <path d="M14 14 H114 L78 178 H14 Z" fill="#f49b58"/>
+    <path d="M14 128 H94 L82 178 H14 Z" fill="#dc7d39" opacity=".28"/>
+    <path d="M26 164 V40 Q26 24 42 24 H84" fill="none" stroke="#ffd2a3" stroke-width="6" stroke-linecap="round" opacity=".65"/>
+    <!-- Diagonal center dark clash seam behind the golden bolt -->
+    <path d="M114 10 L78 182" stroke="#242b32" stroke-width="10"/>
+  </g>
+
+  <!-- Crisp rounded ink outer border -->
+  <rect x="14" y="14" width="164" height="164" rx="40" fill="none" stroke="#242b32" stroke-width="9"/>
+
+  <!-- Signature Pocket Rivals player marks: Orange Cross (×) vs Blue Ring (○) -->
+  <g stroke="#242b32" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Orange P1 bold cream × -->
+    <path d="M40 84 L68 112 M68 84 L40 112" stroke="#242b32" stroke-width="16"/>
+    <path d="M40 84 L68 112 M68 84 L40 112" stroke="#fffdf5" stroke-width="8.5"/>
+    <!-- Blue P2 bold cream ○ -->
+    <circle cx="137" cy="96" r="17.5" fill="none" stroke="#242b32" stroke-width="15.5"/>
+    <circle cx="137" cy="96" r="17.5" fill="none" stroke="#fffdf5" stroke-width="8"/>
+  </g>
+
+  <!-- Electric sunlit-gold rivalry lightning bolt slicing right down the middle -->
+  <g stroke="#242b32" stroke-width="7" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M108 32 L77 101 H101 L84 160 L121 89 H97 Z" fill="#ffe066"/>
+    <path d="M102 48 L88 94" stroke="#fff8d4" stroke-width="4" fill="none"/>
+  </g>
+
+  <!-- Tiny twinkling rival star accents -->
+  <circle cx="48" cy="48" r="5" fill="#fffdf5"/>
+  <circle cx="144" cy="144" r="5" fill="#fffdf5"/>
+</svg>

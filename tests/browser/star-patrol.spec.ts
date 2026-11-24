@@ -150,3 +150,76 @@ test("Star Patrol earns real loot, advances levels and freezes gear on pause", a
   expect((await snapshot()).saved.rounds).toBe(0);
   expect(errors).toEqual([]);
 });
+
+test("Star Patrol triggers damage sound, vibration and broken-heart animation on life loss", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    (window as any).__notes = [];
+    (window as any).__vibrations = [];
+    const original = AudioContext.prototype.createOscillator;
+    AudioContext.prototype.createOscillator = function () {
+      const o = original.call(this);
+      const set = o.frequency.setValueAtTime.bind(o.frequency);
+      o.frequency.setValueAtTime = (hz, at) => {
+        (window as any).__notes.push(hz);
+        return set(hz, at);
+      };
+      return o;
+    };
+    navigator.vibrate = ((pattern: VibratePattern) => {
+      (window as any).__vibrations.push(pattern);
+      return true;
+    }) as typeof navigator.vibrate;
+  });
+  await page.goto("/?aiSeed=11");
+  await page
+    .getByRole("button", { name: "1 Player Arcade", exact: true })
+    .click();
+  await page
+    .getByRole("button", { name: "Play Star Patrol", exact: true })
+    .click();
+  await page.getByRole("button", { name: "Impossible", exact: true }).click();
+  const snapshot = () => page.evaluate(() => (window as any).__POCKET__);
+  await expect.poll(async () => (await snapshot()).scene.game?.started).toBe(true);
+  await page.clock.install();
+  // Steer under an incoming enemy projectile to take a real hit without mutating state.
+  let hit = false;
+  for (let i = 0; i < 160 && !hit; i++) {
+    const w = (await snapshot()).scene.game;
+    if (w.lives < 3) {
+      hit = true;
+      break;
+    }
+    const shot = [...w.projectiles]
+      .filter((p: any) => p.enemy && p.y < w.player.y)
+      .sort((a: any, b: any) => b.y - a.y)[0];
+    if (shot) {
+      const dx = shot.x - w.player.x;
+      if (dx < -10) {
+        await page.keyboard.down("ArrowLeft");
+        await page.clock.runFor(60);
+        await page.keyboard.up("ArrowLeft");
+      } else if (dx > 10) {
+        await page.keyboard.down("ArrowRight");
+        await page.clock.runFor(60);
+        await page.keyboard.up("ArrowRight");
+      } else {
+        await page.clock.runFor(60);
+      }
+    } else {
+      await page.clock.runFor(120);
+    }
+  }
+  const damaged = (await snapshot()).scene.game;
+  expect(damaged.lives).toBeLessThan(3);
+  expect(damaged.lifeLost.active).toBe(true);
+  const notes = await page.evaluate(() => (window as any).__notes);
+  const vibrations = await page.evaluate(() => (window as any).__vibrations);
+  expect(notes).toContain(360);
+  expect(vibrations.length).toBeGreaterThan(0);
+  await page.keyboard.press("Escape");
+  const paused = (await snapshot()).scene.game;
+  await page.clock.runFor(400);
+  expect((await snapshot()).scene.game.lifeLost).toEqual(paused.lifeLost);
+});

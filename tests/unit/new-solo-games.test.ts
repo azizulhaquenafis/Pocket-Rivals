@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { DriftWorld, DRIFT_TIERS } from "../../src/arcade/pocket-drift/Rules";
-import { MagnetWorld, MAGNET_TIERS } from "../../src/arcade/magnet-dash/Rules";
+import { DriftWorld, DRIFT_TIERS } from "../../src/future-games/pocket-drift/Rules";
+import { MagnetWorld, MAGNET_TIERS } from "../../src/future-games/magnet-dash/Rules";
 import { GliderWorld, GLIDER_TIERS } from "../../src/arcade/paper-glider/Rules";
 import {
   FoundryWorld,
   FOUNDRY_TIERS,
-} from "../../src/arcade/tiny-foundry/Rules";
-import { ShadowWorld, SHADOW_TIERS } from "../../src/arcade/shadow-step/Rules";
-import { DominoWorld, DOMINO_TIERS } from "../../src/arcade/domino-lab/Rules";
+} from "../../src/future-games/tiny-foundry/Rules";
+import { ShadowWorld, SHADOW_TIERS } from "../../src/future-games/shadow-step/Rules";
+import { DominoWorld, DOMINO_TIERS } from "../../src/future-games/domino-lab/Rules";
 const tiers = ["medium", "hard", "impossible"] as const;
 const clamp = (v: number) => Math.max(-1, Math.min(1, v));
 for (const tier of tiers) {
@@ -44,21 +44,27 @@ for (const tier of tiers) {
     expect(w.score).toBeGreaterThan(150);
     expect(w.rows.length).toBeLessThan(5);
   });
-  it(`Glider ${tier}: three flights, rings and precision landings`, () => {
+  it(`Glider ${tier}: endless narrowing levels, rings, air resistance and precision landings`, () => {
     const w = new GliderWorld(tier);
-    for (let i = 0; i < 120 * 150 && !w.done; i++) {
-      const wall = w.walls.find((p) => p.y + 20 > w.y),
-        ring = w.targets.find((p) => !p.passed);
-      const next = wall && (!ring || wall.y < ring.y) ? wall : ring;
-      const x = next ? next.x : w.landing;
-      w.step(
-        1 / 120,
-        clamp(((x - w.x) * 3 - w.wind) / 135),
-        w.y > w.length - 180,
-      );
+    const gaps: number[] = [];
+    for (let targetLevel = 1; targetLevel <= 3; targetLevel++) {
+      expect(w.level).toBe(targetLevel);
+      gaps.push(w.gap);
+      for (let i = 0; i < 120 * 45 && w.level === targetLevel && !w.done; i++) {
+        const wall = w.walls.find((p) => p.y + 20 > w.y),
+          ring = w.targets.find((p) => !p.passed);
+        const next = wall && (!ring || wall.y < ring.y) ? wall : ring;
+        const x = next ? next.x : w.landing;
+        const steer = clamp((x - w.x) * 0.06 - w.vx * 0.008);
+        w.step(1 / 120, steer, w.y > w.length - 200);
+      }
+      expect(w.done).toBe(false);
     }
-    expect(w.level, JSON.stringify(w)).toBe(4);
-    expect(w.score).toBeGreaterThanOrEqual(780);
+    expect(w.level).toBe(4);
+    expect(gaps[1]).toBeLessThan(gaps[0]);
+    expect(gaps[2]).toBeLessThan(gaps[1]);
+    expect(w.gap).toBeLessThan(gaps[2]);
+    expect(w.score).toBeGreaterThanOrEqual(650);
   });
   it(`Foundry ${tier}: casts can meet all eight targets through timed pouring`, () => {
     const w = new FoundryWorld(tier);
@@ -126,12 +132,58 @@ it("Magnet seeded replay is identical and collisions really end a run", () => {
   a.step(10);
   expect(a.score).toBe(score);
 });
-it("Glider failure loses lives without farming unbanked ring points", () => {
-  const w = new GliderWorld();
-  for (let i = 0; i < 120 * 90 && !w.done; i++) w.step(1 / 120);
-  expect(w.done).toBe(true);
-  expect(w.score).toBe(0);
-  expect(w.lives).toBe(0);
+it("Glider failure loses hearts without farming unbanked ring points, and air resistance favors tailwind", () => {
+  const rng = (seed: number) => () =>
+    (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32;
+  for (let seed = 1; seed <= 30; seed++) {
+    const w = new GliderWorld("medium", rng(seed));
+    for (let i = 0; i < 120 * 90 && !w.done; i++) w.step(1 / 120);
+    expect(w.done).toBe(true);
+    expect(w.score).toBe(0);
+    expect(w.lives).toBe(0);
+  }
+
+  // Organic random wind shifts gradually without oscillating identically across seeds.
+  const a = new GliderWorld("medium", rng(101));
+  const b = new GliderWorld("medium", rng(202));
+  a.walls = [];
+  b.walls = [];
+  let maxDeltaPerSec = 0;
+  let prev = a.windRatio;
+  for (let i = 0; i < 120 * 12; i++) {
+    a.step(1 / 120, 0, true);
+    b.step(1 / 120, 0, true);
+    maxDeltaPerSec = Math.max(maxDeltaPerSec, Math.abs(a.windRatio - prev) * 120);
+    prev = a.windRatio;
+  }
+  expect(a.windRatio).not.toBeCloseTo(b.windRatio, 2);
+  expect(maxDeltaPerSec).toBeLessThan(2.2);
+
+  // Air resistance check: steering WITH crosswind moves faster than steering AGAINST it.
+  const tail = new GliderWorld("hard");
+  const head = new GliderWorld("hard");
+  tail.walls = [];
+  head.walls = [];
+  // Choose an altitude where wind blows strongly right (positive).
+  Object.defineProperty(tail, "wind", { get: () => 70 });
+  Object.defineProperty(head, "wind", { get: () => 70 });
+  for (let i = 0; i < 180; i++) {
+    tail.x = 210;
+    head.x = 210;
+    tail.step(1 / 120, 1, false);
+    head.step(1 / 120, -1, false);
+  }
+  expect(tail.vx).toBeGreaterThan(Math.abs(head.vx) * 1.6);
+  expect(head.vx).toBeLessThan(-50);
+
+  // Red-dotted miss line check: landing outside the runway loses a heart cleanly.
+  const miss = new GliderWorld("medium");
+  miss.walls = [];
+  miss.x = miss.landing > 210 ? 45 : 375;
+  miss.y = miss.length - 0.5;
+  miss.step(1 / 120, 0, false);
+  expect(miss.lives).toBe(2);
+  expect(miss.lastCrash?.reason).toBe("miss");
 });
 it("Foundry cannot award a cast before drops settle; pause release stops pouring", () => {
   const w = new FoundryWorld();
@@ -269,7 +321,7 @@ for (const tier of tiers)
   });
 
 it("Foundry mold graphics represent actual filled volume for every shape", async () => {
-  const { MOLDS, area } = await import("../../src/arcade/tiny-foundry/Molds");
+  const { MOLDS, area } = await import("../../src/future-games/tiny-foundry/Molds");
   for (const mold of MOLDS)
     for (let v = 0; v <= 100; v++)
       expect(area(mold.fills[v].points) / area(mold.outline)).toBeCloseTo(
@@ -291,7 +343,9 @@ it("finished boards retain their final layout during the results transition", ()
   g.level = 3;
   const strip = g.landing,
     length = g.length;
-  g.level = 4;
+  g.lives = 1;
+  g.crash("miss");
+  expect(g.done).toBe(true);
   expect(g.landing).toBe(strip);
   expect(g.length).toBe(length);
   const f = new FoundryWorld();

@@ -30,7 +30,9 @@ it("each map generates only its own signature traps and nonperiodic seeded combi
       const kinds = new Set(
         obstacles.filter((o) => o.kind !== "platform").map((o) => o.kind),
       );
-      expect(kinds).toEqual(new Set([...TRAPS[map].side, TRAPS[map].center]));
+      expect(kinds).toEqual(
+        new Set([...TRAPS[map].side, TRAPS[map].center, TRAPS[map].roamer]),
+      );
       expect(new Set(sequence).size).toBeGreaterThanOrEqual(6);
       for (let period = 1; period <= 10; period++)
         expect(
@@ -50,20 +52,22 @@ it("each map generates only its own signature traps and nonperiodic seeded combi
     expect(openings.size).toBeGreaterThan(70);
   }
 });
-it("speed has a calm start, smooth staged increases and a safe endless ceiling", () => {
+it("speed has a brief settle-in, continuous smooth acceleration and a safe endless ceiling", () => {
   const m = new GravityMatch(7);
-  expect(m.speed(0)).toBe(120);
-  expect(m.speed(8)).toBe(120);
-  expect(m.speed(9.5)).toBe(132);
-  expect(m.speed(11)).toBe(144);
-  expect(m.speed(27)).toBe(144);
-  expect(m.speed(31)).toBe(168);
-  expect(m.speed(111)).toBe(264);
-  expect(m.speed(1000000)).toBe(264);
-  for (let age = 7; age < 112; age += 0.1)
-    expect(m.speed(age + 0.01) - m.speed(age)).toBeLessThan(0.121);
+  expect(m.speed(0)).toBe(145);
+  expect(m.speed(3)).toBe(145);
+  expect(m.speed(15)).toBeGreaterThan(165);
+  expect(m.speed(40)).toBeGreaterThan(m.speed(15) + 40);
+  expect(m.speed(75)).toBeGreaterThan(m.speed(40) + 50);
+  expect(m.speed(105)).toBe(315);
+  expect(m.speed(1000000)).toBe(315);
+  for (let age = 2; age < 106; age += 0.1) {
+    const delta = m.speed(age + 0.01) - m.speed(age);
+    expect(delta).toBeGreaterThanOrEqual(0);
+    expect(delta).toBeLessThan(0.06);
+  }
 });
-it("later sections vary spacing and raise hazard density without shortening legal transit below 230", () => {
+it("later sections vary spacing and raise hazard density while keeping legal transit >= 180", () => {
   const stream = new CourseStream(42, "green"),
     gaps: Gap[] = [],
     obstacles: Obstacle[] = [];
@@ -82,7 +86,35 @@ it("later sections vary spacing and raise hazard density without shortening lega
     if (hazards[i].x !== hazards[i - 1].x)
       expect(
         hazards[i].x - hazards[i - 1].x - hazards[i - 1].width,
-      ).toBeGreaterThanOrEqual(230 - 1e-6);
+      ).toBeGreaterThanOrEqual(180 - 1e-6);
+});
+it("orbiting map roamers move inside their broad-phase envelope and collide accurately", () => {
+  for (const kind of ["snowball", "spore", "jelly", "orb"] as const) {
+    const roamer: Obstacle = {
+      x: 200,
+      width: 84,
+      side: 0,
+      depth: 34,
+      kind,
+      motion: "orbit",
+      range: 24,
+      crossRange: 44,
+      period: 3,
+      phase: 0,
+    };
+    const b0 = obstacleBounds(roamer, 0);
+    const b1 = obstacleBounds(roamer, 0.75);
+    const b2 = obstacleBounds(roamer, 1.5);
+    expect(b0.start).toBeGreaterThanOrEqual(roamer.x - 1e-6);
+    expect(b0.end).toBeLessThanOrEqual(roamer.x + roamer.width + 1e-6);
+    expect(b2.start).toBeLessThan(b0.start);
+    expect(b1.low).toBeGreaterThan(b0.low + 30);
+    expect(obstacleOutline(roamer, 0.75)).toHaveLength(8);
+    expect(
+      touchesTrap(roamer, (b1.start + b1.end) / 2, (b1.low + b1.high) / 2, 0.75),
+    ).toBe(true);
+    expect(touchesTrap(roamer, (b1.start + b1.end) / 2, 10, 0.75)).toBe(false);
+  }
 });
 it("jets pulse, phase gates really open, and visual polygons match legal collisions", () => {
   const jet: Obstacle = {

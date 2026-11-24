@@ -1,4 +1,6 @@
 import { FirstResponse } from "../../shared/rules/FirstResponse";
+export const WRONG_TAP_COOLDOWN = 2.5;
+export const TIE_COOLDOWN = 1.25;
 export class LightMatch {
   scores: [number, number] = [0, 0];
   phase: "waiting" | "signal" | "active" | "between" | "done" = "waiting";
@@ -26,7 +28,7 @@ export class LightMatch {
     )
       return false;
     if (this.phase !== "active") {
-      this.blockedUntil[player] = this.time + 1.25;
+      this.blockedUntil[player] = this.time + WRONG_TAP_COOLDOWN;
       return false;
     }
     this.attempted[player] = true;
@@ -48,13 +50,17 @@ export class LightMatch {
       const attempted = this.attempted;
       this.attempted = [false, false];
       if (tie) {
-        this.blockedUntil = [this.time + 1.25, this.time + 1.25];
+        this.blockedUntil = [
+          this.time + TIE_COOLDOWN,
+          this.time + TIE_COOLDOWN,
+        ];
         this.message = "";
         return;
       }
       const p = first.player;
       this.capturedBy = p;
-      if (attempted[1 - p]) this.blockedUntil[1 - p] = this.time + 1.25;
+      if (attempted[1 - p])
+        this.blockedUntil[1 - p] = this.time + TIE_COOLDOWN;
       this.scores[p]++;
       this.message = "";
       if (this.scores[p] === 5) {

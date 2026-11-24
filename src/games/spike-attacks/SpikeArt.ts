@@ -140,17 +140,116 @@ export function drawArena(
   }
   for (const i of [0, 1] as const) {
     const p = v.players[i],
-      color = i === 0 ? theme.orange : theme.blue;
-    g.fillStyle(theme.ink, 0.15).fillEllipse(p.x + 2, p.y + 5, 25, 17);
+      color = i === 0 ? theme.orange : theme.blue,
+      shine = i === 0 ? 0xffca94 : 0xa8e0fb,
+      blush = i === 0 ? 0xde7342 : 0x3b8dbe;
+    const activeRun = p.alive && p.moving && !m.between;
+    const phase = m.total * 24 + i * 1.6;
+    const stride = activeRun ? Math.sin(phase) * 3.4 : 0;
+    const hop = activeRun ? Math.abs(Math.sin(phase)) * 1.4 : 0;
+    const liftA = activeRun ? Math.max(0, -Math.cos(phase)) * 2.2 : 0;
+    const liftB = activeRun ? Math.max(0, Math.cos(phase)) * 2.2 : 0;
+    // Direction vector from SpikeView facing angle (angle=0 is UP, +PI/2 is RIGHT)
+    const dirX = Math.sin(p.angle),
+      dirY = -Math.cos(p.angle);
+    const faceX = dirX >= -0.05 ? 1 : -1;
+    const tailWave = p.alive ? Math.sin(m.total * 15 + i) * 2 : 0;
+
+    // Ground contact shadow
+    g.fillStyle(theme.ink, 0.16).fillEllipse(p.x + 1.5, p.y + 10.5, 22, 9);
+
     g.save();
-    g.translateCanvas(p.x, p.y);
-    g.rotateCanvas(p.angle);
-    const stride = p.moving && !m.between ? Math.sin(m.total * 25) * 2 : 0;
-    rounded(g, -10, -3 + stride, 5, 9, 2, color, 1.5);
-    rounded(g, 5, -3 - stride, 5, 9, 2, color, 1.5);
-    circle(g, 0, 0, 9, p.alive ? color : 0x9c9b96, 2.2);
-    rounded(g, -6, -7, 12, 7, 3, 0xf6f1df, 1.4);
-    g.fillStyle(theme.ink).fillCircle(-2, -4, 1.4).fillCircle(2, -4, 1.4);
+    g.translateCanvas(p.x, p.y - 1.5 - hop);
+    // Subtle natural sprint lean in movement direction without flipping upside-down
+    g.rotateCanvas(activeRun ? dirX * 0.14 : 0);
+
+    // 1. Fluttering white headband tail trailing behind facing direction
+    const tx = -faceX;
+    g.fillStyle(0xfffdf5).fillTriangle(
+      tx * 8.5,
+      -5.5,
+      tx * 18.5,
+      -8.5 + tailWave,
+      tx * 16.5,
+      -2.2 + tailWave * 0.7,
+    );
+    g.lineStyle(2, theme.ink).strokeTriangle(
+      tx * 8.5,
+      -5.5,
+      tx * 18.5,
+      -8.5 + tailWave,
+      tx * 16.5,
+      -2.2 + tailWave * 0.7,
+    );
+
+    // 2. Proper animated pumping legs & rounded runner shoes underneath
+    g.lineStyle(3.8, theme.ink).lineBetween(
+      -3.8,
+      6.2,
+      -4.6 - stride * faceX,
+      10.8 - liftA,
+    );
+    g.fillStyle(theme.ink).fillEllipse(
+      -4.2 - stride * faceX + faceX * 1.2,
+      11.4 - liftA,
+      6.4,
+      4.4,
+    );
+    g.lineStyle(3.8, theme.ink).lineBetween(
+      3.8,
+      6.2,
+      4.6 + stride * faceX,
+      10.8 - liftB,
+    );
+    g.fillStyle(theme.ink).fillEllipse(
+      4.2 + stride * faceX + faceX * 1.2,
+      11.4 - liftB,
+      6.4,
+      4.4,
+    );
+
+    // 3. Chubby Gravity-Runner logo bean body sized cleanly for radius-9 gameplay
+    const bodyCol = p.alive ? color : 0x9c9b96;
+    rounded(g, -9.5, -10.5, 19, 19.5, 8.5, bodyCol, 2.3);
+    if (p.alive) {
+      g.lineStyle(2.2, shine, 0.9)
+        .lineBetween(-faceX * 5.2, -7.8, -faceX * 1, -8.3)
+        .lineBetween(-faceX * 5.8, 1.5, -faceX * 5.8, 5);
+    }
+
+    // 4. Crisp white ninja headband strapped across the forehead
+    rounded(g, -9.5, -6.8, 19, 4.1, 1.7, 0xfffdf5, 1.9);
+
+    // 5. Expressive white-sclera eyes tracking movement direction + cheek blush + smile
+    const lookX = dirX * 1.5;
+    const lookY = dirY * 0.9;
+    const eyeCenter = faceX * 2.2;
+    if (p.alive) {
+      for (const offset of [-2.8, 2.8]) {
+        const ex = eyeCenter + offset;
+        const ey = 0.6 + lookY * 0.4;
+        g.fillStyle(0xfffdf5).fillEllipse(ex, ey, 4.4, 5);
+        g.lineStyle(1.3, theme.ink, 0.85).strokeEllipse(ex, ey, 4.4, 5);
+        g.fillStyle(theme.ink).fillCircle(ex + lookX * 0.55, ey + lookY * 0.45, 1.55);
+        g.fillStyle(0xfffdf5).fillCircle(
+          ex + lookX * 0.55 + 0.5,
+          ey + lookY * 0.45 - 0.7,
+          0.6,
+        );
+      }
+      g.fillStyle(blush, 0.58).fillEllipse(-faceX * 3.8, 3.6, 3.4, 2);
+      g.lineStyle(1.6, theme.ink).beginPath();
+      g.arc(eyeCenter, 3.6, 2.2, 0.2, Math.PI - 0.2, false);
+      g.strokePath();
+    } else {
+      g.lineStyle(1.8, theme.ink);
+      for (const offset of [-2.8, 2.8]) {
+        const ex = eyeCenter + offset;
+        g.lineBetween(ex - 1.6, -1, ex + 1.6, 2.2);
+        g.lineBetween(ex + 1.6, -1, ex - 1.6, 2.2);
+      }
+    }
+
     g.restore();
     if (!p.alive) {
       g.lineStyle(2.5, color, 0.8).strokeCircle(

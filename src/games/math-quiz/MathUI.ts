@@ -60,10 +60,19 @@ export class MathUI {
 
     if (this.phase !== m.phase || changed) {
       this.phase = m.phase;
-      const statusText =
-        m.phase === "between" || m.phase === "done"
-          ? m.message
-          : `${m.question.topic} · FIRST TO 10`;
+      const between = m.phase === "between" || m.phase === "done";
+      const panel = this.root.querySelector<HTMLElement>(".quiz-panel")!;
+      panel.classList.toggle("win-orange", between && m.roundWinner === 1);
+      panel.classList.toggle("win-blue", between && m.roundWinner === 2);
+      this.root
+        .querySelector(".quiz-side.orange")
+        ?.classList.toggle("won", between && m.roundWinner === 1);
+      this.root
+        .querySelector(".quiz-side.blue")
+        ?.classList.toggle("won", between && m.roundWinner === 2);
+      const statusText = between
+        ? m.message
+        : `${m.question.topic} · FIRST TO 10`;
       this.root.querySelector(".quiz-middle span")!.textContent = statusText;
       const explain =
         this.root.querySelector<HTMLElement>(".quiz-explanation")!;

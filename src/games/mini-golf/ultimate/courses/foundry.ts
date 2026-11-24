@@ -52,7 +52,7 @@ export const foundry: Course = {
     { ...r(x(0), 428, lane, 64), kind: "belt", push: p(0, 750) },
     { ...r(x(3), 348, lane, 64), kind: "belt", push: p(0, -750) },
   ],
-  fields: [{ ...p(c(3), 818), r: 170, strength: 450, core: 22 }],
+  fields: [{ ...p(c(3), 818), r: 170, strength: 680, core: 22 }],
   fans: [{ ...p(c(2), 478), length: 190, hub: 16, spin: 120 }],
   lasers: [{ ...r(x(4), 354, lane, 8), phase: 0 }],
   lava: [

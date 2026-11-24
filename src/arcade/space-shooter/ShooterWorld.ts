@@ -102,6 +102,7 @@ export class ShooterWorld {
   kills = 0;
   elapsed = 0;
   announcement = { text: "", remaining: 0, kind: "spread" as PowerupKind };
+  lifeLost = { active: false, x: 210, y: 575, age: 0 };
   private direction = 1;
   private shotClock = 0;
   private enemyClock = 1.1;
@@ -284,6 +285,12 @@ export class ShooterWorld {
     this.weaponLevel = Math.max(0, this.weaponLevel - 1);
     this.invulnerable = 1.5;
     this.effect(this.player.x, this.player.y, "hit");
+    this.lifeLost = {
+      active: true,
+      x: this.player.x,
+      y: this.player.y - 26,
+      age: 0,
+    };
     if (this.lives <= 0) {
       this.dead = true;
       this.projectiles.forEach((p) => (p.active = false));
@@ -296,6 +303,10 @@ export class ShooterWorld {
     for (const name of ["rapid", "laser", "drone"] as const)
       this[name] = Math.max(0, this[name] - dt);
     this.announcement.remaining = Math.max(0, this.announcement.remaining - dt);
+    if (this.lifeLost.active) {
+      this.lifeLost.age += dt;
+      if (this.lifeLost.age >= 0.95) this.lifeLost.active = false;
+    }
     for (const b of this.bursts) b.age += dt;
     this.bursts = this.bursts.filter((b) => b.age < 0.45);
     this.player.x = Math.max(

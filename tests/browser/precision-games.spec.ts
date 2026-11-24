@@ -83,4 +83,12 @@ test("Hammer Hit displays non-overlapping UI layout, dome marquee, and score pop
   });
 
   expect(scoreRecorded).toBe(true);
+
+  // Global H hotkey toggles the How to Play modal in any game and pauses cleanly while open.
+  await page.keyboard.press("KeyH");
+  await expect(page.locator(".help-modal")).toBeVisible();
+  expect((await state(page)).state).toBe("paused");
+  await page.keyboard.press("KeyH");
+  await expect(page.locator(".help-modal")).toHaveCount(0);
+  expect((await state(page)).state).toBe("playing");
 });

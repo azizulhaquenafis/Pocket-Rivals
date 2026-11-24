@@ -6,7 +6,7 @@ export default {
   name: "Lumberjack",
   description: "Chop quickly. Mind the branches.",
   instructions:
-    "Tap left or right to chop from that side. Avoid branches at your feet and the next falling segment. First to 100 chops wins. Hitting a branch immediately gives the other player the win. There is no time limit. Orange: A/D. Blue: ←/→.",
+    "Tap left or right to chop from that side. Avoid branches at your feet and the next falling segment. First to 100 chops wins. Hitting a branch stuns you for 3 seconds instead of ending the match. There is no time limit. Orange: ←/→. Blue: A/D.",
   color: "#dbe4c2",
   accent: "#a4b389",
   preview,

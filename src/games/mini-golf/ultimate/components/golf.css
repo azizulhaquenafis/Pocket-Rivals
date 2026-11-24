@@ -221,10 +221,45 @@
   visibility: hidden;
 }
 .golf-ui .golf-panel.help {
-  inset: 8% max(0px, calc((100% - 520px) / 2));
+  inset: 6% max(0px, calc((100% - 540px) / 2));
   border: 3px solid var(--ink);
   box-shadow: 0 8px 0 #242b3222;
   z-index: 3;
+}
+.golf-legend {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+.golf-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 9px;
+  border: 2px solid #242b3233;
+  border-radius: 12px;
+  background: #fffdf5;
+  text-align: left;
+}
+.golf-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 2px solid var(--ink);
+  flex-shrink: 0;
+}
+.golf-legend-item strong {
+  display: block;
+  font: 600 13px "Fredoka";
+  line-height: 1.15;
+}
+.golf-legend-item small {
+  display: block;
+  font-size: 11px;
+  line-height: 1.25;
+  margin-top: 2px;
+  opacity: 0.85;
 }
 .golf-opponent {
   position: absolute;
@@ -240,7 +275,8 @@
 }
 @media (min-width: 720px) {
   .golf-modes {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 680px;
   }
   .golf-mode {
     flex-direction: column;

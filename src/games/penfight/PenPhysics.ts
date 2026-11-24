@@ -1,7 +1,14 @@
-export const DESK = { left: 43, right: 377, top: 180, bottom: 594 };
+export interface Desk {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+export const DESK: Desk = { left: 43, right: 377, top: 180, bottom: 594 };
+const SLIDE_FRICTION = 220;
 export const HALF = 34,
   RADIUS = 8,
-  MAX_SPEED = 350,
+  MAX_SPEED = 410,
   INERTIA = 610;
 export interface Pen {
   x: number;
@@ -17,10 +24,24 @@ export interface Shot {
   power: number;
   offset: number;
 }
-export function pens(): [Pen, Pen] {
+const OPENINGS = [
+  { x: 210, y: 466, a: 0 },
+  { x: 181, y: 459, a: 0.32 },
+  { x: 235, y: 455, a: -0.42 },
+  { x: 194, y: 449, a: 0.82 },
+] as const;
+
+export function pens(round = 1): [Pen, Pen] {
+  const { x, y, a } = OPENINGS[(round - 1) % OPENINGS.length];
+  const rest = { vx: 0, vy: 0, w: 0, out: false };
   return [
-    { x: 210, y: 492, a: -0.14, vx: 0, vy: 0, w: 0, out: false },
-    { x: 210, y: 282, a: 0.14, vx: 0, vy: 0, w: 0, out: false },
+    { x, y, a, ...rest },
+    {
+      x: DESK.left + DESK.right - x,
+      y: DESK.top + DESK.bottom - y,
+      a: a + Math.PI,
+      ...rest,
+    },
   ];
 }
 const clamp = (v: number, lo: number, hi: number) =>
@@ -104,7 +125,7 @@ function contacts(a: Pen, b: Pen) {
   return { ax: ax + ux * s, ay: ay + uy * s, bx: bx + vx * t, by: by + vy * t };
 }
 /** Small fixed steps keep relative travel below a pen's width, even at full power. */
-export function physicsStep(bodies: [Pen, Pen], dt: number) {
+export function physicsStep(bodies: [Pen, Pen], dt: number, desk = DESK) {
   let impact = 0;
   for (const p of bodies)
     if (!p.out) {
@@ -112,19 +133,13 @@ export function physicsStep(bodies: [Pen, Pen], dt: number) {
       p.y += p.vy * dt;
       p.a += p.w * dt;
       const speed = Math.hypot(p.vx, p.vy),
-        next = Math.max(0, speed - 240 * dt);
+        next = Math.max(0, speed - SLIDE_FRICTION * dt);
       if (speed > 0) {
         p.vx *= next / speed;
         p.vy *= next / speed;
       }
       p.w = Math.sign(p.w) * Math.max(0, Math.abs(p.w) - 7 * dt);
-      if (
-        p.x < DESK.left ||
-        p.x > DESK.right ||
-        p.y < DESK.top ||
-        p.y > DESK.bottom
-      )
-        p.out = true;
+      checkEdge(p, desk);
     }
   const [a, b] = bodies;
   if (a.out || b.out) return impact;
@@ -160,6 +175,8 @@ export function physicsStep(bodies: [Pen, Pen], dt: number) {
   const rvx = b.vx - b.w * bry - a.vx + a.w * ary;
   const rvy = b.vy + b.w * brx - a.vy - a.w * arx;
   const normalSpeed = rvx * nx + rvy * ny;
+  checkEdge(a, desk);
+  checkEdge(b, desk);
   if (normalSpeed >= 0) return impact;
   const ca = arx * ny - ary * nx,
     cb = brx * ny - bry * nx;
@@ -187,11 +204,15 @@ export function physicsStep(bodies: [Pen, Pen], dt: number) {
 export function stopped(p: Pen) {
   return p.out || (Math.hypot(p.vx, p.vy) < 1 && Math.abs(p.w) < 0.02);
 }
-export function edgeDistance(p: Pen) {
+export function checkEdge(p: Pen, desk: Desk) {
+  if (edgeDistance(p, desk) < 0) p.out = true;
+}
+
+export function edgeDistance(p: Pen, desk = DESK) {
   return Math.min(
-    p.x - DESK.left,
-    DESK.right - p.x,
-    p.y - DESK.top,
-    DESK.bottom - p.y,
+    p.x - desk.left,
+    desk.right - p.x,
+    p.y - desk.top,
+    desk.bottom - p.y,
   );
 }

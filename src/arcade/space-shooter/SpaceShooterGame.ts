@@ -1,4 +1,5 @@
 import { ArcadeSetup } from "../../shared/arcade/ArcadeSetup";
+import { drawHeartsHUD } from "../../shared/arcade/hearts";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { label } from "../../shared/components/drawing";
@@ -12,6 +13,8 @@ export class SpaceShooterGame implements MiniGame {
   private ctx!: GameContext;
   private world = new ShooterWorld(new MatchRandom(freshSeed()).next);
   private g!: Phaser.GameObjects.Graphics;
+  private hudG!: Phaser.GameObjects.Graphics;
+  private lastHearts = "";
   private clip!: Phaser.GameObjects.Graphics;
   private mask!: Phaser.Display.Masks.GeometryMask;
   private banner!: Phaser.GameObjects.Text;
@@ -33,6 +36,8 @@ export class SpaceShooterGame implements MiniGame {
     this.clip.fillStyle(0xffffff).fillRoundedRect(22, 110, 376, 542, 22);
     this.mask = this.clip.createGeometryMask();
     this.g.setMask(this.mask);
+    this.hudG = ctx.scene.add.graphics();
+    ctx.setArcadeHUD(0, "");
     this.banner = label(ctx.scene, 210, 375, "", 22);
     this.level = label(ctx.scene, 66, 138, "LV 1", 12, "#fff9ed");
     this.weapon = label(ctx.scene, 188, 138, "BLASTER", 11);
@@ -88,8 +93,17 @@ export class SpaceShooterGame implements MiniGame {
         this.clock.reset();
         ctx.audio.play("start", 0.5);
         this.draw();
+        this.syncHearts();
       },
     );
+  }
+  private syncHearts() {
+    const max = Math.max(3, this.world.lives);
+    const key = this.started ? `${this.world.lives}:${max}` : "";
+    if (key === this.lastHearts) return;
+    this.lastHearts = key;
+    if (this.started) drawHeartsHUD(this.hudG, this.world.lives, max);
+    else this.hudG.clear();
   }
   update(dt: number) {
     if (!this.started || this.paused || this.reported) return;
@@ -112,7 +126,19 @@ export class SpaceShooterGame implements MiniGame {
       w.step(h, this.target, this.dragging || this.keys.has("Space"));
     });
     if (w.score > before.score) this.ctx.audio.play("hit", 0.35);
-    if (w.lives < before.lives) this.ctx.audio.play("thud", 0.6);
+    if (w.lives < before.lives) {
+      this.ctx.audio.play("damage", 0.95);
+      if (
+        typeof navigator !== "undefined" &&
+        typeof navigator.vibrate === "function"
+      ) {
+        try {
+          navigator.vibrate([70, 40, 110]);
+        } catch {
+          /* Optional haptics must never interrupt gameplay. */
+        }
+      }
+    }
     if (w.pickupSerial > before.pickup)
       this.ctx.audio.play(
         w.announcement.kind === "life" ? "perfect" : "capture",
@@ -124,7 +150,8 @@ export class SpaceShooterGame implements MiniGame {
       this.soundAge = this.age;
     }
     this.draw();
-    this.ctx.setArcadeHUD(w.score, "♥ ".repeat(w.lives));
+    this.ctx.setArcadeHUD(w.score, "");
+    this.syncHearts();
     if (w.dead && !this.reported) {
       this.reported = true;
       this.ctx.finishArcade(
@@ -172,6 +199,7 @@ export class SpaceShooterGame implements MiniGame {
     this.setup?.destroy();
     this.reported = true;
     this.g.destroy();
+    this.hudG.destroy();
     this.mask.destroy();
     this.clip.destroy();
     [this.banner, this.level, this.weapon, this.toast].forEach((t) =>
@@ -205,6 +233,7 @@ export class SpaceShooterGame implements MiniGame {
       elapsed: w.elapsed,
       transitioning: w.transitioning,
       announcement: { ...w.announcement },
+      lifeLost: { ...w.lifeLost },
       poolSize: w.projectiles.length,
     };
   }

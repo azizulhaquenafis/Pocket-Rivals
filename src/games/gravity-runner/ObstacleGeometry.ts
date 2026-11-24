@@ -3,24 +3,61 @@ export interface Point {
   x: number;
   y: number;
 }
+const OCTAGON_KINDS = new Set([
+  "buoy",
+  "bramble",
+  "snowball",
+  "spore",
+  "jelly",
+  "orb",
+]);
+const CONVEX_KINDS = new Set([
+  "icicle",
+  "crystal",
+  "root",
+  "buoy",
+  "bramble",
+  "snowball",
+  "spore",
+  "jelly",
+  "orb",
+]);
 /** Canonical world geometry for both rendering and human/AI collision. */
 export function obstacleBounds(o: Obstacle, age: number) {
   let depth = o.depth;
   const angle = (age * Math.PI * 2) / (o.period ?? 3.6) + (o.phase ?? 0),
     sine = Math.sin(angle),
+    cosine = Math.cos(angle),
     wave = (1 + sine) / 2;
   if (o.kind === "jet") depth *= 0.2 + wave * 0.8;
   if (o.motion === "piston")
     depth = o.depth * (0.12 + 0.88 * wave * wave * (3 - 2 * wave));
   const active = o.kind !== "phase" || wave > 0.25;
   let low = o.side === -1 ? 0 : o.side === 1 ? 170 - depth : 85 - depth / 2;
-  if (o.motion === "across") low += sine * (o.range ?? 30);
-  const start = o.motion === "along" ? o.x + (o.range ?? 20) * (1 + sine) : o.x;
-  const end =
-    start + o.width - (o.motion === "along" ? 2 * (o.range ?? 20) : 0);
+  let start = o.x;
+  let end = o.x + o.width;
+  if (o.motion === "across") {
+    low = Math.max(
+      4,
+      Math.min(166 - depth, low + sine * (o.range ?? 34)),
+    );
+  } else if (o.motion === "along") {
+    const r = o.range ?? 20;
+    start = o.x + r * (1 + sine);
+    end = start + Math.max(20, o.width - 2 * r);
+  } else if (o.motion === "orbit") {
+    const rx = o.range ?? 24,
+      ry = o.crossRange ?? 46,
+      bodyW = Math.max(24, o.width - 2 * rx),
+      cx = o.x + o.width / 2 + cosine * rx,
+      baseY = o.side === -1 ? 52 : o.side === 1 ? 118 : 85;
+    start = cx - bodyW / 2;
+    end = cx + bodyW / 2;
+    low = Math.max(4, Math.min(166 - depth, baseY - depth / 2 + sine * ry));
+  }
   const warning =
-    (o.kind === "phase" && !active && wave > 0.06 && Math.cos(angle) > 0) ||
-    (o.motion === "piston" && wave < 0.35 && Math.cos(angle) > 0);
+    (o.kind === "phase" && !active && wave > 0.06 && cosine > 0) ||
+    (o.motion === "piston" && wave < 0.35 && cosine > 0);
   return { low, high: low + depth, active, warning, start, end };
 }
 export function obstacleOutline(o: Obstacle, age: number): Point[] {
@@ -68,7 +105,7 @@ export function obstacleOutline(o: Obstacle, age: number): Point[] {
       { x: end, y: base },
     ];
   }
-  if (o.kind === "buoy" || o.kind === "bramble") {
+  if (OCTAGON_KINDS.has(o.kind)) {
     return Array.from({ length: 8 }, (_, i) => ({
       x: mid + (Math.cos((i * Math.PI) / 4) * width) / 2,
       y: (low + high) / 2 + (Math.sin((i * Math.PI) / 4) * (high - low)) / 2,
@@ -92,8 +129,7 @@ export function touchesTrap(
   if (distance + 13 < b.start || distance - 13 > b.end) return false;
   if (!b.active || y + 9 <= b.low + 0.001 || y - 9 >= b.high - 0.001)
     return false;
-  if (!["icicle", "crystal", "root", "buoy", "bramble"].includes(o.kind))
-    return true;
+  if (!CONVEX_KINDS.has(o.kind)) return true;
   const polygon = obstacleOutline(o, age);
   for (let i = 0; i < polygon.length; i++) {
     const a = polygon[i],

@@ -13,7 +13,7 @@ async function launch(page: Page, name: string, map?: string, ai?: string) {
   await page.getByRole("button", { name: /Let’s play/ }).click();
   await expect.poll(async () => (await state(page)).ready).toBe(true);
 }
-test("Happy Birds Space and arrows flap separate birds; pause blocks input", async ({
+test("Happy Birds arrows and WASD flap separate birds; pause blocks input", async ({
   page,
 }) => {
   const errors: string[] = [];
@@ -22,14 +22,14 @@ test("Happy Birds Space and arrows flap separate birds; pause blocks input", asy
   await launch(page, "Happy Birds");
   await page.clock.runFor(1150);
   expect((await state(page)).game.between).toBe(0);
-  await page.keyboard.press("Space");
+  await page.keyboard.press("ArrowUp");
   let s = (await state(page)).game;
   expect(s.players.map((p: any) => p.flapSerial)).toEqual([1, 0]);
-  await page.keyboard.press("ArrowUp");
+  await page.keyboard.press("KeyW");
   s = (await state(page)).game;
   expect(s.players.map((p: any) => p.flapSerial)).toEqual([1, 1]);
   await page.clock.runFor(170);
-  await page.keyboard.press("ArrowRight");
+  await page.keyboard.press("KeyD");
   expect((await state(page)).game.players[1].flapSerial).toBe(2);
   await page.screenshot({ path: "docs/happy-birds-keyboard.png" });
   await page.keyboard.press("Escape");
@@ -65,7 +65,7 @@ for (const [name, id] of [
     expect(s.remaining).toBeLessThanOrEqual(120);
     expect(s.obstacles.some((o: any) => o.kind === "platform")).toBe(true);
     await page.waitForTimeout(250);
-    expect((await state(page)).game.speed).toBe(120); // Eight-second warm-up.
+    expect((await state(page)).game.speed).toBe(145); // Three-second warm-up.
     await page.screenshot({ path: `docs/gravity-${id}.png` });
     await page.keyboard.press("Escape");
     const paused = (await state(page)).game;

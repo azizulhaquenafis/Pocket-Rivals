@@ -133,7 +133,9 @@ export class GolfPhysics {
         dist > (f.core ?? 0) + 8 &&
         (!f.movingOnly || !this.stopped)
       ) {
-        const force = f.strength * (f.quadratic ? (1 - dist / f.r) ** 2 : 1);
+        const t = 1 - dist / f.r;
+        const falloff = f.quadratic ? t * (0.45 + 0.55 * t) : 1;
+        const force = f.strength * falloff;
         b.vx += ((f.x - b.x) / dist) * force * dt;
         b.vy += ((f.y - b.y) / dist) * force * dt;
         if (!f.movingOnly) pushed = true;

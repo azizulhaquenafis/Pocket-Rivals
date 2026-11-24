@@ -17,27 +17,27 @@ test("Pong keyboard moves both players, clamps at edges and clears on pause", as
   page,
 }) => {
   await start(page);
-  await page.keyboard.down("KeyA");
-  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("KeyD");
   await expect
     .poll(async () => (await paddles(page)).map((p) => p.x))
     .toEqual([68, 352]);
-  await page.keyboard.up("KeyA");
-  await page.keyboard.up("ArrowRight");
-  await page.keyboard.down("KeyD");
-  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("KeyD");
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("KeyA");
   await expect
     .poll(async () => (await paddles(page)).map((p) => p.x))
     .toEqual([352, 68]);
   await page.keyboard.press("Escape");
-  await page.keyboard.up("KeyD");
-  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("KeyA");
   await page.getByRole("button", { name: /Keep playing/ }).click();
   await page.waitForTimeout(150);
   expect((await paddles(page)).map((p) => p.x)).toEqual([352, 68]);
-  await page.keyboard.down("KeyA");
+  await page.keyboard.down("ArrowLeft");
   await expect.poll(async () => (await paddles(page))[0].x).toBeLessThan(300);
-  await page.keyboard.up("KeyA");
+  await page.keyboard.up("ArrowLeft");
   await page.waitForTimeout(80);
   const stopped = (await paddles(page))[0].x;
   await page.waitForTimeout(150);

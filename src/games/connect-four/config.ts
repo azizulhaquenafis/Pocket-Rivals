@@ -6,7 +6,7 @@ export default {
   name: "Connect Four",
   description: "Drop a piece. Spot a plan.",
   instructions:
-    "Tap a column to drop your piece. Connect four horizontally, vertically or diagonally.",
+    "Tap a column or press 1–7 to drop your piece. Connect four horizontally, vertically or diagonally.",
   color: "#c8e7eb",
   accent: "#82b4c3",
   preview,

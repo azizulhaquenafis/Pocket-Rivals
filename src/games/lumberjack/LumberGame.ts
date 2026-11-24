@@ -31,7 +31,7 @@ export class LumberGame implements MiniGame {
     if (this.ai) this.m = new LumberMatch(this.ai.personality.seed);
     ctx.input.tap((x, y) => {
       if (x < 30 || x > 390 || y < 120 || y > 650) return;
-      const p = y < 380 ? 1 : 0;
+      const p: 0 | 1 = this.ai ? 0 : y < 380 ? 1 : 0;
       this.chop(
         p,
         ((x < 210 ? -1 : 1) * (p === 1 && this.flipped ? -1 : 1)) as Side,
@@ -39,7 +39,7 @@ export class LumberGame implements MiniGame {
     });
     ctx.input.press(["KeyA", "KeyD", "ArrowLeft", "ArrowRight"], (key) =>
       this.chop(
-        key.startsWith("Key") ? 0 : 1,
+        this.ai ? 0 : key.startsWith("Arrow") ? 0 : 1,
         key === "KeyA" || key === "ArrowLeft" ? -1 : 1,
       ),
     );

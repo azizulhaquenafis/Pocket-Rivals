@@ -35,8 +35,14 @@ export class GravityGame implements MiniGame {
       if (x >= 24 && x <= 396 && y >= 112 && y <= 650)
         this.flip(y < 380 ? 1 : 0);
     });
-    ctx.input.press(["Space", "KeyA"], () => this.flip(0));
-    ctx.input.press(["ArrowUp", "Enter", "KeyL"], () => this.flip(1));
+    ctx.input.press(
+      ["Space", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"],
+      () => this.flip(0),
+    );
+    ctx.input.press(["KeyW", "KeyA", "KeyS", "KeyD"], () =>
+      this.flip(this.ai ? 0 : 1),
+    );
+    ctx.input.press(["Enter", "KeyL"], () => this.flip(1));
     ctx.setHint("");
     ctx.setScore(0, 0);
     this.view.reset(this.m);

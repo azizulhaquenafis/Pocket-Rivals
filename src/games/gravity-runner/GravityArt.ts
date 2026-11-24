@@ -201,43 +201,123 @@ export function runners(
     players: { y: number; vy: number; angle: number; landing: number }[];
   },
 ) {
+  const age = view?.age ?? m.age;
   for (const i of [0, 1] as const) {
     const p = m.players[i],
       pose = view?.players[i],
       py = pose?.y ?? p.y,
       pvy = pose?.vy ?? p.vy,
-      color = i === 0 ? theme.orange : theme.blue;
+      color = i === 0 ? theme.orange : theme.blue,
+      shine = i === 0 ? 0xffca94 : 0xa8e0fb,
+      blush = i === 0 ? 0xde7342 : 0x3b8dbe;
     const x = left + Math.max(-22, Math.min(192, py)) * scale,
       y = 548 + (i === 0 ? 12 : -12);
     if (p.alive)
       for (let j = 3; j >= 1; j--)
-        g.fillStyle(color, 0.15 / j).fillCircle(
+        g.fillStyle(color, 0.16 / j).fillCircle(
           x - pvy * j * 0.012,
           y + j * 9,
-          Math.max(1, 3 - j * 0.4),
+          Math.max(1.2, 3.2 - j * 0.45),
         );
     g.save();
     g.translateCanvas(x, y);
-    g.rotateCanvas(
-      pose?.angle ?? (p.gravity === 1 ? -Math.PI / 2 : Math.PI / 2),
-    );
+    const angle =
+      pose?.angle ?? (p.gravity === 1 ? -Math.PI / 2 : Math.PI / 2);
+    g.rotateCanvas(angle);
+    // Keep the runner always facing forward UP the track on both walls!
+    const facing = Math.sin(angle) <= 0 ? 1 : -1;
     const squash = pose?.landing ?? 0;
-    g.scaleCanvas(1 + 0.08 * squash, 1 - 0.1 * squash);
-    const stride = p.alive
-      ? Math.sin((view?.age ?? m.age) * 19 + i) *
-        3 *
-        Math.exp(-Math.abs(pvy) / 65)
-      : 0;
-    g.lineStyle(4, theme.ink)
-      .lineBetween(-4, 6, -5 + stride, 11)
-      .lineBetween(4, 6, 5 - stride, 11);
-    rounded(g, -8, -7, 16, 15, 4, p.alive ? color : 0xaaa99c, 2);
-    circle(g, 0, -12, 7, p.alive ? 0xffd5a8 : 0xc5c3b7, 2);
-    rounded(g, -8, -18, 16, 6, 2, color, 2);
-    rounded(g, -5, -15, 12, 5, 2, 0xf7fbf1, 1);
-    g.fillStyle(theme.ink).fillCircle(3, -12, 1.3);
-    g.lineStyle(2, color).lineBetween(-7, -5, -14, -2 + stride * 0.4);
-    g.lineStyle(3, theme.ink).lineBetween(6, -4, 10, -1 + stride * 0.5);
+    g.scaleCanvas(
+      facing * (1 + 0.08 * squash),
+      1 - 0.1 * squash,
+    );
+    const grounded = Math.exp(-Math.abs(pvy) / 95);
+    const phase = age * 21 + i * 1.4;
+    const stride = p.alive ? Math.sin(phase) * 4.2 * grounded : 0;
+    const liftA = p.alive ? Math.max(0, -Math.cos(phase)) * 2.4 * grounded : 0;
+    const liftB = p.alive ? Math.max(0, Math.cos(phase)) * 2.4 * grounded : 0;
+    const tailWave = p.alive ? Math.sin(age * 17 + i) * 2.4 : 0;
+
+    // 1. Fluttering white ninja headband tail streaming behind the mascot
+    g.fillStyle(0xfffdf5).fillTriangle(
+      -9,
+      -5.5,
+      -21.5,
+      -8 + tailWave,
+      -19,
+      -1.5 + tailWave * 0.7,
+    );
+    g.lineStyle(2.2, theme.ink).strokeTriangle(
+      -9,
+      -5.5,
+      -21.5,
+      -8 + tailWave,
+      -19,
+      -1.5 + tailWave * 0.7,
+    );
+
+    // 2. Proper articulated pumping legs & rounded runner shoes underneath
+    // Back leg
+    g.lineStyle(4.2, theme.ink).lineBetween(
+      -4,
+      6.5,
+      -5.2 - stride,
+      11.2 - liftA,
+    );
+    g.fillStyle(theme.ink).fillEllipse(
+      -4.2 - stride,
+      12 - liftA,
+      7.2,
+      4.8,
+    );
+    // Front leg
+    g.lineStyle(4.2, theme.ink).lineBetween(
+      4,
+      6.5,
+      5.2 + stride,
+      11.2 - liftB,
+    );
+    g.fillStyle(theme.ink).fillEllipse(
+      6.2 + stride,
+      12 - liftB,
+      7.2,
+      4.8,
+    );
+
+    // 3. Signature chubby Gravity-Runner logo bean body
+    const bodyCol = p.alive ? color : 0xaaa99c;
+    rounded(g, -10, -11.5, 20, 21, 9, bodyCol, 2.5);
+    if (p.alive) {
+      // Glossy top-back highlight strokes matching the preview mascot
+      g.lineStyle(2.4, shine, 0.9)
+        .lineBetween(-6, -8.5, -1, -9.2)
+        .lineBetween(-6.5, 1.5, -6.5, 5.5);
+    }
+
+    // 4. Crisp white ninja headband strapped across the forehead
+    rounded(g, -10, -7.2, 20, 4.4, 1.8, 0xfffdf5, 2);
+
+    // 5. Proper expressive eyes (white sclera + dark pupils + bright shine) + blush + smile
+    if (p.alive) {
+      for (const ex of [0.8, 6.2]) {
+        g.fillStyle(0xfffdf5).fillEllipse(ex, 0.6, 4.6, 5.2);
+        g.lineStyle(1.3, theme.ink, 0.85).strokeEllipse(ex, 0.6, 4.6, 5.2);
+        g.fillStyle(theme.ink).fillCircle(ex + 0.7, 0.7, 1.65);
+        g.fillStyle(0xfffdf5).fillCircle(ex + 1.2, -0.1, 0.65);
+      }
+      g.fillStyle(blush, 0.6).fillEllipse(-2.8, 3.6, 3.8, 2.2);
+      g.lineStyle(1.8, theme.ink).beginPath();
+      g.arc(3.6, 3.8, 2.4, 0.2, Math.PI - 0.2, false);
+      g.strokePath();
+    } else {
+      // Cute X X dizzy eyes when knocked out
+      g.lineStyle(1.8, theme.ink);
+      for (const ex of [0.8, 6.2]) {
+        g.lineBetween(ex - 1.8, -1.2, ex + 1.8, 2.4);
+        g.lineBetween(ex + 1.8, -1.2, ex - 1.8, 2.4);
+      }
+    }
+
     g.restore();
     if (!p.alive) {
       g.lineStyle(3, color, 0.7).strokeCircle(x, y, 19);

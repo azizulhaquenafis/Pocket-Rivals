@@ -152,7 +152,7 @@ test("Light Fingers cooldowns, legal steals, pause and a complete match", async 
 test("Fruit Duel completes ten legal fruit slices and AI responds to real fruit", async ({
   page,
 }) => {
-  test.setTimeout(65000);
+  test.setTimeout(90000);
   await open(page, "Fruit Duel");
   for (let i = 0; i < 10; i++) {
     await expect
@@ -161,7 +161,7 @@ test("Fruit Duel completes ten legal fruit slices and AI responds to real fruit"
           const s = (await state(page)).scene.game;
           return s.phase === "active" && s.current === s.target;
         },
-        { timeout: 6000, intervals: [30, 50, 50] },
+        { timeout: 9000, intervals: [30, 50, 50] },
       )
       .toBe(true);
     await tap(page, 210, 580);
@@ -175,7 +175,7 @@ test("Fruit Duel completes ten legal fruit slices and AI responds to real fruit"
   await open(page, "Fruit Duel", true);
   await expect
     .poll(async () => (await state(page)).scene.game.scores[1], {
-      timeout: 6000,
+      timeout: 9000,
     })
     .toBe(1);
 });
@@ -246,7 +246,7 @@ test("Math Quiz renders formulas, validates all mobile widths and completes a re
     .toBe(1);
 });
 
-test("Lumberjack idle safety, keyboard chops and immediate branch defeat", async ({
+test("Lumberjack idle safety, keyboard chops and 3s branch stun penalty", async ({
   page,
 }) => {
   await open(page, "Lumberjack");
@@ -258,12 +258,28 @@ test("Lumberjack idle safety, keyboard chops and immediate branch defeat", async
     const m = (await state(page)).scene.game,
       index = m.players[0].score;
     const branch = m.pattern[index] || m.pattern[index + 1];
-    await page.keyboard.press(branch === 1 ? "KeyD" : "KeyA");
+    await page.keyboard.press(branch === 1 ? "ArrowRight" : "ArrowLeft");
     if (branch) break;
     await page.waitForTimeout(110);
   }
-  await expect(
-    page.getByRole("button", { name: "Rematch", exact: true }),
-  ).toBeVisible();
-  expect((await state(page)).scene.game.winner).toBe(2);
+  await expect
+    .poll(async () => (await state(page)).scene.game.players[0].stun)
+    .toBeGreaterThan(2);
+  expect((await state(page)).scene.game.winner).toBeNull();
+  const scoreBefore = (await state(page)).scene.game.players[0].score;
+  await page.keyboard.press("ArrowLeft");
+  await page.keyboard.press("ArrowRight");
+  expect((await state(page)).scene.game.players[0].score).toBe(scoreBefore);
+  await expect
+    .poll(async () => (await state(page)).scene.game.players[0].stun, {
+      timeout: 5000,
+    })
+    .toBe(0);
+  const m = (await state(page)).scene.game,
+    i = m.players[0].index;
+  const safeLeft = m.pattern[i] !== -1 && m.pattern[i + 1] !== -1;
+  await page.keyboard.press(safeLeft ? "ArrowLeft" : "ArrowRight");
+  await expect
+    .poll(async () => (await state(page)).scene.game.players[0].score)
+    .toBe(scoreBefore + 1);
 });

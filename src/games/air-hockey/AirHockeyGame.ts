@@ -167,19 +167,20 @@ export class AirHockey implements MiniGame {
   private malletTarget(player: 0 | 1, step: number): Vec {
     const pointer = this.ctx.input.players[player];
     if (pointer.down) return pointer;
-    const arrows = player === 1 || !!this.ai;
+    const arrows = player === 0;
+    const wasd = player === 1 || !!this.ai;
     const up =
-      (player === 0 && this.keys.has("KeyW")) ||
-      (arrows && this.keys.has("ArrowUp"));
+      (arrows && this.keys.has("ArrowUp")) ||
+      (wasd && this.keys.has("KeyW"));
     const down =
-      (player === 0 && this.keys.has("KeyS")) ||
-      (arrows && this.keys.has("ArrowDown"));
+      (arrows && this.keys.has("ArrowDown")) ||
+      (wasd && this.keys.has("KeyS"));
     const left =
-      (player === 0 && this.keys.has("KeyA")) ||
-      (arrows && this.keys.has("ArrowLeft"));
+      (arrows && this.keys.has("ArrowLeft")) ||
+      (wasd && this.keys.has("KeyA"));
     const right =
-      (player === 0 && this.keys.has("KeyD")) ||
-      (arrows && this.keys.has("ArrowRight"));
+      (arrows && this.keys.has("ArrowRight")) ||
+      (wasd && this.keys.has("KeyD"));
     let vx = Number(right) - Number(left);
     let vy = Number(down) - Number(up);
     const m = this.world.mallets[player];

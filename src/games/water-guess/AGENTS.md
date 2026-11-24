@@ -6,6 +6,6 @@ The 310-unit tube height is shared through Geometry.ts. Impossible estimates the
 
 Use the playfield background for the active player, with no tube ticks or empty glass foot and a compact round counter and no repeated turn/status instructions. TurnView rotates the full local Blue field and keypad; map pointer coordinates through its inverse and reject input during transitions. AI guesses only after its foreground preparation delay.
 
-Round reveal shows only the actual integer percentage on the winner-colored field. No bottle, guess comparisons or explanatory labels during reveal.
+Round reveal shows only the actual integer percentage on the winner-colored field. No bottle, guess comparisons or explanatory labels during reveal. Exact 0-error perfect guesses add a radiant golden glow/sparkle animation behind the revealed percentage and play the perfect chime.
 
-Local mobile reveals face the round winner; ties preserve the current reader. Desktop and AI remain upright. Reveal time starts once turning finishes; only Enter/Space or a deliberate field tap can continue after the reading delay. Disable/dim the keypad during filling, rotation and AI wait. Stray digit presses must not skip results.
+Local mobile reveals face the round winner; ties preserve the current reader. Desktop and AI remain upright. Reveal time starts once turning finishes; only Enter/Space or a deliberate field tap can continue after the reading delay. Disable/dim the keypad during filling, rotation and AI wait. Stray digit presses must not skip results. Static board/keypad graphics stay cached across frames so mobile TurnView transitions stay smooth.

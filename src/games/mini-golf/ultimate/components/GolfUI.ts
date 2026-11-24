@@ -41,15 +41,17 @@ export class GolfUI {
     this.footer.innerHTML = "";
   }
   playing(competitive = false) {
+    (document.activeElement as HTMLElement | null)?.blur?.();
     this.field.replaceChildren(this.toast, this.power, this.opponent);
     this.toast.hidden = this.power.hidden = this.opponent.hidden = true;
     this.footer.innerHTML = `<button data-action="courses">Courses</button><button data-action="focus">Focus</button><button data-action="retry">${competitive ? "Forfeit" : "Retry"}</button>`;
   }
   focus(active: boolean) {
-    const b = this.footer.querySelector("[data-action=focus]");
+    const b = this.footer.querySelector<HTMLButtonElement>("[data-action=focus]");
     if (b) {
       b.textContent = active ? "Full course" : "Focus";
       b.setAttribute("aria-pressed", String(active));
+      b.blur();
     }
   }
   message(text: string) {
@@ -66,10 +68,36 @@ export class GolfUI {
     if (this.opponent.textContent !== text) this.opponent.textContent = text;
     this.opponent.hidden = !text;
   }
-  help(text: string, closeLabel = "Back to play") {
+  help(
+    text: string,
+    closeLabel = "Back to play",
+    legend?: ReadonlyArray<{ swatch: string; label: string; detail: string }>,
+  ) {
+    this.closeHelp();
     const panel = document.createElement("section");
     panel.className = "golf-panel help";
-    panel.innerHTML = `<h2>How to play</h2><p>${text}</p><p>Pull back anywhere on the course, then release. Use Focus for a closer view.</p><button data-action="close-help">${closeLabel}</button>`;
+    const items = legend?.length
+      ? `<div class="golf-legend">${legend
+          .map(
+            (item) =>
+              `<div class="golf-legend-item"><span class="golf-swatch" style="background:${item.swatch}"></span><span><strong>${item.label}</strong><small>${item.detail}</small></span></div>`,
+          )
+          .join("")}</div>`
+      : "";
+    panel.innerHTML = `<h2>How to play</h2><p>${text}</p>${items}<p>Drag back anywhere and release to putt, or use Arrow keys to aim and hold Space for power.</p><button data-action="close-help">${closeLabel}</button>`;
+    this.field.append(panel);
+  }
+  confirm(
+    heading: string,
+    body: string,
+    cancelLabel: string,
+    confirmAction: string,
+    confirmLabel: string,
+  ) {
+    this.closeHelp();
+    const panel = document.createElement("section");
+    panel.className = "golf-panel help";
+    panel.innerHTML = `<h2>${heading}</h2><p>${body}</p><div class="golf-actions"><button data-action="close-help">${cancelLabel}</button><button class="golf-primary" data-action="${confirmAction}">${confirmLabel}</button></div>`;
     this.field.append(panel);
   }
   closeHelp() {

@@ -2,24 +2,28 @@ import type Phaser from "phaser";
 import { theme } from "../../core/ThemeManager";
 import { rounded, circle } from "../../shared/components/drawing";
 import { turnBackground } from "../../shared/components/TurnView";
-import type { PenMatch } from "./PenRules";
-import type { Pen } from "./PenPhysics";
+import { powerLimit, shotFromPull, type PenMatch } from "./PenRules";
+import { DESK, type Pen } from "./PenPhysics";
 export interface Aim {
   x: number;
   y: number;
   dx: number;
   dy: number;
   offset: number;
+  path?: { x: number; y: number }[];
 }
 export function drawPen(
   g: Phaser.GameObjects.Graphics,
   p: Pen,
   player: number,
+  active = false,
 ) {
   g.save();
   g.translateCanvas(p.x, p.y);
   g.rotateCanvas(p.a);
   const color = player === 0 ? theme.orange : theme.blue;
+  if (active)
+    g.lineStyle(1.5, color, 0.8).strokeRoundedRect(-46, -15, 92, 28, 14);
   rounded(g, -40, -6, 80, 16, 8, theme.ink, 0);
   rounded(g, -40, -9, 80, 16, 8, color, 2.5);
   rounded(g, -40, -9, 21, 16, 6, theme.paper, 2.5);
@@ -54,6 +58,29 @@ export function drawDesk(
   g.lineStyle(1.5, 0xc8ad88, 0.55);
   for (let y = 224; y < 570; y += 69) g.lineBetween(53, y, 367, y);
   g.lineStyle(1, theme.white, 0.4).strokeRoundedRect(48, 185, 324, 402, 11);
+  const { left, right, top, bottom } = match.desk;
+  if (left > DESK.left) {
+    g.fillStyle(0xaf5535, 0.17)
+      .fillRect(DESK.left, DESK.top, left - DESK.left, DESK.bottom - DESK.top)
+      .fillRect(right, DESK.top, DESK.right - right, DESK.bottom - DESK.top)
+      .fillRect(left, DESK.top, right - left, top - DESK.top)
+      .fillRect(left, bottom, right - left, DESK.bottom - bottom);
+    g.lineStyle(2, 0x85513c).strokeRect(left, top, right - left, bottom - top);
+  }
+  const shrink = match.nextShrink;
+  if (
+    shrink &&
+    shrink.inFlicks <= 2 &&
+    (match.phase === "aim" || match.phase === "moving")
+  ) {
+    const next = shrink.desk;
+    g.lineStyle(2, 0xb35836, 0.48).strokeRect(
+      next.left,
+      next.top,
+      next.right - next.left,
+      next.bottom - next.top,
+    );
+  }
   for (const p of bodies) {
     if (!p.out) continue;
     g.fillStyle(theme.ink, 0.12).fillEllipse(
@@ -73,47 +100,23 @@ export function drawDesk(
       if (t < 1) drawPen(g, { ...p, x: 0, y: t * 26 }, i);
       g.restore();
     } else {
-      if (match.phase === "aim" && match.turn === i) {
-        g.lineStyle(2, i === 0 ? theme.orange : theme.blue, 0.8).strokeCircle(
-          p.x,
-          p.y,
-          49,
-        );
-        circle(g, p.x, p.y + 30, 3, i === 0 ? theme.orange : theme.blue, 0);
-      }
-      drawPen(g, p, i);
+      drawPen(g, p, i, match.phase === "aim" && match.turn === i);
     }
   }
   if (aim) {
-    const length = Math.hypot(aim.dx, aim.dy),
-      power = Math.min(1, length / 118),
-      angle = Math.atan2(aim.dy, aim.dx);
-    const endX = aim.x + Math.cos(angle) * (22 + power * 82),
-      endY = aim.y + Math.sin(angle) * (22 + power * 82);
-    g.lineStyle(4, theme.ink, 0.18).lineBetween(aim.x, aim.y, endX, endY);
-    g.lineStyle(3, theme.white).lineBetween(aim.x, aim.y, endX, endY);
-    g.lineStyle(3, theme.ink)
-      .lineBetween(
-        endX,
-        endY,
-        endX - Math.cos(angle - 0.55) * 10,
-        endY - Math.sin(angle - 0.55) * 10,
-      )
-      .lineBetween(
-        endX,
-        endY,
-        endX - Math.cos(angle + 0.55) * 10,
-        endY - Math.sin(angle + 0.55) * 10,
-      );
     circle(g, aim.x, aim.y, 5, theme.white, 2);
-    rounded(g, 158, 615, 104, 8, 4, theme.white, 1.5);
-    if (power > 0.01)
-      g.fillStyle(match.turn === 0 ? theme.orange : theme.blue).fillRoundedRect(
-        160,
-        617,
-        100 * power,
-        4,
-        2,
-      );
+    const shot = shotFromPull(aim.dx, aim.dy, aim.offset);
+    if (!shot) return;
+    const color = match.turn === 0 ? theme.orange : theme.blue;
+    const power = Math.min(shot.power, powerLimit(match.shots));
+    for (const point of aim.path ?? [])
+      circle(g, point.x, point.y, 2.5, theme.white, 1.2);
+    rounded(g, 158, 613, 104, 9, 4, theme.white, 1.5);
+    g.fillStyle(color).fillRoundedRect(160, 615, 100 * power, 5, 2);
+    const limit = powerLimit(match.shots);
+    if (limit < 1) {
+      const x = 160 + 100 * limit;
+      g.lineStyle(1.5, theme.ink).lineBetween(x, 614, x, 621);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { OrbitWorld } from "../../src/arcade/orbit-hop/Rules";
+import { PLANET_TYPES } from "../../src/arcade/orbit-hop/Planets";
 const tiers = ["medium", "hard", "impossible"] as const;
 const rng = (seed: number) => () =>
   (seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32;
@@ -90,11 +91,97 @@ describe("Orbit Hop gravity journey", () => {
     },
     30000,
   );
-  it("flight previews cannot mutate live state", () => {
+  it("flight previews cannot mutate live state and respond smoothly to angle interpolation", () => {
     const w = new OrbitWorld(rng(51), "medium");
     const before = JSON.stringify(w);
     const first = w.preview();
+    expect(first.length).toBeGreaterThan(4);
     expect(first).toEqual(w.preview());
+    const nudged = w.preview(w.angle - 0.015);
+    expect(nudged).not.toEqual(first);
     expect(JSON.stringify(w)).toBe(before);
+  });
+  it("offers 25 distinct planet types with varying volume, density, halo reach and fair gravity pull", () => {
+    expect(PLANET_TYPES.length).toBeGreaterThanOrEqual(20);
+    expect(PLANET_TYPES.length).toBeLessThanOrEqual(30);
+    expect(new Set(PLANET_TYPES.map((p) => p.id)).size).toBe(
+      PLANET_TYPES.length,
+    );
+    expect(new Set(PLANET_TYPES.map((p) => p.name)).size).toBe(
+      PLANET_TYPES.length,
+    );
+    const byKind = new Map<string, typeof PLANET_TYPES[number][]>();
+    for (const p of PLANET_TYPES) {
+      const list = byKind.get(p.kind) ?? [];
+      list.push(p);
+      byKind.set(p.kind, list);
+    }
+    expect([...byKind.keys()].sort()).toEqual([
+      "dense",
+      "feather",
+      "giant",
+      "super",
+      "terran",
+    ]);
+    const avg = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+    const featherPull = avg(byKind.get("feather")!.map((p) => p.pull));
+    const densePull = avg(byKind.get("dense")!.map((p) => p.pull));
+    const giantVol = avg(byKind.get("giant")!.map((p) => p.volume));
+    const denseVol = avg(byKind.get("dense")!.map((p) => p.volume));
+    const giantField = avg(byKind.get("giant")!.map((p) => p.field));
+    const featherField = avg(byKind.get("feather")!.map((p) => p.field));
+    expect(densePull).toBeGreaterThan(featherPull * 1.5);
+    expect(giantVol).toBeGreaterThan(denseVol * 1.25);
+    expect(giantField).toBeGreaterThan(featherField * 1.2);
+    // Verify real gravityAt differs meaningfully between a Feather Moon and an Iron Core.
+    const w = new OrbitWorld(rng(9), "medium");
+    const feather = PLANET_TYPES.find((p) => p.id === "pumice")!;
+    const dense = PLANET_TYPES.find((p) => p.id === "iron")!;
+    w.planets = [
+      {
+        id: 1,
+        x: 210,
+        y: 350,
+        r: w.tuning.radius * feather.volume,
+        type: feather.id,
+        kind: feather.kind,
+        volume: feather.volume,
+        density: feather.density,
+        pull: feather.pull,
+        field: feather.field,
+      },
+    ];
+    const gFeather = Math.abs(
+      w.gravityAt(210 + w.planets[0].r + 12, 350, 1).x,
+    );
+    w.planets = [
+      {
+        id: 1,
+        x: 210,
+        y: 350,
+        r: w.tuning.radius * dense.volume,
+        type: dense.id,
+        kind: dense.kind,
+        volume: dense.volume,
+        density: dense.density,
+        pull: dense.pull,
+        field: dense.field,
+      },
+    ];
+    const gDense = Math.abs(w.gravityAt(210 + w.planets[0].r + 12, 350, 1).x);
+    expect(gDense).toBeGreaterThan(gFeather * 1.5);
+  });
+  it("records smooth miss drift telemetry including final game-over state", () => {
+    const w = new OrbitWorld(rng(11), "medium");
+    for (let life = 3; life >= 1; life--) {
+      for (let i = 0; i < 60; i++) w.step(1 / 120);
+      expect(w.launch()).toBe(true);
+      w.ball = { x: 25, y: 300, vx: -180, vy: -40 };
+      w.step(1 / 120);
+      expect(w.lastMiss).not.toBeNull();
+      expect(w.lastMiss!.final).toBe(life === 1);
+      expect(w.lives).toBe(life - 1);
+      expect(w.done).toBe(life === 1);
+    }
   });
 });

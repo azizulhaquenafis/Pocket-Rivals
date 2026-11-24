@@ -4,10 +4,10 @@ import { FixedStep } from "../../shared/physics/FixedStep";
 import { MatchRandom, freshSeed } from "../../shared/ai/MatchRandom";
 import { WorkerTask } from "../../shared/utilities/WorkerTask";
 import { label } from "../../shared/components/drawing";
-import { PenMatch } from "./PenRules";
+import { PenMatch, previewFlick, shotFromPull } from "./PenRules";
 import { HALF, touchDistance, type Pen, type Shot } from "./PenPhysics";
 import { drawDesk, type Aim } from "./PenArt";
-import type { Plan, PlanInput } from "./PenAI";
+import { fallbackShot, type Plan, type PlanInput } from "./PenAI";
 export class PenGame implements MiniGame {
   private ctx!: GameContext;
   private match = new PenMatch();
@@ -44,7 +44,7 @@ export class PenGame implements MiniGame {
     this.mask = this.clip.createGeometryMask();
     this.g.setMask(this.mask);
     this.title = label(ctx.scene, 210, 145, "ROUND 1", 12);
-    this.status = label(ctx.scene, 210, 627, "", 12);
+    this.status = label(ctx.scene, 210, 637, "", 12);
     this.previous = this.match.bodies.map((p) => ({ ...p })) as [Pen, Pen];
     if (ctx.options.mode === "ai")
       this.worker = new WorkerTask(
@@ -83,6 +83,7 @@ export class PenGame implements MiniGame {
         if (this.aim && this.grab) {
           this.aim.dx = this.grab.x - x;
           this.aim.dy = this.grab.y - y;
+          this.aim.path = undefined;
         }
       },
       (x, y) => {
@@ -91,15 +92,8 @@ export class PenGame implements MiniGame {
         this.aim = null;
         this.grab = null;
         if (!a || !grab || this.paused) return;
-        const dx = grab.x - x,
-          dy = grab.y - y,
-          distance = Math.hypot(dx, dy);
-        if (distance < 9) return;
-        this.shoot({
-          angle: Math.atan2(dy, dx),
-          power: Math.min(1, distance / 118),
-          offset: a.offset,
-        });
+        const shot = shotFromPull(grab.x - x, grab.y - y, a.offset);
+        if (shot) this.shoot(shot);
       },
       () => {
         this.aim = null;
@@ -142,6 +136,7 @@ export class PenGame implements MiniGame {
         bodies: m.bodies.map((p) => ({ ...p })),
         difficulty: this.ctx.options.difficulty,
         seed: this.random.turnSeed(serial),
+        completed: m.shots,
       })
       .then((result) => {
         if (
@@ -153,13 +148,7 @@ export class PenGame implements MiniGame {
           return;
         this.pending = false;
         this.candidates = result?.candidates ?? 0;
-        const own = m.bodies[1],
-          rival = m.bodies[0];
-        this.planned = result?.shot ?? {
-          angle: Math.atan2(rival.y - own.y, rival.x - own.x),
-          power: 0.7,
-          offset: 0,
-        };
+        this.planned = result?.shot ?? fallbackShot(m.bodies, 1, m.shots);
       });
   }
   update(dt: number) {
@@ -202,6 +191,12 @@ export class PenGame implements MiniGame {
     this.ctx.setScore(...m.scores);
     this.draw();
     if (m.winner !== null) {
+      if (this.pending) {
+        this.worker?.cancel();
+        this.pending = false;
+      }
+      this.aim = null;
+      this.grab = null;
       this.endAge += Math.min(dt, 0.1);
       if (this.endAge > 0.9) {
         this.reported = true;
@@ -219,22 +214,43 @@ export class PenGame implements MiniGame {
       y: this.previous[i].y + (p.y - this.previous[i].y) * t,
       a: this.previous[i].a + (p.a - this.previous[i].a) * t,
     }));
+    if (this.aim && !this.aim.path) {
+      const shot = shotFromPull(this.aim.dx, this.aim.dy, this.aim.offset);
+      this.aim.path = shot ? previewFlick(m.bodies, m.turn, shot, m.shots) : [];
+    }
     drawDesk(this.g, m, bodies, this.aim, this.fallAge);
-    this.title.setText(`ROUND ${m.round} · FIRST TO 3`);
-    this.status.setText(
-      m.winner === "draw"
-        ? "DRAW"
-        : m.phase === "between" || m.phase === "done"
-          ? m.roundWinner === "draw"
-            ? "EVEN SHOT · REPLAY"
-            : m.roundWinner === 0
-              ? "ORANGE TAKES IT"
-              : "BLUE TAKES IT"
-          : this.pending && this.wait > 0.45
-            ? "…"
-            : "",
-    );
+    const title = `ROUND ${m.round} · FIRST TO 3`;
+    const status = this.statusText();
+    if (this.title.text !== title) this.title.setText(title);
+    if (this.status.text !== status) this.status.setText(status);
   }
+
+  private statusText() {
+    const m = this.match;
+    const player = m.turn === 0 ? "ORANGE" : this.worker ? "AI" : "BLUE";
+    if (m.phase === "between" || m.phase === "done") {
+      if (m.winner === "draw") return "MATCH DRAW";
+      if (m.roundWinner === "draw")
+        return m.roundReason === "double-out"
+          ? "DOUBLE OUT · REPLAY"
+          : "EVEN ROUND · REPLAY";
+      const winner = m.roundWinner ?? (m.winner === 1 ? 0 : 1);
+      const color = winner === 0 ? "ORANGE" : "BLUE";
+      if (m.roundReason === "pressure") return `${color} WINS ON PRESSURE`;
+      if (m.roundReason === "smaller-desk")
+        return `EDGE CLOSES · ${color} WINS`;
+      return `${color} TAKES IT`;
+    }
+    const shrink = m.nextShrink;
+    if (shrink && shrink.inFlicks <= 2)
+      return `EDGE CLOSES IN ${shrink.inFlicks} ${shrink.inFlicks === 1 ? "FLICK" : "FLICKS"}`;
+    if (m.phase === "moving") return "SETTLING";
+    if (m.shots < 2) return `${player} · OPENING FLICK`;
+    if (m.flicksLeft <= 4)
+      return `${player} · PRESSURE ${Math.round(m.pressure[0])}–${Math.round(m.pressure[1])}`;
+    return `${player} TO FLICK`;
+  }
+
   pause() {
     this.paused = true;
     this.aim = null;

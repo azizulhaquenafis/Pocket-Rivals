@@ -20,6 +20,7 @@ export type Sound =
   | "perfect"
   | "slice"
   | "thud"
+  | "damage"
   | "clockTick"
   | "clockStop";
 /** Original procedural one-shots: created on demand, no soundtrack or audio downloads. */
@@ -34,6 +35,12 @@ const effects: Record<
     gain: 0.035,
   },
   thud: { notes: [110, 65], wave: "triangle", duration: 0.075, gain: 0.13 },
+  damage: {
+    notes: [360, 240, 140],
+    wave: "sawtooth",
+    duration: 0.13,
+    gain: 0.11,
+  },
   clockTick: { notes: [1550], wave: "triangle", duration: 0.018, gain: 0.045 },
   clockStop: {
     notes: [820, 520],

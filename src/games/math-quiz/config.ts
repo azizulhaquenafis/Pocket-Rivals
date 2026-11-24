@@ -1,2 +1,20 @@
-import type {GameMetadata} from '../../shared/contracts/GameModule';import preview from './assets/preview.svg?raw';
-export default {id:'math-quiz',name:'Math Quiz',description:'Quick minds. Friendly competition.',instructions:'Both players see the same question and three answers. First correct answer earns a point; a wrong answer gives your rival a point. Same-frame answers replay. First to ten. Orange: 1/2/3. Blue: 7/8/9. University answers use a validated question bank, not a symbolic AI.',color:'#dce7f2',accent:'#a4bad3',preview,order:12,tag:'THINK FAST',variants:[{id:'basic',name:'Basic Arithmetic',description:''},{id:'university',name:'University Challenge',description:''}],supportedModes:['local-two-player','single-player'],tournament:true} satisfies GameMetadata;
+import type { GameMetadata } from "../../shared/contracts/GameModule";
+import preview from "./assets/preview.svg?raw";
+export default {
+  id: "math-quiz",
+  name: "Math Quiz",
+  description: "Quick minds. Friendly competition.",
+  instructions:
+    "Both players see the same question and three answers. First correct answer earns a point; a wrong answer gives your rival a point. Same-frame answers replay. First to ten. Orange: ←/↓/→ (or 1/2/3). Blue: A/S/D. University answers use a validated question bank, not a symbolic AI.",
+  color: "#dce7f2",
+  accent: "#a4bad3",
+  preview,
+  order: 12,
+  tag: "THINK FAST",
+  variants: [
+    { id: "basic", name: "Basic Arithmetic", description: "" },
+    { id: "university", name: "University Challenge", description: "" },
+  ],
+  supportedModes: ["local-two-player", "single-player"],
+  tournament: true,
+} satisfies GameMetadata;

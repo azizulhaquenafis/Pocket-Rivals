@@ -3,6 +3,26 @@ import { QuizMatch } from "./Rules";
 import { QuizAI } from "./AI";
 import { MathUI } from "./MathUI";
 import { matchQuestions } from "./questions/MatchQuestions";
+
+const P1_KEYS = new Map<string, number>([
+  ["ArrowLeft", 0],
+  ["ArrowDown", 1],
+  ["ArrowRight", 2],
+  ["Digit1", 0],
+  ["Digit2", 1],
+  ["Digit3", 2],
+  ["Numpad1", 0],
+  ["Numpad2", 1],
+  ["Numpad3", 2],
+]);
+const P2_KEYS = new Map<string, number>([
+  ["KeyA", 0],
+  ["KeyS", 1],
+  ["KeyD", 2],
+  ["Digit7", 0],
+  ["Digit8", 1],
+  ["Digit9", 2],
+]);
 export class MathGame implements MiniGame {
   private ctx!: GameContext;
   private m!: QuizMatch;
@@ -20,16 +40,21 @@ export class MathGame implements MiniGame {
     this.ui = new MathUI(!this.ai, (p, i) => {
       if (!this.paused && !(p === 1 && this.ai)) this.m.answer(p, i);
     });
-    ctx.input.press(
-      ["Digit1", "Digit2", "Digit3", "Digit7", "Digit8", "Digit9"],
-      (code) => {
-        const n = Number(code.at(-1));
-        if (!this.paused && !(n >= 7 && this.ai))
-          this.m.answer(n >= 7 ? 1 : 0, n >= 7 ? n - 7 : n - 1);
-      },
-    );
+    ctx.input.press([...P1_KEYS.keys(), ...P2_KEYS.keys()], (code) => {
+      if (this.paused) return;
+      const p1 = P1_KEYS.get(code);
+      if (p1 !== undefined) {
+        this.m.answer(0, p1);
+        return;
+      }
+      const p2 = P2_KEYS.get(code);
+      if (p2 !== undefined) {
+        if (this.ai && code.startsWith("Key")) this.m.answer(0, p2);
+        else if (!this.ai) this.m.answer(1, p2);
+      }
+    });
     ctx.setScore(0, 0);
-    ctx.setHint("SAME QUESTION. THREE ANSWERS. ONE QUICK MIND.");
+    ctx.setHint("");
     ctx.audio.play("start");
     this.ui.render(this.m, !!this.ai);
     this.m.present();
@@ -74,6 +99,7 @@ export class MathGame implements MiniGame {
       question: this.m.question,
       scores: [...this.m.scores],
       round: this.m.round,
+      roundWinner: this.m.roundWinner,
       time: this.m.time,
       winner: this.m.winner,
       ai: this.ai?.snapshot(),

@@ -116,27 +116,22 @@ it("Pinball rebounds, flipper impulses, multiball and loss use actual balls", ()
   expect(w.done).toBe(true);
   expect(w.lives).toBe(0);
 });
-it("Color rings enforce the visible color, checkpoint progress and three lives", () => {
-  const w = new ColorWorld();
-  w.angle = 0;
-  w.y = w.center + 75;
-  w.color = 2;
-  w.step(1 / 120);
-  expect(w.lives).toBe(2);
-  expect(w.grace).toBeGreaterThan(0);
-  w.grace = 0;
-  // Match the interior of a colored arc, not the seam touched by two colors.
-  w.angle = Math.PI / 4;
-  w.y = w.center + 75;
-  w.color = w.ringColor(w.y);
-  w.step(1 / 120);
-  expect(w.lives).toBe(2);
-  w.y = w.center - 96;
-  w.vy = -100;
-  w.step(1 / 120);
-  expect(w.level).toBe(2);
-  expect(w.score).toBe(100);
+it("Color rings cost a life on visible wrong-color contact and end after three hits", () => {
+  const w = new ColorWorld("impossible");
+  for (let lives = 3; lives > 0; lives--) {
+    for (let i = 0; i < 90; i++) w.step(1 / 120);
+    const obstacle = w.obstacle();
+    const side = obstacle.phase >= 0 ? 1 : -1;
+    w.x = 210 + side * (w.settings.lane / 2);
+    w.y = obstacle.center + Math.sqrt(obstacle.extent ** 2 - (w.x - 210) ** 2);
+    w.hop();
+    w.step(1 / 120);
+    expect(w.lives).toBe(lives - 1);
+    expect(w.score).toBe(0);
+  }
+  expect(w.done).toBe(true);
 });
+
 it("all eight Slide Escape layouts have a verified legal solution, undo and replay", () => {
   const starts = new Set<string>();
   for (let level = 0; level < 8; level++) {

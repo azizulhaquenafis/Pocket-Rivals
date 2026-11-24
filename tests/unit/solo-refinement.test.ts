@@ -30,27 +30,6 @@ it.each(tiers)(
   },
 );
 it.each(tiers)(
-  "%s: new rings stop momentum, protect the transition and settle above center",
-  (tier) => {
-    const w = new ColorWorld(tier);
-    for (let ring = 0; ring < 12; ring++) {
-      w.y = w.center - 96;
-      w.vy = -235;
-      w.step(1 / 120);
-      expect(w.transition).toBeGreaterThan(0);
-      const level = w.level;
-      for (let i = 0; i < 85; i++) {
-        w.hop();
-        w.step(1 / 120);
-      }
-      expect(w.level).toBe(level);
-      expect(w.lives).toBe(3);
-      expect(w.center + w.camera).toBeCloseTo(350, 4);
-      expect(w.y + w.camera).toBeGreaterThan(540);
-    }
-  },
-);
-it.each(tiers)(
   "%s: 30 seeded climber routes have reachable jumps and bounded hazards",
   (tier) => {
     for (let seed = 0; seed < 30; seed++) {
@@ -86,16 +65,19 @@ it("climber rocks telegraph before lethal contact; fragile ledges disappear afte
   for (let i = 0; i < 60; i++) c.step(1 / 120, 0);
   expect(c.platforms[0].crumble).toBeGreaterThan(0.45);
 });
-it("tiers change orbit speed, ring speed, tower speed, pour flow and ledge clearance", () => {
+it("tiers change orbit speed, obstacle sweep speed, tower speed, pour flow and ledge clearance", () => {
   const metrics = tiers.map((tier) => {
     const o = new OrbitWorld(rng(5), tier);
     o.step(0.1);
     const t = new TowerWorld(tier);
     t.step(0.1);
     const c = new ClimberWorld(rng(1), tier);
+    const color = new ColorWorld(tier);
+    const start = color.obstacle().phase;
+    color.step(0.1);
     return [
       Math.abs(o.angle),
-      new ColorWorld(tier).speed,
+      Math.abs(color.obstacle().phase - start),
       t.moving.x,
       new PourWorld(tier).flow,
       -c.platforms[1].width,
@@ -135,17 +117,21 @@ it.each(tiers)(
   },
 );
 
-it("Color transition camera moves monotonically without a first-frame reversal", () => {
+it("Color camera eases toward the high point while the ball falls", () => {
   const w = new ColorWorld();
-  w.y = w.center - 96;
-  w.vy = -235;
-  let previous = w.camera;
-  for (let i = 0; i < 100; i++) {
+  for (let tick = 0; tick < 120; tick++) {
+    if (tick % 24 === 0) w.hop();
     w.step(1 / 120);
-    expect(w.camera).toBeGreaterThanOrEqual(previous);
-    previous = w.camera;
   }
-  expect(w.center + w.camera).toBeCloseTo(350);
+  expect(w.camera).toBeGreaterThan(0);
+  while (w.vy < 0) w.step(1 / 120);
+  const atPeak = w.camera;
+  const target = 410 - w.y;
+  for (let i = 0; i < 20; i++) w.step(1 / 120);
+  expect(w.vy).toBeGreaterThan(0);
+  expect(w.camera).toBeGreaterThan(atPeak);
+  expect(w.camera).toBeLessThanOrEqual(target + 1);
+  expect(w.lives).toBe(3);
 });
 
 it("Star Patrol tiers increase real movement/projectile speed and shorten the warning", async () => {

@@ -121,13 +121,18 @@ test("golf mouse aiming, footer spacing and landscape cleanup", async ({
     expect((await state(page)).scene.children).toBeLessThan(30);
   }
 });
-test("golf local handoff, real AI shots and clean rematches", async ({
+test("golf local handoff, 1P/2P mode picker and clean rematches", async ({
   page,
 }) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await open(page);
-  await page.getByRole("button", { name: /2 Player Challenge/ }).click();
+  // 1 Player vs AI has been removed; only 1 Player (Casual) and 2 Players appear
+  await expect(page.getByRole("button", { name: /1 Player vs AI/ })).toHaveCount(
+    0,
+  );
+  await expect(page.locator(".golf-mode")).toHaveCount(2);
+  await page.getByRole("button", { name: /2 Players/ }).click();
   await page.getByRole("button", { name: /Foundry/ }).click();
   await page
     .getByRole("button", { name: "Start attempt", exact: true })
@@ -156,22 +161,6 @@ test("golf local handoff, real AI shots and clean rematches", async ({
   await expect(
     page.getByRole("heading", { name: "Player 1, ready?" }),
   ).toBeVisible();
-  await page.getByRole("button", { name: "Golf back", exact: true }).click();
-  await page.getByRole("button", { name: "Golf back", exact: true }).click();
-  await page.getByRole("button", { name: /1 Player vs AI/ }).click();
-  await page.getByRole("button", { name: "Impossible", exact: true }).click();
-  await page.getByRole("button", { name: /Foundry/ }).click();
-  await page
-    .getByRole("button", { name: "Start attempt", exact: true })
-    .click();
-  await expect
-    .poll(
-      async () => (await state(page)).scene.game.competition.opponent.strokes,
-      { timeout: 10000 },
-    )
-    .toBeGreaterThan(0);
-  const moving = (await state(page)).scene.game.competition.opponent;
-  expect(Math.hypot(moving.ball.vx, moving.ball.vy)).toBeGreaterThan(0);
   await page.keyboard.press("Escape");
   const paused = (await state(page)).scene.game;
   await page.waitForTimeout(300);
@@ -262,4 +251,77 @@ test("a complete Temple run uses real touch shots, banks its score and persists 
     .poll(async () => (await state(page)).scene.game?.progress?.[3])
     .toBe(result.progress[3]);
   await cdp.detach();
+});
+
+test("golf keyboard aiming, Space charge/release, cancel, hotkeys and pause safety", async ({
+  page,
+}) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.setViewportSize({ width: 1280, height: 860 });
+  await open(page);
+  await page.getByRole("button", { name: /1 Player Casual/ }).click();
+  await page.getByRole("button", { name: /Foundry/ }).click();
+  await expect
+    .poll(async () => (await state(page)).scene.game.phase)
+    .toBe("playing");
+
+  // Arrow keys activate keyboard targeting and rotate aim cleanly
+  const a0 = (await state(page)).scene.game.keyboard.angle;
+  await page.keyboard.down("ArrowRight");
+  await page.waitForTimeout(220);
+  await page.keyboard.up("ArrowRight");
+  const aimed = (await state(page)).scene.game;
+  expect(aimed.aiming).toBe(true);
+  expect(aimed.keyboard.active).toBe(true);
+  expect(aimed.keyboard.angle).toBeGreaterThan(a0);
+
+  // Hold Space to charge, then press C to cancel without taking a stroke
+  await page.keyboard.down("Space");
+  await page.waitForTimeout(240);
+  expect((await state(page)).scene.game.keyboard.charging).toBe(true);
+  await page.keyboard.press("KeyC");
+  await page.keyboard.up("Space");
+  await page.waitForTimeout(80);
+  expect((await state(page)).scene.game.strokes).toBe(0);
+  expect((await state(page)).scene.game.keyboard.charging).toBe(false);
+
+  // Hold Space, pause with Escape mid-charge, release Space — must NOT fire!
+  await page.keyboard.down("Space");
+  await page.waitForTimeout(200);
+  await page.keyboard.press("Escape");
+  await page.keyboard.up("Space");
+  await page.getByRole("button", { name: /Keep playing/ }).click();
+  await page.waitForTimeout(100);
+  expect((await state(page)).scene.game.strokes).toBe(0);
+
+  // Hold Space to charge and release Space to fire a real putt!
+  await page.keyboard.down("ArrowLeft");
+  await page.waitForTimeout(150);
+  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.down("Space");
+  await page.waitForTimeout(320);
+  const chargedPower = (await state(page)).scene.game.keyboard.power;
+  expect(chargedPower).toBeGreaterThan(0.2);
+  await page.keyboard.up("Space");
+  await expect
+    .poll(async () => (await state(page)).scene.game.strokes)
+    .toBe(1);
+
+  // H toggles help legend, F toggles Focus, and exit leaves zero listeners
+  await page.keyboard.press("KeyH");
+  await expect(page.locator(".golf-legend-item")).toHaveCount(6);
+  await page.waitForTimeout(60);
+  await page.keyboard.press("KeyH");
+  await expect(page.locator(".golf-legend-item")).toHaveCount(0);
+  await page.keyboard.press("KeyF");
+  await expect
+    .poll(async () => (await state(page)).scene.game.view.zoom)
+    .toBeGreaterThan(2);
+  await page.keyboard.press("Escape");
+  await page
+    .getByRole("button", { name: "Back to all games", exact: true })
+    .click();
+  expect((await state(page)).scene.inputListeners).toBe(0);
+  expect(errors).toEqual([]);
 });

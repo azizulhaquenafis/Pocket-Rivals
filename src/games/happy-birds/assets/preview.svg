@@ -1,1 +1,93 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 120"><g stroke="#242b32" stroke-width="3.5" stroke-linejoin="round"><path d="m37 77-17-5 9 16" fill="#f49b58"/><ellipse cx="54" cy="78" rx="25" ry="22" fill="#f49b58"/><path d="m76 72 15 8-16 5" fill="#f6ce78"/><path d="M51 82q-24-23-21 0 9 14 21 0" fill="#fffdf5"/><circle cx="64" cy="70" r="6" fill="#fffdf5"/><path d="m143 36 17-5-9 16" fill="#58addb"/><ellipse cx="126" cy="40" rx="25" ry="22" fill="#58addb"/><path d="m104 35-15 8 16 5" fill="#f6ce78"/><path d="M129 44q24-23 21 0-9 14-21 0" fill="#fffdf5"/><circle cx="116" cy="32" r="6" fill="#fffdf5"/><path d="m112 75 5 10 12 2-9 8 2 12-10-6-11 6 2-12-9-8 12-2z" fill="#ffd26d"/></g><g fill="#242b32"><circle cx="65" cy="70" r="3"/><circle cx="115" cy="32" r="3"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220">
+  <!-- Soft airy clouds floating behind the star chase (no heavy frame or rects!) -->
+  <path d="M20 76h46a8.5 8.5 0 0 0 0-17 12 12 0 0 0-22-4.5 9.5 9.5 0 0 0-19 5.5 8 8 0 0 0-5 16Z" fill="#fffdf5" opacity=".8"/>
+  <path d="M208 176h44a8 8 0 0 0 0-16 11 11 0 0 0-20.5-4 9 9 0 0 0-18.5 5 7.5 7.5 0 0 0-5 15Z" fill="#fffdf5" opacity=".78"/>
+
+  <!-- Warm sunlit halo around the central golden star -->
+  <circle cx="144" cy="116" r="46" fill="#fffdf5" opacity=".46"/>
+  <circle cx="144" cy="116" r="30" fill="#ffe99c" opacity=".42"/>
+
+  <!-- Playful swooping flight trail arcs showing both birds flapping in! -->
+  <path d="M24 182 Q52 174 68 156" fill="none" stroke="#f49b58" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="2 11" opacity=".82"/>
+  <path d="M258 46 Q234 50 218 66" fill="none" stroke="#58addb" stroke-width="4.2" stroke-linecap="round" stroke-dasharray="2 11" opacity=".82"/>
+
+  <g stroke="#242b32" stroke-width="4.6" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Central gleaming 5-point Golden Star -->
+    <g transform="translate(144 116) rotate(-7)">
+      <path d="M0-28 L8.5-9.5 L28.5-7 L13.5 7 L17.5 27 L0 17 L-17.5 27 L-13.5 7 L-28.5-7 L-8.5-9.5 Z" fill="#ffd26d"/>
+      <!-- Warm lower facet shading & crisp bright top gleam -->
+      <path d="M0 17 L17.5 27 L13.5 7 L28.5-7 L0 2 Z" fill="#edb140" stroke="none"/>
+      <path d="M0-21 L4-10 L-4-10 Z" fill="#fff6c4" stroke="none"/>
+      <path d="M0-28 L8.5-9.5 L28.5-7 L13.5 7 L17.5 27 L0 17 L-17.5 27 L-13.5 7 L-28.5-7 L-8.5-9.5 Z" fill="none"/>
+    </g>
+
+    <!-- Cute secondary mini star floating near top center -->
+    <g transform="translate(116 46) rotate(12) scale(0.46)">
+      <path d="M0-26 L8-9 L26-6.5 L12.5 6.5 L16 25 L0 16 L-16 25 L-12.5 6.5 L-26-6.5 L-8-9 Z" fill="#ffe07d" stroke-width="7.5"/>
+    </g>
+
+    <!-- Orange Bird (P1) swooping joyfully upward toward the golden star -->
+    <g transform="translate(76 140) rotate(-13)">
+      <!-- Flutter motion lines behind wing -->
+      <path d="M-38-20 q-6 7-2 15 M-45-12 q-5 5-2 11" fill="none" stroke="#fffdf5" stroke-width="3.2" opacity=".9"/>
+      <!-- Forked tail feathers -->
+      <path d="M-24 2 L-45-9 L-38 4 L-44 14 L-23 11 Z" fill="#f49b58"/>
+      <!-- Cute head feather crest -->
+      <path d="M-4-26 Q-10-39 2-35 Q6-41 12-30 Z" fill="#f49b58" stroke-width="4.2"/>
+      <!-- Plump joyful round body -->
+      <ellipse cx="0" cy="0" rx="31" ry="27" fill="#f49b58"/>
+      <!-- Soft warm cream belly & sunny forehead highlight -->
+      <path d="M-16 14 Q2 25 20 14 Q10 28-10 24 Z" fill="#ffe1ba" stroke="none"/>
+      <path d="M-14-18 Q0-24 14-18" fill="none" stroke="#ffd2a3" stroke-width="4"/>
+      <ellipse cx="0" cy="0" rx="31" ry="27" fill="none"/>
+      <!-- Happy golden beak -->
+      <path d="M27-7 L46 2 L27 9 Z" fill="#f6ce78"/>
+      <path d="M28 2 L41 2" stroke-width="3"/>
+      <!-- Big sparkling expressive eye -->
+      <circle cx="14" cy="-7" r="9.5" fill="#fffdf5" stroke-width="3.6"/>
+      <circle cx="16.5" cy="-7" r="4.8" fill="#242b32" stroke="none"/>
+      <circle cx="18" cy="-9" r="1.8" fill="#fffdf5" stroke="none"/>
+      <circle cx="14.5" cy="-5" r="1" fill="#fffdf5" stroke="none"/>
+      <!-- Rosy happy cheek -->
+      <ellipse cx="9" cy="6" rx="5.2" ry="3" fill="#e26c4b" stroke="none" opacity=".68"/>
+      <!-- Flapping cream wing -->
+      <path d="M-2-2 Q-26-22-28 2 Q-20 18-2 8 Z" fill="#fffdf5" stroke-width="4"/>
+      <path d="M-16 2 Q-11 6-6 4" fill="none" stroke="#d9d2c0" stroke-width="2.4"/>
+    </g>
+
+    <!-- Blue Bird (P2) swooping playfully down from upper-right toward the star -->
+    <g transform="translate(202 72) rotate(13)">
+      <!-- Flutter motion lines behind wing -->
+      <path d="M38-20 q6 7 2 15 M45-12 q5 5 2 11" fill="none" stroke="#fffdf5" stroke-width="3.2" opacity=".9"/>
+      <!-- Forked tail feathers -->
+      <path d="M24 2 L45-9 L38 4 L44 14 L23 11 Z" fill="#58addb"/>
+      <!-- Cute head feather crest -->
+      <path d="M4-26 Q10-39-2-35 Q-6-41-12-30 Z" fill="#58addb" stroke-width="4.2"/>
+      <!-- Plump joyful round body -->
+      <ellipse cx="0" cy="0" rx="31" ry="27" fill="#58addb"/>
+      <!-- Soft sky-cream belly & bright forehead gleam -->
+      <path d="M16 14 Q-2 25-20 14 Q-10 28 10 24 Z" fill="#cdeefd" stroke="none"/>
+      <path d="M14-18 Q0-24-14-18" fill="none" stroke="#aae2fc" stroke-width="4"/>
+      <ellipse cx="0" cy="0" rx="31" ry="27" fill="none"/>
+      <!-- Happy golden beak -->
+      <path d="M-27-7 L-46 2 L-27 9 Z" fill="#f6ce78"/>
+      <path d="M-28 2 L-41 2" stroke-width="3"/>
+      <!-- Big sparkling expressive eye -->
+      <circle cx="-14" cy="-7" r="9.5" fill="#fffdf5" stroke-width="3.6"/>
+      <circle cx="-16.5" cy="-7" r="4.8" fill="#242b32" stroke="none"/>
+      <circle cx="-18" cy="-9" r="1.8" fill="#fffdf5" stroke="none"/>
+      <circle cx="-14.5" cy="-5" r="1" fill="#fffdf5" stroke="none"/>
+      <!-- Soft rosy cheek -->
+      <ellipse cx="-9" cy="6" rx="5.2" ry="3" fill="#3a89ba" stroke="none" opacity=".55"/>
+      <!-- Flapping cream wing -->
+      <path d="M2-2 Q26-22 28 2 Q20 18 2 8 Z" fill="#fffdf5" stroke-width="4"/>
+      <path d="M16 2 Q11 6 6 4" fill="none" stroke="#d9d2c0" stroke-width="2.4"/>
+    </g>
+  </g>
+
+  <!-- Twinkling white & golden starlight glints -->
+  <path d="M180 158 l2.6 6.5 6.5 2.6 -6.5 2.6 -2.6 6.5 -2.6 -6.5 -6.5 -2.6 6.5 -2.6 Z" fill="#fffdf5"/>
+  <path d="M74 84 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z" fill="#fffdf5"/>
+  <circle cx="152" cy="70" r="3" fill="#fffdf5"/>
+  <circle cx="122" cy="168" r="2.8" fill="#ffe066"/>
+</svg>

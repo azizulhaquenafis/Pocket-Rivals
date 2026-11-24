@@ -58,8 +58,8 @@ export const shoreline: Course = {
     { from: p(1450, 745), to: p(1816, 745), seconds: 366 / 150, w: 44, h: 30 },
   ],
   fields: [
-    { ...p(730, 820), r: 125, strength: 380 },
-    { ...p(1450, 560), r: 130, strength: 380 },
+    { ...p(730, 820), r: 175, strength: 1050, quadratic: true },
+    { ...p(1450, 560), r: 175, strength: 1050, quadratic: true },
   ],
   fans: [],
   lasers: [],

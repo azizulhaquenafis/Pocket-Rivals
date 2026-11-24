@@ -1,79 +1,89 @@
 import { it, expect } from "vitest";
+import { CONTOURS, pointAt } from "../../src/arcade/color-switch/Contours";
 import {
-  ColorWorld,
   COLOR_TIERS,
-  SHAPES,
+  ColorWorld,
+  COURSE_X,
+  crossing,
+  touchesWrongColor,
+  visitColorBands,
 } from "../../src/arcade/color-switch/Rules";
-import type { Difficulty } from "../../src/shared/contracts/AIController";
 
-function route(tier: Difficulty, level: number, axes = [0]) {
-  const start = new ColorWorld(tier);
-  start.level = level;
-  start.color = (level - 1) % 4;
-  start.x = start.laneX;
-  let beam = [start];
-  for (let frame = 0; frame < 500; frame++) {
-    const states = new Map<string, ColorWorld>();
-    for (const w of beam)
-      for (const axis of axes)
-        for (const hop of [false, true]) {
-          const c = Object.assign(new ColorWorld(tier), w);
-          if (hop) c.hop();
-          for (let i = 0; i < 12; i++) c.step(1 / 120, axis);
-          if (c.lives !== 3) continue;
-          if (c.level > level) return frame / 10;
-          const key = `${Math.round(c.x / 5)}:${Math.round(c.y / 3)}:${Math.round(c.vy / 25)}:${Math.round(c.vx / 70)}`;
-          if (!states.has(key)) states.set(key, c);
-        }
-    beam = [...states.values()]
-      .sort((a, b) => a.y - b.y)
-      .slice(0, axes.length === 1 ? 100 : 220);
-    if (!beam.length) break;
+it("tiers differ in real band speed, width, obstacle spacing and guidance", () => {
+  const tiers = Object.values(COLOR_TIERS);
+  const speeds = tiers.map((tier) => tier.speed);
+  expect(speeds[0]).toBeLessThan(speeds[1]);
+  expect(speeds[1]).toBeLessThan(speeds[2]);
+  for (const field of ["window", "spacing", "lane"] as const) {
+    expect(tiers[0][field]).toBeGreaterThan(tiers[1][field]);
+    expect(tiers[1][field]).toBeGreaterThan(tiers[2][field]);
   }
-  return null;
-}
-it.each(["medium", "hard", "impossible"] as const)(
-  "%s: every shape has a legal hop-and-steer route",
-  (tier) => {
-    for (let level = 1; level <= 20; level++) {
-      const seconds = route(tier, level) ?? route(tier, level, [-1, 0, 1]);
-      console.log(tier, level, SHAPES[(level - 1) % 5], seconds);
-      expect(seconds, `${tier} stage ${level}`).not.toBeNull();
-    }
-  },
-  60000,
-);
-it("tiers differ in speed, steering width, barrier thickness and guidance", () => {
-  expect(COLOR_TIERS.medium.rotation).toBeLessThan(COLOR_TIERS.hard.rotation);
-  expect(COLOR_TIERS.hard.rotation).toBeLessThan(
-    COLOR_TIERS.impossible.rotation,
-  );
-  expect(COLOR_TIERS.medium.lane).toBeGreaterThan(COLOR_TIERS.hard.lane);
-  expect(COLOR_TIERS.hard.lane).toBeGreaterThan(COLOR_TIERS.impossible.lane);
+  expect(tiers.map((tier) => tier.guide)).toEqual([true, false, false]);
 });
 
-it("wave movement stays continuous across a full rotation and every shape uses collidable drawn segments", () => {
-  const w = new ColorWorld("impossible");
-  w.level = 5;
-  w.angle = Math.PI * 2 - 0.001;
-  const before = w.segments();
-  w.step(1 / 120);
-  const after = w.segments();
-  expect(w.angle).toBeGreaterThan(Math.PI * 2);
-  // Fixed curve samples at x=0 remain continuous, even at an old wrap boundary.
-  const near = (segments: ReturnType<ColorWorld["segments"]>) =>
-    segments.find((s) => Math.abs(s.x1 - w.laneX) < 0.001)!;
-  expect(Math.abs(near(before).y1 - near(after).y1)).toBeLessThan(1);
-  for (let level = 2; level <= 5; level++) {
-    w.level = level;
-    w.angle = 0.3;
-    const segments = w.segments();
-    expect(new Set(segments.map((s) => s.color)).size).toBe(4);
-    for (const s of segments) {
-      w.color = (s.color + 1) % 4;
-      expect(w.touchesWrongColor((s.x1 + s.x2) / 2, (s.y1 + s.y2) / 2)).toBe(
-        true,
-      );
+it.each(["medium", "hard", "impossible"] as const)(
+  "%s: paint moves along fixed contours and visible colors agree with contacts",
+  (tier) => {
+    const w = new ColorWorld(tier);
+    const thickness = w.settings.thickness;
+    for (let index = 0; index < 20; index++) {
+      const initial = w.obstacle(index);
+      const originalOutline = CONTOURS[initial.shape];
+      const opens = [0, 0];
+      for (let k = 0; k < 24; k++) {
+        w.time =
+          (k * originalOutline[0].length) /
+          (24 * (w.settings.speed + Math.min(18, index * 1.4)));
+        const obstacle = w.obstacle(index);
+        expect(obstacle.center).toBe(initial.center);
+        expect(CONTOURS[obstacle.shape]).toBe(originalOutline);
+
+        for (const entry of [false, true]) {
+          const { x, y } = crossing(obstacle, entry);
+          expect(Math.abs(x - COURSE_X)).toBeLessThan(w.settings.lane / 2);
+          if (!touchesWrongColor(obstacle, x, y, thickness))
+            opens[entry ? 0 : 1]++;
+        }
+        visitColorBands(obstacle, (path, from, to, offset) => {
+          const x = pointAt(path, (from + to) / 2);
+          if (offset && to - from > 1) {
+            expect(
+              touchesWrongColor(
+                obstacle,
+                COURSE_X + x.x,
+                obstacle.center + x.y,
+                thickness,
+              ),
+            ).toBe(true);
+          }
+        });
+      }
+      for (const open of opens) {
+        expect(open).toBeGreaterThan(0);
+        expect(open).toBeLessThan(16);
+      }
     }
-  }
+  },
+);
+
+it("Impossible gives a materially shorter exit timing window than Hard and Medium", () => {
+  const contour = CONTOURS.ring[0];
+  const durations = (["medium", "hard", "impossible"] as const).map((tier) => {
+    const w = new ColorWorld(tier);
+    const dt = contour.length / w.settings.speed / 360;
+    const exit = crossing(w.obstacle(), false);
+    let open = 0;
+    for (let i = 0; i < 360; i++) {
+      w.time = i * dt;
+      if (
+        !touchesWrongColor(w.obstacle(), exit.x, exit.y, w.settings.thickness)
+      )
+        open += dt;
+    }
+    return open;
+  });
+  expect(durations[0]).toBeGreaterThan(durations[1] * 1.5);
+  expect(durations[1]).toBeGreaterThan(durations[2] * 1.5);
+  expect(durations[2]).toBeGreaterThan(0.24);
+  expect(durations[2]).toBeLessThan(0.37);
 });

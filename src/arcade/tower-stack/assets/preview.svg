@@ -1,11 +1,56 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 250">
-  <g
-    stroke="#242b32"
-    stroke-width="6"
-    stroke-linejoin="round"
-    stroke-linecap="round"
-  >
-    <path fill="#58addb" d="M65 160h170v35H65zM85 120h150v35H85z" />
-    <path fill="#f49b58" d="M115 80h135v35H115z" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220">
+  <!-- Cozy sky clouds behind the tower -->
+  <path d="M22 112h42a8 8 0 0 0 0-16 11 11 0 0 0-20-4 9 9 0 0 0-18 5 7.5 7.5 0 0 0-4 15Z" fill="#fffdf5" opacity=".76"/>
+  <path d="M212 72h38a7.5 7.5 0 0 0 0-15 10 10 0 0 0-18.5-3.5 8 8 0 0 0-15.5 4.5 7 7 0 0 0-4 14Z" fill="#fffdf5" opacity=".74"/>
+  <!-- Soft pastel glow behind the golden top alignment -->
+  <circle cx="140" cy="64" r="56" fill="#fffdf5" opacity=".28"/>
+  <!-- Dashed alignment guides matching Tower Stack's Easy/Medium guide mechanic -->
+  <path d="M84 44v60m112-60v60" stroke="#242b32" stroke-width="2.6" stroke-dasharray="4 6" stroke-linecap="round" opacity=".32"/>
+  <!-- Horizontal glide arrows showing the swinging top block -->
+  <g stroke="#242b32" stroke-width="3.8" stroke-linecap="round" stroke-linejoin="round" fill="none" opacity=".75">
+    <path d="M58 64h-22m7-7-7 7 7 7"/>
+    <path d="M222 64h22m-7-7 7 7-7 7"/>
+  </g>
+  <!-- Crisp stacked tower blocks with tactile top highlights & bottom depth shading -->
+  <g stroke="#242b32" stroke-width="4.6" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Base pedestal shadow -->
+    <ellipse cx="140" cy="202" rx="92" ry="8" fill="#242b32" opacity=".14" stroke="none"/>
+    <!-- Tier 1 (bottom, wide Sky Blue) -->
+    <rect x="52" y="170" width="176" height="30" rx="8" fill="#58addb"/>
+    <path d="M62 177h156" stroke="#a6e0fb" stroke-width="3.6"/>
+    <path d="M62 193h156" stroke="#3c8db8" stroke-width="3.6"/>
+    <rect x="52" y="170" width="176" height="30" rx="8" fill="none"/>
+    <!-- Tier 2 (Warm Orange) -->
+    <rect x="64" y="140" width="152" height="30" rx="8" fill="#f49b58"/>
+    <path d="M74 147h132" stroke="#ffd2a3" stroke-width="3.6"/>
+    <path d="M74 163h132" stroke="#d47838" stroke-width="3.6"/>
+    <rect x="64" y="140" width="152" height="30" rx="8" fill="none"/>
+    <!-- Tier 3 (Fresh Mint) -->
+    <rect x="74" y="110" width="132" height="30" rx="8" fill="#92b875"/>
+    <path d="M84 117h112" stroke="#cde8b0" stroke-width="3.6"/>
+    <path d="M84 133h112" stroke="#6d9454" stroke-width="3.6"/>
+    <rect x="74" y="110" width="132" height="30" rx="8" fill="none"/>
+    <!-- Tier 4 (Sky Blue) -->
+    <rect x="84" y="80" width="112" height="30" rx="8" fill="#58addb"/>
+    <path d="M94 87h92" stroke="#a6e0fb" stroke-width="3.6"/>
+    <path d="M94 103h92" stroke="#3c8db8" stroke-width="3.6"/>
+    <rect x="84" y="80" width="112" height="30" rx="8" fill="none"/>
+    <!-- Tumbling trimmed overhang slice falling off the right! -->
+    <g transform="translate(223 116) rotate(24)">
+      <rect x="-14" y="-13" width="28" height="26" rx="6" fill="#f49b58" stroke-width="4.2"/>
+      <path d="M-8-7h16" stroke="#ffd2a3" stroke-width="3"/>
+    </g>
+    <path d="M214 96v-9m15 11 4-8" stroke="#fffdf5" stroke-width="3.2"/>
+    <!-- Active Golden Perfect-Combo Block hovering smoothly into place -->
+    <rect x="76" y="42" width="112" height="30" rx="8" fill="#f6cc58"/>
+    <path d="M86 49h92" stroke="#fff3b5" stroke-width="3.8"/>
+    <path d="M86 65h92" stroke="#d6a32e" stroke-width="3.6"/>
+    <rect x="76" y="42" width="112" height="30" rx="8" fill="none"/>
+  </g>
+  <!-- Golden "PERFECT!" 4-point sparkles crowning the stack -->
+  <g fill="#fffdf5" stroke="#242b32" stroke-width="2.4" stroke-linejoin="round">
+    <path d="M132 14l4 10 10 4-10 4-4 10-4-10-10-4 10-4Z" fill="#ffe066"/>
+    <path d="M72 28l2.5 6.5 6.5 2.5-6.5 2.5-2.5 6.5-2.5-6.5-6.5-2.5 6.5-2.5Z" stroke="none"/>
+    <path d="M196 34l2.2 5.8 5.8 2.2-5.8 2.2-2.2 5.8-2.2-5.8-5.8-2.2 5.8-2.2Z" stroke="none"/>
   </g>
 </svg>

@@ -37,6 +37,10 @@ export interface GameMetadata {
   responsive?: boolean;
   supportedModes: readonly ("local-two-player" | "single-player")[];
   difficultyLabels?: readonly [string, string, string];
+  desktopControls?: {
+    ai?: readonly string[];
+    local?: readonly string[];
+  };
   variants?: readonly GameVariant[];
 }
 export interface GameContext {
@@ -63,6 +67,7 @@ export interface MiniGame {
   resume(): void;
   dispose(): void;
   resize?(width: number, height: number): void;
+  toggleHelp?(): boolean;
   snapshot?(): unknown;
 }
 export type GameFactory = (

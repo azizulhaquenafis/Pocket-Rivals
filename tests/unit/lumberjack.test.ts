@@ -11,7 +11,7 @@ it("seeded branches always leave a legal chopping side", () => {
       ).toBe(true);
   }
 });
-it("waiting has no penalty; a branch hit immediately awards the rival", () => {
+it("waiting has no penalty; a branch hit stuns for 3s without ending the match", () => {
   const m = new LumberMatch(4);
   m.update(1000);
   expect(m.players.every((p) => p.alive)).toBe(true);
@@ -20,10 +20,20 @@ it("waiting has no penalty; a branch hit immediately awards the rival", () => {
   m.update(0.1);
   m.pattern[1] = -1;
   expect(m.chop(0, -1)).toBe(false);
-  expect(m.winner).toBe(2);
-  expect(m.phase).toBe("done");
-  expect(m.chop(1, 1)).toBeNull();
+  expect(m.winner).toBeNull();
+  expect(m.phase).toBe("playing");
+  expect(m.players[0].stun).toBe(3);
   expect(m.totals).toEqual([1, 0]);
+  // Stunned player is locked out for 3 seconds while the opponent can still chop.
+  m.update(1.5);
+  expect(m.chop(0, 1)).toBeNull();
+  expect(m.chop(1, m.safe(1, 1) ? 1 : -1)).toBe(true);
+  m.update(1.6);
+  expect(m.players[0].stun).toBe(0);
+  expect(m.players[0].hitNext).toBe(false);
+  expect(m.players[0].side).toBe(1);
+  expect(m.chop(0, 1)).toBe(true);
+  expect(m.totals).toEqual([2, 1]);
 });
 it("the first player to chop 100 wins without further rounds", () => {
   for (const p of [0, 1] as const) {

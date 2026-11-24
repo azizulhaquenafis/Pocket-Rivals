@@ -1,6 +1,10 @@
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { StrikePhysics, ImpactRing } from "./StrikePhysics";
-import { needleTip, NEEDLE_LENGTH } from "./NeedleGeometry";
+import {
+  needleTip,
+  NEEDLE_LENGTH,
+  NEEDLE_PIVOT_Y,
+} from "./NeedleGeometry";
 import type Phaser from "phaser";
 import { TurnView, turnBackground } from "../../shared/components/TurnView";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
@@ -127,10 +131,31 @@ export class HammerGame implements MiniGame {
         this.hit(this.currentTurn);
       }
     });
-    ctx.input.press(["Space", "Enter"], (code) => {
-      const p = code === "Space" ? 0 : 1;
-      if (p === this.currentTurn) this.hit(p);
-    });
+    ctx.input.press(
+      [
+        "Space",
+        "ArrowUp",
+        "ArrowDown",
+        "ArrowLeft",
+        "ArrowRight",
+        "Enter",
+        "KeyW",
+        "KeyA",
+        "KeyS",
+        "KeyD",
+      ],
+      (code) => {
+        const p: 0 | 1 =
+          code === "Space" || code.startsWith("Arrow")
+            ? 0
+            : code === "Enter"
+              ? 1
+              : this.ai
+                ? 0
+                : 1;
+        if (p === this.currentTurn) this.hit(p);
+      },
+    );
 
     // Score is tracked out of 300!
     ctx.setScore(0, 0);
@@ -420,18 +445,14 @@ export class HammerGame implements MiniGame {
       );
     }
 
-    // 5. BASE ANVIL & PIVOT
+    // 5. BASE ANVIL & STRIKE PAD (flush on the 606 level so the meter sits cleanly above the dark base)
     // Dark anvil base block
     rounded(g, 120 + shakeX, 606 + shakeY, 180, 40, 10, 0x353b42, 4);
 
-    // Red strike pad
-    rounded(g, 197 + shakeX, 592 + shakeY, 26, 22, 6, 0xe74c3c, 3);
+    // Red strike pad sitting flush on top of the anvil rim
+    rounded(g, 197 + shakeX, 588 + shakeY, 26, 18, 6, 0xe74c3c, 3);
 
-    // Center pivot hinge
-    circle(g, 210 + shakeX, 614 + shakeY, 9, 0x2b3036, 3);
-    circle(g, 210 + shakeX, 614 + shakeY, 4, theme.ink, 0);
-
-    // 6. TIMING NEEDLE GAUGE (reflects current turn player!)
+    // 6. TIMING NEEDLE GAUGE (reflects current turn player; stays strictly above y = 606!)
     const activePlayer = this.currentTurn;
     const isHold =
       this.model.cooldowns[activePlayer] > 0 &&
@@ -441,26 +462,30 @@ export class HammerGame implements MiniGame {
       : this.model.position(activePlayer);
 
     const pivotX = 210 + shakeX;
-    const pivotY = 614 + shakeY;
+    const pivotY = NEEDLE_PIVOT_Y + shakeY;
     const tip = needleTip(needlePos);
     const tipX = tip.x + shakeX,
       tipY = tip.y + shakeY;
 
-    g.lineStyle(2, theme.ink, 0.18);
+    g.lineStyle(2, theme.ink, 0.22);
     g.beginPath();
     g.arc(pivotX, pivotY, NEEDLE_LENGTH, Math.PI, Math.PI * 2);
     g.strokePath();
 
-    // Draw needle
+    // Draw needle cleanly above the dark anvil rim
     g.lineStyle(4, theme.ink);
     g.lineBetween(pivotX, pivotY, tipX, tipY);
     circle(g, tipX, tipY, 3, theme.ink, 0);
 
-    // 7. RISING STRIKER PUCK
+    // Center pivot hinge mounted right at the 0-level needle origin
+    circle(g, pivotX, pivotY, 7, 0x2b3036, 2.5);
+    circle(g, pivotX, pivotY, 3, theme.ink, 0);
+
+    // 7. RISING STRIKER PUCK (rests flush above the anvil rim at y = 588..606, flies seamlessly on strike)
     const puckY = this.strikeAnim
       ? this.strikeAnim.puckY + shakeY
-      : 602 + shakeY;
-    rounded(g, 198 + shakeX, puckY - 10, 24, 20, 6, 0xe74c3c, 3);
+      : 598 + shakeY;
+    rounded(g, 198 + shakeX, puckY - 10, 24, 18, 6, 0xe74c3c, 3);
 
     // 8. ANIMATED HAMMER
     this.drawHammer(g, shakeX, shakeY);
@@ -618,7 +643,7 @@ export class HammerGame implements MiniGame {
     const s1 = this.model.scores[1];
 
     if (this.model.done) {
-      this.turnBadgeText.setText("AVERAGE WINS");
+      this.turnBadgeText.setText("");
       return;
     }
 

@@ -1,4 +1,5 @@
 import { ArcadeSetup, type ArcadeChallenge } from "./ArcadeSetup";
+import { drawHeartsHUD } from "./hearts";
 import type { Difficulty } from "../contracts/AIController";
 import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../contracts/GameModule";
@@ -16,21 +17,30 @@ export abstract class ArcadeGame implements MiniGame {
   private setup?: ArcadeSetup;
   protected configure(_tier: Difficulty) {}
   private reported = false;
-  private ending = 0;
+  protected ending = 0;
+  protected endDelay = 0.7;
   private fixed = new FixedStep();
   private labels = new Map<string, Phaser.GameObjects.Text>();
   private lastHUD = "";
+  private lastHearts = "";
   private lastScore = 0;
   private clip!: Phaser.GameObjects.Graphics;
   private mask!: Phaser.Display.Masks.GeometryMask;
+  private hudG!: Phaser.GameObjects.Graphics;
   protected abstract bind(): void;
   protected abstract step(dt: number): void;
+  protected stepEnding(_dt: number) {}
   protected abstract draw(): void;
+  protected get alpha() {
+    return this.fixed.fraction;
+  }
   protected abstract state(): {
     score: number;
     done: boolean;
     detail: string;
     result: string;
+    lives?: number;
+    maxLives?: number;
   };
   protected clearInput() {}
   initialize(ctx: GameContext) {
@@ -40,6 +50,7 @@ export abstract class ArcadeGame implements MiniGame {
     this.clip.fillStyle(0xffffff).fillRoundedRect(22, 110, 376, 542, 22);
     this.mask = this.clip.createGeometryMask();
     this.g.setMask(this.mask);
+    this.hudG = ctx.scene.add.graphics();
     ctx.setHint("");
     ctx.setClock("", false);
     const start = (tier: Difficulty) => {
@@ -75,6 +86,7 @@ export abstract class ArcadeGame implements MiniGame {
     value: string,
     size = 16,
     color = "#242b32",
+    alpha = 1,
   ) {
     let t = this.labels.get(id);
     if (!t) {
@@ -83,6 +95,7 @@ export abstract class ArcadeGame implements MiniGame {
     }
     if (t.text !== value) t.setText(value);
     t.setPosition(x, y);
+    if (t.alpha !== alpha) t.setAlpha(alpha);
     // Text.setColor always rerasterizes and uploads a canvas, even unchanged.
     if (t.style.color !== color) t.setColor(color);
   }
@@ -93,11 +106,29 @@ export abstract class ArcadeGame implements MiniGame {
     this.g.clear();
     this.draw();
     this.g.lineStyle(4, 0x242b32).strokeRoundedRect(24, 112, 372, 538, 20);
-    const s = this.state(),
-      hud = `${s.score}:${s.detail}`;
+    const s = this.state();
+    // Never show lives or bottom status details on the pre-game challenge entrance screen.
+    const showHearts = this.started && s.lives !== undefined;
+    const detail = !this.started || showHearts ? "" : s.detail;
+    const hud = `${s.score}:${detail}`;
     if (hud !== this.lastHUD) {
       this.lastHUD = hud;
-      this.ctx.setArcadeHUD(s.score, s.detail);
+      this.ctx.setArcadeHUD(s.score, detail);
+    }
+    const heartsKey = showHearts
+      ? `${s.lives}:${s.maxLives ?? Math.max(3, s.lives!)}`
+      : "";
+    if (heartsKey !== this.lastHearts) {
+      this.lastHearts = heartsKey;
+      if (showHearts) {
+        drawHeartsHUD(
+          this.hudG,
+          s.lives!,
+          s.maxLives ?? Math.max(3, s.lives!),
+        );
+      } else {
+        this.hudG.clear();
+      }
     }
   }
   update(dt: number) {
@@ -105,13 +136,16 @@ export abstract class ArcadeGame implements MiniGame {
     this.fixed.advance(dt, (h) => {
       this.age += h;
       if (!this.state().done) this.step(h);
-      else this.ending += h;
+      else {
+        this.ending += h;
+        this.stepEnding(h);
+      }
     });
     const s = this.state();
     if (s.score > this.lastScore) this.ctx.audio.play("capture", 0.35);
     this.lastScore = s.score;
     this.render();
-    if (s.done && this.ending > 0.7) {
+    if (s.done && this.ending > this.endDelay) {
       this.reported = true;
       this.clearInput();
       this.ctx.finishArcade(s.score, s.result);
@@ -134,6 +168,7 @@ export abstract class ArcadeGame implements MiniGame {
     this.labels.forEach((t) => t.destroy());
     this.labels.clear();
     this.g.destroy();
+    this.hudG.destroy();
     this.mask.destroy();
     this.clip.destroy();
   }

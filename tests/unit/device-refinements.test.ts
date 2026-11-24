@@ -24,17 +24,36 @@ it("automatic maps have equal seeded coverage", () => {
     counts[selectMap("random", seed).id]++;
   expect(Object.values(counts)).toEqual([1000, 1000, 1000]);
 });
-it("a next-segment head strike animates that branch without awarding a chop", () => {
+it("a next-segment head strike drops that branch smoothly and recovers without awarding a chop", () => {
   const m = new LumberMatch(4);
   m.pattern[0] = 0;
   m.pattern[1] = -1;
+  m.pattern[2] = 0;
   expect(m.chop(0, -1)).toBe(false);
-  expect(m.players[0]).toMatchObject({ alive: false, hitNext: true, score: 0 });
-  expect(m.winner).toBe(2);
+  expect(m.players[0]).toMatchObject({
+    alive: true,
+    hitNext: true,
+    score: 0,
+    index: 1,
+    stun: 3,
+  });
+  expect(m.winner).toBeNull();
+  m.update(3.05);
+  // Trunk stays at index 1 (no snap-back) and player steps safely out from under the branch.
+  expect(m.players[0]).toMatchObject({
+    stun: 0,
+    hitNext: false,
+    score: 0,
+    index: 1,
+    side: 1,
+  });
   const n = new LumberMatch(4);
   n.pattern[0] = -1;
+  n.pattern[1] = 0;
   expect(n.chop(0, -1)).toBe(false);
-  expect(n.players[0].hitNext).toBe(false);
+  expect(n.players[0]).toMatchObject({ hitNext: false, index: 0, stun: 3 });
+  n.update(3.05);
+  expect(n.players[0]).toMatchObject({ stun: 0, index: 0, side: 1 });
 });
 it("four additional basic families have correct answers and valid distinct options", () => {
   for (let cat = 7; cat <= 10; cat++)

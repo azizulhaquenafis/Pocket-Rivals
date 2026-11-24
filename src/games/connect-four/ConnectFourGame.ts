@@ -1,4 +1,5 @@
 import { turnBackground } from "../../shared/components/TurnView";
+import { oppositeSideLayout } from "../../shared/utilities/DeviceLayout";
 import {
   MatchRandom,
   restoredAISeed,
@@ -11,12 +12,29 @@ import { circle, rounded, label } from "../../shared/components/drawing";
 import { WorkerTask } from "../../shared/utilities/WorkerTask";
 import { ConnectFourBoard } from "./ConnectFourRules";
 import type { SearchResult } from "./ConnectFourAI";
+const COLUMN_KEYS = [
+  "Digit1",
+  "Digit2",
+  "Digit3",
+  "Digit4",
+  "Digit5",
+  "Digit6",
+  "Digit7",
+  "Numpad1",
+  "Numpad2",
+  "Numpad3",
+  "Numpad4",
+  "Numpad5",
+  "Numpad6",
+  "Numpad7",
+];
 export class ConnectFourGame implements MiniGame {
   private ctx!: GameContext;
   private board = new ConnectFourBoard();
   private g!: Phaser.GameObjects.Graphics;
   private heading!: Phaser.GameObjects.Text;
   private hint!: Phaser.GameObjects.Text;
+  private colLabels: Phaser.GameObjects.Text[] = [];
   private ai?: WorkerTask<
     {
       state: unknown;
@@ -42,6 +60,15 @@ export class ConnectFourGame implements MiniGame {
     this.g = ctx.scene.add.graphics();
     this.heading = label(ctx.scene, 210, 155, "", 12);
     this.hint = label(ctx.scene, 210, 596, "", 12);
+    if (!oppositeSideLayout()) {
+      for (let c = 0; c < 7; c++) {
+        this.colLabels.push(
+          label(ctx.scene, 60 + c * 50, 558, String(c + 1), 11, "#5c7a86")
+            .setAlpha(0.7)
+            .setDepth(1),
+        );
+      }
+    }
     ctx.setHint("");
     ctx.setScore(0, 0);
     if (ctx.options.mode === "ai")
@@ -52,19 +79,20 @@ export class ConnectFourGame implements MiniGame {
           }),
         ctx.reportAI,
       );
-    ctx.input.tap((x, y) => {
-      if (
+    const canHumanDrop = () =>
+      !(
         this.paused ||
         this.age < 0.32 ||
         this.board.winner ||
-        (this.ai && this.board.turn === 2) ||
-        x < 35 ||
-        x >= 385 ||
-        y < 200 ||
-        y > 560
-      )
-        return;
+        (this.ai && this.board.turn === 2)
+      );
+    ctx.input.tap((x, y) => {
+      if (!canHumanDrop() || x < 35 || x >= 385 || y < 200 || y > 560) return;
       this.place(Math.floor((x - 35) / 50));
+    });
+    ctx.input.press(COLUMN_KEYS, (code) => {
+      if (!canHumanDrop()) return;
+      this.place(Number(code.slice(-1)) - 1);
     });
   }
   private place(c: number) {
@@ -172,6 +200,8 @@ export class ConnectFourGame implements MiniGame {
     this.g.destroy();
     this.heading.destroy();
     this.hint.destroy();
+    this.colLabels.forEach((t) => t.destroy());
+    this.colLabels = [];
   }
   snapshot() {
     return {

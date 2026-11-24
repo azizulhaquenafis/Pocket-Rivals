@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { pens } from "../../src/games/penfight/PenPhysics";
 test.setTimeout(60000);
 const state = (page: Page) => page.evaluate(() => (window as any).__POCKET__);
 async function open(page: Page, difficulty?: string) {
@@ -56,7 +57,7 @@ async function drag(page: Page, dx: number, dy: number, cancel = false) {
 }
 test("Penfight local touch shots, canceled gestures, settling, pause and cleanup", async ({
   page,
-}) => {
+}, info) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await open(page);
@@ -78,7 +79,7 @@ test("Penfight local touch shots, canceled gestures, settling, pause and cleanup
   await page.waitForTimeout(2000);
   expect((await state(page)).scene.game.turn).toBe(1);
   expect((await state(page)).scene.game.phase).toBe("aim");
-  await page.screenshot({ path: "docs/penfight-mobile.png" });
+  await page.screenshot({ path: info.outputPath("penfight-mobile.png") });
   await page.setViewportSize({ width: 320, height: 568 });
   await page.waitForTimeout(100);
   const box = (await page.locator("canvas").boundingBox())!;
@@ -92,6 +93,32 @@ test("Penfight local touch shots, canceled gestures, settling, pause and cleanup
   expect((await state(page)).scene.inputListeners).toBe(0);
   expect(errors).toEqual([]);
 });
+test("Penfight an ordinary opening makes contact and the warned edge moves after the sixth flick", async ({
+  page,
+}) => {
+  await open(page);
+  const game = async () => (await state(page)).scene.game;
+  const initial = await game();
+  await drag(page, 0, 62);
+  await expect.poll(async () => (await game()).phase).toBe("aim");
+  const contact = await game();
+  expect(contact.bodies[1].y).toBeLessThan(initial.bodies[1].y - 10);
+  expect(contact.pressure[0]).toBeGreaterThan(10);
+  expect(contact.impacts).toBeGreaterThan(0);
+  for (let i = 1; i < 6; i++) {
+    const before = await game();
+    expect(before.nextShrink.inFlicks).toBe(6 - i);
+    expect(before.desk).toEqual(initial.desk);
+    await drag(page, 12, 0);
+    await expect.poll(async () => (await game()).phase).toBe("aim");
+  }
+  const narrowed = await game();
+  expect(narrowed.shots).toBe(6);
+  expect(narrowed.desk.left).toBeGreaterThan(initial.desk.left);
+  expect(narrowed.desk.right).toBeLessThan(initial.desk.right);
+  expect(narrowed.turn).toBe(0);
+});
+
 for (const difficulty of ["Easy", "Medium", "Hard"])
   test(`Penfight ${difficulty} AI waits, shoots legally in a worker and stops on pause`, async ({
     page,
@@ -114,7 +141,7 @@ for (const difficulty of ["Easy", "Medium", "Hard"])
   });
 test("Penfight production mouse input, lazy load, tournament entry and settings regression", async ({
   page,
-}) => {
+}, info) => {
   const errors: string[] = [];
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("http://127.0.0.1:4173/");
@@ -131,12 +158,13 @@ test("Penfight production mouse input, lazy load, tournament entry and settings 
   await expect(page.locator("canvas")).toBeVisible();
   await page.waitForTimeout(500);
   const b = (await page.locator("canvas").boundingBox())!;
-  const x = b.x + b.width / 2,
-    y = b.y + (b.height * 492) / 760;
+  const [orange] = pens();
+  const x = b.x + (b.width * orange.x) / 420,
+    y = b.y + (b.height * orange.y) / 760;
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.move(x, y + (b.height * 88) / 760, { steps: 8 });
-  await page.screenshot({ path: "docs/penfight-desktop-aim.png" });
+  await page.screenshot({ path: info.outputPath("penfight-desktop-aim.png") });
   await page.mouse.up();
   await page.waitForTimeout(800);
   await page.keyboard.press("Escape");

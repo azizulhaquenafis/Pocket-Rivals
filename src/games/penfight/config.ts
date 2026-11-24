@@ -1,11 +1,12 @@
 import type { GameMetadata } from "../../shared/contracts/GameModule";
-import preview from "./assets/preview.svg?raw";
+import image from "./assets/preview.svg?url&no-inline";
+const preview = `<img src="${image}" alt="" loading="lazy" decoding="async"/>`;
 export default {
   id: "penfight",
   name: "Penfight",
   description: "One desk. Settle the score.",
   instructions:
-    "Pull back on your pen and release to flick. Centre flicks travel farther; tip flicks trade distance for spin. Aim at the rival’s tip to rotate it or its centre to push it. Wait for both pens to stop. Centre off the desk loses; double-outs replay. First to 3 wins. The match is a draw after two minutes; pause stops the clock. 36 shots draw a round; 3 drawn rounds draw the match.",
+    "Pull back on your pen and release. Centre flicks push; tip flicks spin. The dotted path previews the flick. Both opening flicks have a power cap. A pen’s centre crossing the desk edge is out. The edge moves inward after 6 and 12 flicks. At 18, the better attacker wins by how far they pushed their rival toward the edge. Ties replay. First to 3 wins, or lead when time runs out.",
   color: "#e8ddc5",
   accent: "#c7b58f",
   order: 25,

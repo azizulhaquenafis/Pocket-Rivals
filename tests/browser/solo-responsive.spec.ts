@@ -93,6 +93,7 @@ for (const [width, height, mobile] of [
         expect((await state()).selected).toBeGreaterThan(0);
       } else {
         await start(210, name === "Pocket Pinball" ? 618 : 400);
+        if (name === "Color Switch") await page.waitForTimeout(200);
         await end();
         await page.waitForTimeout(50);
         if (name === "Tower Stack")
@@ -100,7 +101,7 @@ for (const [width, height, mobile] of [
         if (name === "Pocket Pinball")
           expect((await state()).balls.length).toBe(1);
         if (name === "Color Switch")
-          expect((await state()).y).toBeLessThan(590);
+          expect((await state()).y).toBeLessThan(540);
         if (name === "Orbit Hop") expect((await state()).orbit).toBe(false);
       }
       await cdp.detach();

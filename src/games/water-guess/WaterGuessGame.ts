@@ -31,6 +31,7 @@ export class WaterGuessGame implements MiniGame {
   private ai?: WaterGuessAI;
   private renderer!: WaterRenderer;
 
+  private boardG!: Phaser.GameObjects.Graphics;
   private g!: Phaser.GameObjects.Graphics;
   private uiTexts: Phaser.GameObjects.Text[] = [];
   private buttonTexts: Phaser.GameObjects.Text[] = [];
@@ -50,10 +51,13 @@ export class WaterGuessGame implements MiniGame {
   private paused = false;
   private reported = false;
   private roundResult?: WaterRoundResult;
+  private perfectRound = false;
+  private boardKey = "";
 
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.renderer = new WaterRenderer(ctx.scene);
+    this.boardG = ctx.scene.add.graphics();
     this.g = ctx.scene.add.graphics();
 
     if (ctx.options.mode === "ai") {
@@ -67,7 +71,7 @@ export class WaterGuessGame implements MiniGame {
     this.uiTexts.push(this.bannerTitle, this.inputBufferText, this.revealText);
 
     this.setupKeypad();
-    this.view = new TurnView(ctx.scene, [this.g, ...this.uiTexts]);
+    this.view = new TurnView(ctx.scene, [this.boardG, this.g, ...this.uiTexts]);
     this.setupInputs();
 
     this.startRound();
@@ -236,8 +240,10 @@ export class WaterGuessGame implements MiniGame {
     this.fillAnimProgress = 0;
     this.inputBuffer = "";
     this.roundResult = undefined;
+    this.perfectRound = false;
+    this.boardKey = "";
     this.revealAge = 0;
-    this.revealText.setAlpha(0).setScale(1);
+    this.revealText.setAlpha(0).setScale(1).setStroke("", 0);
     this.bannerTitle.setVisible(true);
 
     const isSudden = this.match.isSuddenDeath;
@@ -298,6 +304,8 @@ export class WaterGuessGame implements MiniGame {
     this.ctx.setScore(this.match.scores[0], this.match.scores[1]);
 
     const res = this.roundResult;
+    this.perfectRound = res.errors[0] === 0 || res.errors[1] === 0;
+    this.boardKey = "";
     // Local mobile players see the result from the winner's side. A tied
     // round keeps the current orientation; desktop and AI stay upright.
     this.view.set(
@@ -305,9 +313,9 @@ export class WaterGuessGame implements MiniGame {
         (res.winner === 2 ||
           (res.winner === "draw" && this.activeGuesser === 1)),
     );
-    if (res.winner === 1) {
-      this.ctx.audio.play("capture");
-    } else if (res.winner === 2) {
+    if (this.perfectRound) {
+      this.ctx.audio.play("perfect");
+    } else if (res.winner === 1 || res.winner === 2) {
       this.ctx.audio.play("capture");
     } else {
       this.ctx.audio.play("draw");
@@ -317,6 +325,7 @@ export class WaterGuessGame implements MiniGame {
     this.revealText
       .setPosition(0, 0)
       .setFontSize(54)
+      .setStroke(this.perfectRound ? "#fff8cc" : "", this.perfectRound ? 6 : 0)
       .setText(formatPercent(res.actual))
       .setAlpha(1);
 
@@ -341,14 +350,15 @@ export class WaterGuessGame implements MiniGame {
 
   update(dt: number) {
     if (this.paused || this.reported) return;
-    this.animTime += dt;
-    this.view.update(dt);
+    const step = Math.min(dt, 0.05);
+    this.animTime += step;
+    this.view.update(step);
     if (
       this.state === "GUESSING" &&
       this.ai &&
       this.match.guesses[1] === null
     ) {
-      this.aiWait = Math.max(0, this.aiWait - dt);
+      this.aiWait = Math.max(0, this.aiWait - step);
       if (this.aiWait === 0) {
         let guess = this.ai.estimate(this.match.actual);
         // Occupied guesses are unavailable to either player. Choose a legal
@@ -363,16 +373,21 @@ export class WaterGuessGame implements MiniGame {
     }
 
     if (this.state === "FILLING") {
-      this.fillAnimProgress = Math.min(1, this.fillAnimProgress + dt * 1.3);
+      this.fillAnimProgress = Math.min(1, this.fillAnimProgress + step * 1.3);
       if (this.fillAnimProgress >= 1) {
         this.state = "GUESSING";
         this.updateBufferDisplay();
       }
     } else if (this.state === "REVEAL") {
       // Do not consume the readable reveal while turning to its recipient.
-      if (this.view.ready) this.revealAge += dt;
+      if (this.view.ready) this.revealAge += step;
       const pop = Math.min(1, this.revealAge / 0.24);
-      this.revealText.setScale(0.92 + 0.08 * (1 - Math.pow(1 - pop, 3)));
+      const pulse = this.perfectRound
+        ? Math.sin(this.revealAge * 7.5) * 0.045
+        : 0;
+      this.revealText.setScale(
+        0.92 + 0.08 * (1 - Math.pow(1 - pop, 3)) + pulse,
+      );
       // Auto-advance after 3.2s if player doesn't tap
       if (this.revealAge > 3.2) {
         this.advanceNext();
@@ -382,44 +397,140 @@ export class WaterGuessGame implements MiniGame {
     this.render();
   }
 
+  private drawSparkle(
+    g: Phaser.GameObjects.Graphics,
+    x: number,
+    y: number,
+    size: number,
+    alpha: number,
+  ) {
+    g.fillStyle(0xfffbe0, alpha);
+    g.fillTriangle(x, y - size, x + size * 0.28, y, x - size * 0.28, y);
+    g.fillTriangle(x, y + size, x + size * 0.28, y, x - size * 0.28, y);
+    g.fillTriangle(x - size, y, x, y + size * 0.28, x, y - size * 0.28);
+    g.fillTriangle(x + size, y, x, y + size * 0.28, x, y - size * 0.28);
+  }
+
+  private renderPerfectGlow(g: Phaser.GameObjects.Graphics) {
+    const cx = 210,
+      cy = 381,
+      t = this.animTime,
+      fadeIn = Math.min(1, this.revealAge / 0.22);
+
+    // 1. Softly rotating warm golden sunburst rays (bounded strictly inside card bounds)
+    const rayCount = 12;
+    for (let i = 0; i < rayCount; i++) {
+      const a = t * 0.55 + (i * Math.PI * 2) / rayCount;
+      const len = 148 + Math.sin(t * 4 + i) * 14;
+      const spread = 0.11;
+      g.fillStyle(0xfff6c2, (0.14 + 0.06 * Math.sin(t * 5 + i)) * fadeIn);
+      g.fillTriangle(
+        cx,
+        cy,
+        cx + Math.cos(a - spread) * len,
+        cy + Math.sin(a - spread) * len,
+        cx + Math.cos(a + spread) * len,
+        cy + Math.sin(a + spread) * len,
+      );
+    }
+
+    // 2. Silky multi-stepped warm golden aura halo behind the exact percentage
+    const breathe = 1 + Math.sin(t * 5.2) * 0.05;
+    for (let i = 0; i < 9; i++) {
+      const u = i / 8;
+      const r = (144 - u * 96) * breathe;
+      g.fillStyle(u > 0.45 ? 0xfffce8 : 0xffe994, (0.065 + u * 0.03) * fadeIn)
+        .fillCircle(cx, cy, r);
+    }
+
+    // 3. Rhythmic expanding luminous shimmer ripples
+    for (let k = 0; k < 2; k++) {
+      const u = (this.revealAge * 0.9 + k * 0.5) % 1;
+      const alpha = (1 - u) * 0.72 * fadeIn;
+      g.lineStyle(4.5 * (1 - u * 0.55), 0xfffce0, alpha).strokeCircle(
+        cx,
+        cy,
+        54 + u * 108,
+      );
+    }
+
+    // 4. Orbiting twinkling starlight sparkles around the revealed number
+    for (let i = 0; i < 8; i++) {
+      const a = t * 0.9 + (i * Math.PI) / 4;
+      const dist = 88 + (i % 2) * 34 + Math.sin(t * 3.8 + i) * 8;
+      const size = (6.5 + Math.sin(t * 7 + i * 1.7) * 3) * fadeIn;
+      this.drawSparkle(
+        g,
+        cx + Math.cos(a) * dist,
+        cy + Math.sin(a) * dist,
+        Math.max(2, size),
+        (0.68 + 0.3 * Math.sin(t * 6.5 + i)) * fadeIn,
+      );
+    }
+
+    // 5. Luminous golden inner frame pulse
+    g.lineStyle(
+      4,
+      0xfff6c2,
+      (0.45 + 0.35 * Math.sin(t * 6)) * fadeIn,
+    ).strokeRoundedRect(31, 119, 358, 524, 15);
+  }
+
   private render() {
+    const waitingAI =
+      !!this.ai &&
+      this.match.guesses[0] !== null &&
+      this.match.guesses[1] === null;
+    const available = this.match.guesses[this.activeGuesser] === null;
+    const enabled = available && this.state === "GUESSING" && this.view.ready;
+    const nextBoardKey = `${this.state}|${this.activeGuesser}|${enabled}|${waitingAI}|${this.roundResult?.winner ?? ""}`;
+
+    // Cache static card & keypad geometry so mobile 180° transitions stay silky smooth!
+    if (nextBoardKey !== this.boardKey) {
+      this.boardKey = nextBoardKey;
+      const bg = this.boardG;
+      bg.clear();
+      rounded(
+        bg,
+        24,
+        112,
+        372,
+        538,
+        20,
+        this.state === "REVEAL"
+          ? this.roundResult?.winner === 1
+            ? theme.orange
+            : this.roundResult?.winner === 2
+              ? theme.blue
+              : theme.paper
+          : turnBackground(waitingAI ? 2 : this.activeGuesser === 0 ? 1 : 2),
+        4,
+      );
+      if (this.state === "GUESSING" || this.state === "FILLING") {
+        for (const b of this.buttons) {
+          let btnColor = 0xffffff;
+          if (b.label === "CONFIRM") {
+            btnColor = this.activeGuesser === 0 ? theme.orange : theme.blue;
+          } else if (b.label === "⌫ DEL") {
+            btnColor = 0xf5b7b1;
+          }
+          rounded(bg, b.x, b.y, b.w, b.h, 10, enabled ? btnColor : 0xe7e8e5, 2);
+        }
+      }
+    }
+
     const g = this.g;
     g.clear();
 
-    // 1. Play area card (warm cream/sky blue background)
-    rounded(
-      g,
-      24,
-      112,
-      372,
-      538,
-      20,
-      this.state === "REVEAL"
-        ? this.roundResult?.winner === 1
-          ? theme.orange
-          : this.roundResult?.winner === 2
-            ? theme.blue
-            : theme.paper
-        : turnBackground(
-            this.ai &&
-              this.match.guesses[0] !== null &&
-              this.match.guesses[1] === null
-              ? 2
-              : this.activeGuesser === 0
-                ? 1
-                : 2,
-          ),
-      4,
-    );
+    if (this.state === "REVEAL") {
+      if (this.perfectRound) this.renderPerfectGlow(g);
+      return;
+    }
 
-    if (this.state === "REVEAL") return;
-
-    const available = this.match.guesses[this.activeGuesser] === null;
-    const enabled = available && this.state === "GUESSING" && this.view.ready;
     this.inputBufferText.setAlpha(available ? 1 : 0);
     for (const text of this.buttonTexts) text.setAlpha(enabled ? 1 : 0.38);
 
-    // 2. Tube & Water
+    // 2. Tube & Water (dynamic wave / fill level only)
     const waterLevel =
       this.state === "FILLING"
         ? (1 - Math.pow(1 - this.fillAnimProgress, 2)) * this.match.actual
@@ -434,19 +545,6 @@ export class WaterGuessGame implements MiniGame {
       this.match.guesses[0],
       this.match.guesses[1],
     );
-
-    // 3. Keypad buttons (during GUESSING state)
-    if (this.state === "GUESSING" || this.state === "FILLING") {
-      for (const b of this.buttons) {
-        let btnColor = 0xffffff;
-        if (b.label === "CONFIRM") {
-          btnColor = this.activeGuesser === 0 ? theme.orange : theme.blue;
-        } else if (b.label === "⌫ DEL") {
-          btnColor = 0xf5b7b1;
-        }
-        rounded(g, b.x, b.y, b.w, b.h, 10, enabled ? btnColor : 0xe7e8e5, 2);
-      }
-    }
   }
 
   pause() {
@@ -477,6 +575,7 @@ export class WaterGuessGame implements MiniGame {
       roundWinner: this.roundResult?.winner,
       keypadEnabled: this.canGuess,
       revealAge: this.revealAge,
+      perfect: this.perfectRound,
     };
   }
 }

@@ -1,16 +1,18 @@
 # Penfight
 
-Reference: [Pen Fight rules](https://www.penfight.xyz/blog/how-to-play-pen-fight/). Its playable page was blocked by a security challenge, so live mechanics/screenshots could not be verified. The accessible rules describe alternating flicks, waiting for both pens to stop, knockouts and first-to-three matches. This implementation uses those core rules with original Pocket Rivals artwork and code; no external assets, bundles or branded pens were copied.
+A schoolyard field study describes the aim as flicking your own pen to dislodge the other pen without overshooting the table. The browser rulebook also describes alternating flicks, centre-of-pen knockouts, and replaying double-outs. [Field study](https://www2.eecs.berkeley.edu/Pubs/TechRpts/2008/EECS-2008-155.pdf) · [Pen Fight rulebook](https://penfight.net/how-to-play/)
 
 ## Play
 
-Choose two local players or Easy, Medium or Hard AI. Touch/click your highlighted pen, pull back and release. The arrow shows the shot direction; the small bar shows power. Pulling near a pen's tip trades forward travel for spin under a constant energy budget. Centre hits push the rival; end hits rotate it. Maximum centre-flick speed is 350, so the initial separation requires positioning instead of an opening straight knockout. Let both pens settle before the next turn. Cancelled/very short drags do not count as shots.
+Choose two local players or Easy, Medium or Hard AI. Pull back from your highlighted pen and release. The dotted path previews the pen's travel up to the first contact. Centre flicks push and tip flicks trade distance for spin. The first two flicks have the same power cap. Cancelled and short drags leave the turn available.
 
-Both pens have equal mass, shape, friction and impulse limits. Their centre crossing the desk edge counts as out, with no invisible surrounding wall. A self-out loses; double-outs replay without points. The first to three round wins takes the match. An unfinished match draws at 120 foreground seconds, including aiming; pause/background time is excluded. Round starters alternate. At 36 shots a round draws, and three consecutive drawn rounds draw the match, preventing unending no-contact matches. Current player and round winner use the existing orange/blue background and result screen.
+A pen is out once its centre crosses the visible edge. A self-out loses and a double-out replays. The play area narrows after 6 and 12 flicks, with the next edge marked in advance. If both pens reach 18 flicks, the round goes to the player whose flicks drove the other pen closer to the edge by the greater total distance. An even round replays. Starters alternate and each round uses a symmetric starting layout.
+
+First to three round wins takes the match. At 120 foreground seconds, the current flick resolves and the score leader wins. A tied score draws. Pause excludes time spent away from play.
 
 ## Implementation
 
-`src/games/penfight/` contains rules, rigid capsule physics, vector rendering, pointer handling, AI and worker. Capsule contacts transfer linear/angular momentum; broad parallel contacts use their overlap midpoint to avoid false tip torque. Friction dissipates energy at fixed 240 Hz substeps, shared by play and candidate simulation. Only settled pens can be shot. Presentation interpolates between fixed states and clips falling pens to the playfield. Pause cancels gestures/search and freezes simulation.
+`src/games/penfight/` contains rules, rigid capsule physics, vector rendering, pointer handling, AI and worker. Capsule contacts transfer linear/angular momentum; broad parallel contacts use their overlap midpoint to avoid false tip torque. Friction dissipates energy at fixed 240 Hz substeps, shared by play and candidate simulation. Only settled pens can be shot. Both the worker and the live match apply the same opening cap and desk changes. Presentation interpolates between fixed states and clips falling pens to the playfield. Pause cancels gestures/search and freezes simulation.
 
 AI settings vary candidate count, reaction delay and evaluation quality; Hard also checks a bounded set of opponent replies. Search runs in a cancellable worker with a bounded time/node budget and legal analytic fallback if workers are unavailable. It cannot teleport, change scores, or alter the physics. Internal existing difficulty keys retain saved-data/tournament compatibility; optional metadata labels display Easy/Medium/Hard for this game alone.
 

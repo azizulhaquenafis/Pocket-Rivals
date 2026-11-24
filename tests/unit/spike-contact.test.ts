@@ -61,16 +61,16 @@ it("idle contact updates the idle target rather than adding an artificial opposi
   m.step(0.1);
   expect(m.players).toEqual(before);
 });
-it("the hammer indicator keeps its full sweep inside the machine", () => {
+it("the hammer indicator keeps its full sweep inside the machine and above the anvil base", () => {
   for (let i = -100; i <= 100; i++) {
     const tip = needleTip(i / 100);
     expect(tip.x - 3).toBeGreaterThan(147);
     expect(tip.x + 3).toBeLessThan(273);
-    expect(tip.y + 3).toBeLessThan(646);
+    expect(tip.y + 3).toBeLessThanOrEqual(606);
   }
-  expect(needleTip(-1)).toEqual({ x: 156, y: 614 });
-  expect(needleTip(1)).toEqual({ x: 264, y: 614 });
-  expect(needleTip(0).y).toBe(560);
+  expect(needleTip(-1)).toEqual({ x: 156, y: 598 });
+  expect(needleTip(1)).toEqual({ x: 264, y: 598 });
+  expect(needleTip(0).y).toBe(544);
 });
 
 it("a legal push can expose the other player to a piston and scores exactly once", () => {

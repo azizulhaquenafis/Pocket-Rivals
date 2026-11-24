@@ -46,6 +46,7 @@ export class GameManager {
   private token: string | null = null;
   private run = 0;
   private state: "menu" | "playing" | "paused" | "results" | "loading" = "menu";
+  private helpOpen = false;
   private menuRoot = document.querySelector<HTMLElement>("#menu")!;
   private disposers: (() => void)[] = [];
   constructor() {
@@ -108,6 +109,19 @@ export class GameManager {
       if (e.key === "Escape") {
         e.preventDefault();
         this.back();
+      } else if (
+        !e.repeat &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        (e.code === "KeyH" || e.key.toLowerCase() === "h")
+      ) {
+        const target = e.target as HTMLElement | null;
+        const editing =
+          !!target &&
+          (target.isContentEditable ||
+            ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName));
+        if (!editing) this.handleHelpKey(e);
       }
       this.modal.trapFocus(e);
     };
@@ -170,6 +184,7 @@ export class GameManager {
     this.modal.close();
     this.active = { gameId: id, options: structuredClone(options) };
     this.token = token;
+    this.helpOpen = false;
     this.state = "loading";
     this.scores.beginRound();
     const run = ++this.run;
@@ -280,6 +295,7 @@ export class GameManager {
     if (this.token && !this.tournament.finish(this.token, result)) return;
     if (!this.scores.record(result.winner)) return;
     if (!this.token) this.storage.writeRecord(MATCH_KEY, null);
+    this.helpOpen = false;
     this.state = "results";
     this.audio.play(result.winner === "draw" ? "draw" : "win");
     if (this.token) {
@@ -305,6 +321,7 @@ export class GameManager {
         getGame(this.active!.gameId).presentation !== "custom")
     )
       return;
+    this.helpOpen = false;
     this.state = "results";
     const best = this.arcade.record(this.active!.gameId, score);
     this.audio.play("win");
@@ -318,10 +335,38 @@ export class GameManager {
       () => this.goMenu(),
     );
   }
+  private handleHelpKey(e: KeyboardEvent) {
+    if (!this.active || this.state === "results") return;
+    if (this.helpOpen) {
+      e.preventDefault();
+      this.resume();
+      return;
+    }
+    if (this.state !== "playing") return;
+    e.preventDefault();
+    if (this.host.module?.toggleHelp?.()) return;
+    this.showHelp();
+  }
+  showHelp() {
+    if (this.state !== "playing" || !this.active) return;
+    const meta = getGame(this.active.gameId);
+    this.clearLoading();
+    this.host.pauseGame();
+    this.state = "paused";
+    this.helpOpen = true;
+    this.audio.play("tap");
+    this.modal.show(
+      `<div class="eyebrow">HOW TO PLAY</div><h2 id="dialog-title">${meta.name}</h2><p>${meta.instructions}</p><button class="primary-button" data-action="resume">Back to game →</button>`,
+      { resume: () => this.resume() },
+      "help-modal",
+      () => this.resume(),
+    );
+  }
   pause(reason = "pause") {
     if (this.state !== "playing" && this.state !== "loading") return;
     this.clearLoading();
     this.host.pauseGame();
+    this.helpOpen = false;
     this.state = "paused";
     this.audio.play("tap");
     this.modal.show(
@@ -349,6 +394,7 @@ export class GameManager {
       void this.play(this.active.gameId, this.active.options);
   }
   private resume() {
+    this.helpOpen = false;
     this.modal.close();
     this.audio.unlock();
     this.state = this.host.ready ? "playing" : "loading";
@@ -375,6 +421,7 @@ export class GameManager {
     this.game.loop.sleep();
     this.active = null;
     this.token = null;
+    this.helpOpen = false;
     this.state = "menu";
     document.querySelector("#app")!.classList.remove("in-game");
     this.menuRoot.hidden = false;
@@ -431,6 +478,7 @@ export class GameManager {
   showError(error: unknown) {
     this.clearLoading();
     this.run++;
+    this.helpOpen = false;
     this.state = "paused";
     this.transition.hidden = true;
     this.game.scene.stop("GameHost");

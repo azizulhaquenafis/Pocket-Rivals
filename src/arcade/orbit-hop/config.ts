@@ -7,7 +7,7 @@ export default {
     name: "Orbit Hop",
     description: "A small leap through space.",
     instructions:
-      "Tap/Space to launch along the arrow. Enter a planet’s halo and its gravity curves your flight toward the surface. Reach higher planets. Missing the arena costs a life. Three lives.",
+      "Tap/Space to launch tangentially. Medium shows a smooth curved flight guide. 25 planet types vary in volume and density — high-volume giants offer huge targets and wide halos, while high-density cores pull much harder inside tighter rings. Enter a halo so gravity curves you onto the surface. Three hearts.",
     color: "#d8cde8",
     accent: "#d8cde8",
     order: 32,

@@ -1,5 +1,6 @@
 import { it, expect } from "vitest";
 import {
+  DESK,
   pens,
   strike,
   physicsStep,
@@ -8,7 +9,13 @@ import {
   MAX_SPEED,
   type Pen,
 } from "../../src/games/penfight/PenPhysics";
-import { PenMatch, simulateShot } from "../../src/games/penfight/PenRules";
+import {
+  deskForShots,
+  PenMatch,
+  powerLimit,
+  shotFromPull,
+  simulateShot,
+} from "../../src/games/penfight/PenRules";
 import { planShot, fallbackShot } from "../../src/games/penfight/PenAI";
 import { MatchRandom } from "../../src/shared/ai/MatchRandom";
 const settle = (m: PenMatch) => {
@@ -21,6 +28,7 @@ it("only the active pen can flick, invalid shots are rejected, and power is boun
   expect(m.shoot(1, shot)).toBe(false);
   expect(m.shoot(0, { ...shot, power: NaN })).toBe(false);
   expect(m.shoot(0, { ...shot, power: 0 })).toBe(false);
+  expect(m.shoot(0, { ...shot, power: Infinity })).toBe(false);
   expect(m.shoot(0, { ...shot, power: 99, offset: 999 })).toBe(true);
   expect(Math.hypot(m.bodies[0].vx, m.bodies[0].vy)).toBeLessThanOrEqual(
     MAX_SPEED,
@@ -96,10 +104,12 @@ it("collision knockouts score once and first to three ends the match", () => {
 it("a long no-contact round and repeated drawn rounds have explicit terminal handling", () => {
   const m = new PenMatch();
   for (let i = 0; i < 3; i++) {
-    m.shots = 35;
-    m.shoot(m.turn, { angle: 0, power: 0.01, offset: 0 });
-    settle(m);
+    for (let flick = 0; flick < 18; flick++) {
+      expect(m.shoot(m.turn, { angle: 0, power: 0.01, offset: 0 })).toBe(true);
+      settle(m);
+    }
     expect(m.roundWinner).toBe("draw");
+    expect(m.roundReason).toBe("even");
     if (i < 2) m.step(1.31);
   }
   expect(m.winner).toBe("draw");
@@ -180,18 +190,25 @@ it("high-speed repeated and initially overlapping contacts remain stable", () =>
     expect(bodies.every(stopped)).toBe(true);
   }
 });
-it("has a two-minute idle/moving draw deadline independent of physics catch-up", () => {
-  for (const moving of [false, true]) {
-    const m = new PenMatch();
-    if (moving) m.shoot(0, { angle: 0, power: 0.3, offset: 0 });
-    m.advanceClock(119.9);
-    expect(m.winner).toBeNull();
-    m.advanceClock(0.1);
-    expect(m.winner).toBe("draw");
-    expect(m.phase).toBe("done");
-    expect(m.shoot(m.turn, { angle: 0, power: 1, offset: 0 })).toBe(false);
-  }
+it("time resolves the accepted flick, then uses the score lead or a draw", () => {
+  const tied = new PenMatch();
+  tied.advanceClock(120);
+  expect(tied.winner).toBe("draw");
+  const leading = new PenMatch();
+  leading.scores[1] = 1;
+  leading.advanceClock(119.9);
+  expect(leading.shoot(0, { angle: Math.PI / 2, power: 1, offset: 0 })).toBe(
+    true,
+  );
+  leading.advanceClock(0.1);
+  expect(leading.winner).toBeNull();
+  expect(leading.remaining).toBe(0);
+  settle(leading);
+  expect(leading.scores).toEqual([0, 2]);
+  expect(leading.winner).toBe(2);
+  expect(leading.shoot(0, { angle: 0, power: 1, offset: 0 })).toBe(false);
 });
+
 it("tip impulses trade forward travel for spin without creating free energy", () => {
   const a = pens()[0],
     b = { ...a };
@@ -229,4 +246,76 @@ it("striking different parts of the rival produces different displacement and ro
   expect(Math.abs(centre.a)).toBeLessThan(0.01);
   expect(Math.abs(tip.a)).toBeGreaterThan(0.1);
   expect(centre.y).toBeLessThan(tip.y);
+});
+
+it("an ordinary opening pull makes contact and both players have the same opening cap", () => {
+  const m = new PenMatch();
+  const targetY = m.bodies[1].y;
+  const shot = shotFromPull(0, -62, 0)!;
+  expect(m.shoot(0, shot)).toBe(true);
+  settle(m);
+  expect(m.impacts).toBeGreaterThan(0);
+  expect(m.bodies[1].y).toBeLessThan(targetY - 10);
+  expect(m.pressure[0]).toBeGreaterThan(10);
+  expect(m.phase).toBe("aim");
+  expect(m.turn).toBe(1);
+  expect(m.shoot(1, { angle: 0, power: 1, offset: 0 })).toBe(true);
+  expect(Math.hypot(m.bodies[1].vx, m.bodies[1].vy)).toBeCloseTo(
+    MAX_SPEED * powerLimit(1),
+  );
+  expect(powerLimit(1)).toBe(powerLimit(0));
+  expect(powerLimit(2)).toBe(1);
+});
+
+it("closed desk edges take effect after the flick and simulated outcomes use the same boundary", () => {
+  const m = new PenMatch();
+  const quiet = { angle: 0, power: 0.01, offset: 0 };
+  for (let flick = 0; flick < 5; flick++) {
+    m.shoot(m.turn, quiet);
+    settle(m);
+  }
+  expect(m.nextShrink?.inFlicks).toBe(1);
+  expect(m.desk).toEqual(DESK);
+  m.bodies[0].x = DESK.left + 8;
+  const predicted = simulateShot(m.bodies, m.turn, quiet, m.shots);
+  expect(predicted[0].out).toBe(true);
+  expect(m.shoot(m.turn, quiet)).toBe(true);
+  expect(m.desk).toEqual(DESK);
+  settle(m);
+  expect(m.desk).toEqual(deskForShots(6));
+  expect(m.roundWinner).toBe(1);
+  expect(m.roundReason).toBe("smaller-desk");
+  expect(m.bodies.map((pen) => pen.out)).toEqual(
+    predicted.map((pen) => pen.out),
+  );
+  m.step(1.01);
+  expect(m.desk).toEqual(DESK);
+  expect(m.bodies).toEqual(pens(2));
+});
+
+it("a real push wins at the flick limit when both pens are still on the desk", () => {
+  const m = new PenMatch();
+  m.shoot(0, shotFromPull(0, -62, 0)!);
+  settle(m);
+  for (let i = 1; i < 18; i++) {
+    expect(m.shoot(m.turn, { angle: 0, power: 0.01, offset: 0 })).toBe(true);
+    settle(m);
+  }
+  expect(m.bodies.every((pen) => !pen.out)).toBe(true);
+  expect(m.scores).toEqual([1, 0]);
+  expect(m.roundReason).toBe("pressure");
+  expect(m.pressure[0]).toBeGreaterThan(m.pressure[1]);
+});
+
+it("the AI on each difficulty uses the opening cap and makes a useful attack when in reach", () => {
+  for (const difficulty of ["medium", "hard", "impossible"] as const) {
+    for (let completed = 0; completed < 2; completed++) {
+      const bodies = pens();
+      const plan = planShot({ bodies, difficulty, seed: 47, completed });
+      const after = simulateShot(bodies, 1, plan.shot, completed);
+      expect(plan.shot.power).toBeLessThanOrEqual(powerLimit(completed));
+      expect(after[0].y - bodies[0].y).toBeGreaterThan(10);
+      expect(after[1].out).toBe(false);
+    }
+  }
 });

@@ -37,14 +37,14 @@ export class HandMotion {
     const t = Math.max(0, (now - this.start) / duration);
     if (this.mode === "recovery") {
       const reach =
-        t < 0.12
-          ? this.from + (1 - this.from) * ease(t / 0.12)
-          : t < 0.36
-            ? 1 - 1.16 * ease((t - 0.12) / 0.24)
-            : -0.16 * (1 - ease((t - 0.36) / 0.64));
+        t < 0.08
+          ? this.from + (1 - this.from) * ease(t / 0.08)
+          : t < 0.24
+            ? 1 - 1.16 * ease((t - 0.08) / 0.16)
+            : -0.16 * (1 - ease((t - 0.24) / 0.76));
       return {
         reach,
-        gray: Math.min(1, t / 0.12) * (1 - ease((t - 0.36) / 0.64)),
+        gray: Math.min(1, t / 0.08) * (1 - ease((t - 0.24) / 0.76)),
         grip: 0,
         carrying: false,
         phase: "recovery",

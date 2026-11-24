@@ -1,6 +1,6 @@
 # Lumberjack
 
-Rules owns identical seeded branch streams, each player's chop index and side. First to 100 valid chops wins; hitting a branch immediately awards the opponent the match. There are no idle or round timers. The 85ms contact debounce prevents duplicate input. Adjacent segments never carry opposing branches, leaving a legal choice. Check current/next branches before every chop. AI uses the same chop API. Blue's local field rotates only on touch-primary devices. Desktop remains upright.
+Rules owns identical seeded branch streams, each player's chop index, side and stun timer. First to 100 valid chops wins; hitting a branch imposes a 3-second stun delay (blocking chops and showing dizzy stars + countdown ring) without ending the match or awarding points. There are no idle or round timers. The 85ms contact debounce prevents duplicate input. Adjacent segments never carry opposing branches, leaving a legal choice. Check current/next branches before every chop. AI uses the same chop API and honors stun/debounce. Blue's local field rotates only on touch-primary devices. Desktop remains upright.
 
 AI identities use the lazy `shared/ai/MatchRandom.ts` utility; keep tactical parameters inside this module and preserve personality across rounds. See `docs/AI_REFINEMENT.md` for seeded replay and audit commands. Preserve legal actions and bounded worker/motion behavior when adding variety.
 

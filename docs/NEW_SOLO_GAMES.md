@@ -1,3 +1,7 @@
+# Status: 24 November update
+
+Pocket Drift, Magnet Dash, Tiny Foundry, Shadow Step and Domino Lab are deferred intact under `src/future-games`. Paper Glider remains active. The implementation notes below describe the original six-game release.
+
 # Six new solo games
 
 All six live in independent `src/arcade/` modules. Each has original vector art, a lazy factory, pure rule engine, Medium/Hard/Impossible selection, touch and keyboard input, host-managed pause/restart/results and separate arcade high scores. Instructions are expandable in the difficulty picker and available when paused. No new dependency, worker, animation loop or physics engine was added.

@@ -15,8 +15,8 @@ export function keyboardDirection(
   player: 0 | 1,
   solo: boolean,
 ): Direction {
-  const wasd = player === 0,
-    arrows = player === 1 || (player === 0 && solo);
+  const arrows = player === 0,
+    wasd = player === 1 || (player === 0 && solo);
   return {
     x:
       Number((wasd && keys.has("KeyD")) || (arrows && keys.has("ArrowRight"))) -

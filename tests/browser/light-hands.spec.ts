@@ -37,6 +37,11 @@ test("both hands recover visually, pause together, and Blue carries a stolen gem
   await page.getByRole("button", { name: /Keep playing/ }).click();
   await page.clock.runFor(1100);
   w = (await state(page)).scene.game;
+  // Increased wrong-tap cooldown keeps hands recovering past the old 1.25s mark.
+  expect(w.hands[0].phase).toBe("recovery");
+  expect(w.cooldowns[0]).toBeGreaterThan(0.5);
+  await page.clock.runFor(1500);
+  w = (await state(page)).scene.game;
   expect(w.hands[0].phase).toBe("ready");
   expect(w.cooldowns[0]).toBe(0);
   expect(w.hands[1].phase).toBe("ready");

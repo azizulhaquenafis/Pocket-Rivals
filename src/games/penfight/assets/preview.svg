@@ -1,21 +1,80 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 260">
-  <g stroke="#242b32" stroke-width="7" stroke-linejoin="round">
-    <rect x="35" y="25" width="370" height="220" rx="24" fill="#f1dcba" />
-    <path d="M55 82h330M55 189h330" stroke="#c9b491" stroke-width="3" />
-    <g transform="translate(150 165) rotate(-22)">
-      <rect x="-70" y="-12" width="140" height="24" rx="10" fill="#f49b58" />
-      <path d="M70-10l21 10-21 10z" fill="#fffdf5" />
-      <path d="M-48-12v24" />
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 220">
+  <!-- Soft warm backdrop halo behind the classroom desk -->
+  <circle cx="132" cy="112" r="90" fill="#fffdf5" opacity=".32"/>
+
+  <g stroke="#242b32" stroke-width="4.5" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Wooden school desk sized cleanly away from top-right badge & bottom-right card arrow -->
+    <rect x="20" y="42" width="214" height="148" rx="22" fill="#242b32" opacity=".14" stroke="none"/>
+    <rect x="20" y="40" width="214" height="144" rx="20" fill="#be9f79"/>
+    <rect x="20" y="30" width="214" height="142" rx="20" fill="#f2deb9"/>
+    <!-- Subtle woodgrain lines & sunlit top bevel -->
+    <path d="M34 66h186M34 102h186M34 138h186" stroke="#d9be95" stroke-width="2.6"/>
+    <path d="M40 37h174" stroke="#fff7e6" stroke-width="3" opacity=".82"/>
+    <!-- Subtle dashed inner edge marking the shrinking danger zone -->
+    <rect x="32" y="42" width="190" height="118" rx="13" fill="none" stroke="#c78a5d" stroke-width="2.2" stroke-dasharray="6 8" opacity=".52"/>
+    <rect x="20" y="30" width="214" height="142" rx="20" fill="none"/>
+
+    <!-- Dotted pull-back & flick trajectory trailing clearly behind Orange Pen! -->
+    <path d="M30 162 Q48 156 64 146" fill="none" stroke="#fffdf5" stroke-width="6.5" stroke-dasharray="1 11"/>
+    <path d="M30 162 Q48 156 64 146" fill="none" stroke="#f49b58" stroke-width="3.5" stroke-dasharray="1 11"/>
+
+    <!-- Curved spin-kick motion arc around Blue Pen as it spins back! -->
+    <path d="M198 54 Q216 66 216 86" fill="none" stroke="#58addb" stroke-width="3.6" stroke-dasharray="9 6"/>
+    <path d="M210 80 L216 88 L222 79" fill="none" stroke="#58addb" stroke-width="3.4"/>
+
+    <!-- Orange P1 Ballpoint Pen flicking upward-right into clash (nose cone fully visible!) -->
+    <g transform="translate(88 134) rotate(-32) scale(0.92)">
+      <!-- Crisp drop shadow on desk -->
+      <rect x="-56" y="-5" width="114" height="22" rx="11" fill="#242b32" opacity=".16" stroke="none"/>
+      <!-- Tail click button -->
+      <rect x="-62" y="-7" width="14" height="14" rx="5" fill="#d9dfe4" stroke-width="3.8"/>
+      <!-- Tapered orange pen barrel -->
+      <rect x="-52" y="-11" width="90" height="22" rx="9" fill="#f49b58"/>
+      <path d="M-24-5.5h52" stroke="#ffd2a1" stroke-width="3.6"/>
+      <path d="M-24 5.5h52" stroke="#cf7332" stroke-width="3.2"/>
+      <rect x="-52" y="-11" width="90" height="22" rx="9" fill="none"/>
+      <!-- Cream cap section + metallic pocket clip -->
+      <rect x="-52" y="-11" width="26" height="22" rx="7" fill="#fffdf5"/>
+      <path d="M-46-11 h32 v5" fill="none" stroke="#242b32" stroke-width="3.8"/>
+      <!-- Golden grip ring -->
+      <rect x="26" y="-11" width="8" height="22" rx="2" fill="#f6cc58" stroke-width="3.4"/>
+      <!-- Cream nose cone + crisp ink tip -->
+      <path d="M38-9.5 L62 0 L38 9.5 Z" fill="#fffdf5"/>
+      <path d="M54-3.5 L62 0 L54 3.5 Z" fill="#242b32" stroke="none"/>
+      <path d="M38-9.5 L62 0 L38 9.5 Z" fill="none"/>
     </g>
-    <g transform="translate(290 94) rotate(20)">
-      <rect x="-70" y="-12" width="140" height="24" rx="10" fill="#58addb" />
-      <path d="M70-10l21 10-21 10z" fill="#fffdf5" />
-      <path d="M-48-12v24" />
+
+    <!-- Blue P2 Ballpoint Pen spinning & defending near upper-right edge! -->
+    <g transform="translate(168 88) rotate(28) scale(0.92)">
+      <!-- Crisp drop shadow on desk -->
+      <rect x="-56" y="-5" width="114" height="22" rx="11" fill="#242b32" opacity=".16" stroke="none"/>
+      <!-- Tail click button -->
+      <rect x="48" y="-7" width="14" height="14" rx="5" fill="#d9dfe4" stroke-width="3.8"/>
+      <!-- Tapered sky-blue pen barrel -->
+      <rect x="-38" y="-11" width="90" height="22" rx="9" fill="#58addb"/>
+      <path d="M-26-5.5h52" stroke="#aee3fc" stroke-width="3.6"/>
+      <path d="M-26 5.5h52" stroke="#3685b5" stroke-width="3.2"/>
+      <rect x="-38" y="-11" width="90" height="22" rx="9" fill="none"/>
+      <!-- Cream cap section + pocket clip -->
+      <rect x="26" y="-11" width="26" height="22" rx="7" fill="#fffdf5"/>
+      <path d="M46-11 h-32 v5" fill="none" stroke="#242b32" stroke-width="3.8"/>
+      <!-- Golden grip ring -->
+      <rect x="-34" y="-11" width="8" height="22" rx="2" fill="#f6cc58" stroke-width="3.4"/>
+      <!-- Cream nose cone + crisp ink tip -->
+      <path d="M-38-9.5 L-62 0 L-38 9.5 Z" fill="#fffdf5"/>
+      <path d="M-54-3.5 L-62 0 L-54 3.5 Z" fill="#242b32" stroke="none"/>
+      <path d="M-38-9.5 L-62 0 L-38 9.5 Z" fill="none"/>
     </g>
-    <path
-      d="m197 106 18 8-16 12m19-27 11 8"
-      fill="none"
-      stroke-linecap="round"
-    />
+
+    <!-- Electric comic clash starburst perched right at the tip-to-barrel impact! -->
+    <g transform="translate(144 96) scale(0.76)">
+      <path d="M0-22 L5.5-8 L19-14 L10-2 L23 5 L8 8 L12 21 L0 12 L-12 20 L-8 7 L-22 4 L-10-3 L-18-15 L-5-8 Z" fill="#ffe066" stroke-width="4.4"/>
+      <circle cx="0" cy="0" r="5.5" fill="#fffdf5" stroke="none"/>
+    </g>
+  </g>
+
+  <!-- Crisp kinetic spark lines bursting off the clash -->
+  <g stroke="#fffdf5" stroke-width="3.2" stroke-linecap="round">
+    <path d="M126 68 l-5-8 M158 124 l5 8 M112 88 l-9-3"/>
   </g>
 </svg>

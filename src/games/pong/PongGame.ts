@@ -165,13 +165,14 @@ export class PingPong implements MiniGame {
   private paddleTarget(player: 0 | 1, step: number) {
     const pointer = this.ctx.input.players[player];
     if (pointer.down) return pointer.x;
-    const arrows = player === 1 || !!this.ai;
+    const arrows = player === 0;
+    const wasd = player === 1 || !!this.ai;
     const left =
-      (player === 0 && this.keys.has("KeyA")) ||
-      (arrows && this.keys.has("ArrowLeft"));
+      (arrows && this.keys.has("ArrowLeft")) ||
+      (wasd && this.keys.has("KeyA"));
     const right =
-      (player === 0 && this.keys.has("KeyD")) ||
-      (arrows && this.keys.has("ArrowRight"));
+      (arrows && this.keys.has("ArrowRight")) ||
+      (wasd && this.keys.has("KeyD"));
     // Keep the opening feel, then scale with rally speed up to the physics limit.
     const ball = this.world.ball;
     const speed = Math.min(

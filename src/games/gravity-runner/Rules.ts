@@ -10,6 +10,8 @@ import { CourseStream } from "./CourseStream";
 export type { Gap, Obstacle, Runner } from "./RunnerPhysics";
 export const WIN_SCORE = 3;
 export const ROUND_SECONDS = 120;
+export const BASE_SPEED = 145;
+export const MAX_SPEED = 315;
 export class GravityMatch {
   players: [Runner, Runner] = [this.runner(), this.runner()];
   scores: [number, number] = [0, 0];
@@ -63,13 +65,12 @@ export class GravityMatch {
     return this.stream.history;
   }
   speed(age = this.age) {
-    // Eight seconds to settle in, then a short smooth acceleration every 20s.
-    let speed = 120;
-    for (let stage = 0; stage < 6; stage++) {
-      const t = Math.max(0, Math.min(1, (age - 8 - stage * 20) / 3));
-      speed += 24 * t * t * (3 - 2 * t);
-    }
-    return speed;
+    // Brief 3s warm-up, then smooth continuous acceleration from 145 toward 315.
+    if (age <= 3) return BASE_SPEED;
+    const t = Math.min(1, (age - 3) / 102);
+    const s = t * t * (3 - 2 * t);
+    const curve = 0.55 * s + 0.45 * (1 - Math.pow(1 - t, 2.2));
+    return BASE_SPEED + (MAX_SPEED - BASE_SPEED) * curve;
   }
   flip(i: 0 | 1) {
     const p = this.players[i];

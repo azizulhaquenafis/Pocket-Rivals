@@ -139,11 +139,11 @@ test("solo arrow keys control Orange and both local keyboard schemes stay active
     .getByRole("button", { name: "Back to all games", exact: true })
     .click();
   await launch(page);
-  await page.keyboard.down("KeyD");
-  await page.keyboard.down("ArrowLeft");
+  await page.keyboard.down("ArrowRight");
+  await page.keyboard.down("KeyA");
   await page.waitForTimeout(140);
-  await page.keyboard.up("KeyD");
-  await page.keyboard.up("ArrowLeft");
+  await page.keyboard.up("ArrowRight");
+  await page.keyboard.up("KeyA");
   const s = (await state(page)).scene.game;
   expect(s.players[0].x).toBeGreaterThan(120);
   expect(s.players[1].x).toBeLessThan(200);

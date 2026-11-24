@@ -50,7 +50,7 @@
   line-height: 1.4;
 }
 .arcade-tier:hover {
-  transform: translateY(-2px);
+  box-shadow: 0 4px 0 #242b32, inset 0 0 0 2px #ffffff80;
 }
 .arcade-tier:focus-visible {
   outline: 3px solid #f49b58;
@@ -81,14 +81,65 @@
 }
 
 .arcade-instructions {
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.48;
+  background: #fffdf5;
+  border: 2px solid #242b32;
+  border-radius: 16px;
+  padding: 2px 10px;
+}
+.arcade-instructions[open] {
+  max-height: min(42vh, 250px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .arcade-instructions summary {
   cursor: pointer;
-  padding: 8px;
+  padding: 7px 4px;
   text-align: center;
+  font-weight: 800;
+  position: sticky;
+  top: 0;
+  background: #fffdf5;
 }
 .arcade-instructions p {
-  margin: 4px 10px 10px;
+  margin: 4px 4px 10px;
+  color: #4b5552;
+}
+.arcade-guide {
+  list-style: none;
+  margin: 0 2px 10px;
+  padding: 0;
+  display: grid;
+  gap: 7px;
+  text-align: left;
+}
+.arcade-guide li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: #f5f1e4;
+  border: 1.5px solid #242b3233;
+  border-radius: 11px;
+  padding: 7px 9px;
+}
+.arcade-guide-swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 2px solid #242b32;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.arcade-guide b {
+  display: block;
+  font-size: 12px;
+  color: #242b32;
+}
+.arcade-guide span {
+  display: block;
+  font-size: 11px;
+  line-height: 1.38;
+  color: #56615d;
+  margin-top: 1px;
 }

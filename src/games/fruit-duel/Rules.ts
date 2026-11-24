@@ -12,6 +12,11 @@ export const fruits = [
 export const decoys = ["Gift", "Medal", "Flower"];
 export const isFruit = (id: number) =>
   Number.isInteger(id) && id >= 0 && id < fruits.length;
+export interface FruitMatchConfig {
+  fruitChance?: number;
+  activeMin?: number;
+  activeSpan?: number;
+}
 export class FruitMatch {
   scores: [number, number] = [0, 0];
   target = 0;
@@ -26,14 +31,26 @@ export class FruitMatch {
   blockedUntil = [0, 0];
   attemptSerial = [0, 0];
   missed = [false, false];
+  hitDecoy = [false, false];
   swingStartedAt = [-100, -100];
   recoveryDuration = [HIT_RECOVERY, HIT_RECOVERY];
   capturedBy: 0 | 1 | null = null;
   capturedKind = -1;
-  private until = 0.7;
+  tieAt = -100;
+  private until = 1.05;
   private gap = 0;
+  private fruitChance: number;
+  private activeMin: number;
+  private activeSpan: number;
   private queue = new FirstResponse<{ kind: number }>();
-  constructor(private random = Math.random) {}
+  constructor(
+    private random = Math.random,
+    config: FruitMatchConfig = {},
+  ) {
+    this.fruitChance = config.fruitChance ?? 0.58;
+    this.activeMin = config.activeMin ?? 0.9;
+    this.activeSpan = config.activeSpan ?? 0.4;
+  }
   canTap(p: 0 | 1) {
     return this.phase !== "done" && this.time >= this.blockedUntil[p];
   }
@@ -42,7 +59,18 @@ export class FruitMatch {
     this.attemptSerial[p]++;
     this.swingStartedAt[p] = this.time;
     const valid = this.phase === "active" && isFruit(this.current);
-    this.missed[p] = !valid;
+    // If a rival just sliced a real fruit and we reacted a moment late during "between",
+    // treat it as a normal contested swing (HIT_RECOVERY), NOT a 2.4s decoy penalty!
+    const lateFruitSwing =
+      this.phase === "between" &&
+      (this.capturedBy !== null || this.tieAt >= this.time - 0.5);
+    this.missed[p] = !valid && !lateFruitSwing;
+    this.hitDecoy[p] = this.phase === "active" && this.current >= fruits.length;
+    if (lateFruitSwing) {
+      this.recoveryDuration[p] = HIT_RECOVERY;
+      this.blockedUntil[p] = this.time + HIT_RECOVERY;
+      return true;
+    }
     if (!valid) {
       this.recoveryDuration[p] = MISS_RECOVERY;
       this.blockedUntil[p] = this.time + MISS_RECOVERY;
@@ -58,12 +86,12 @@ export class FruitMatch {
     if (this.phase === "show") {
       this.phase = "active";
       this.visibleAt = this.time;
-      this.until = this.time + 0.85 + this.random() * 0.4;
+      this.until = this.time + this.activeMin + this.random() * this.activeSpan;
     }
   }
   private reveal() {
     this.current =
-      ++this.gap >= 3 || this.random() < 0.58
+      ++this.gap >= 3 || this.random() < this.fruitChance
         ? Math.floor(this.random() * 7)
         : 7 + Math.floor(this.random() * 3);
     if (isFruit(this.current)) {
@@ -81,6 +109,7 @@ export class FruitMatch {
       if (response.tie) {
         // A simultaneous slice keeps each sword on its own visible return path.
         this.capturedBy = null;
+        this.tieAt = this.time;
       } else {
         const p = response.first.player;
         this.capturedBy = p;
@@ -95,19 +124,22 @@ export class FruitMatch {
       }
       this.phase = "between";
       this.round++;
-      this.until = this.time + 0.9;
+      this.until = this.time + 1.0;
       return;
     }
     if (this.phase === "between" && this.time >= this.until) {
       this.current = -1;
       this.capturedBy = null;
       this.phase = "preview";
-      this.until = this.time + 0.55;
+      this.until = this.time + 0.9 + this.random() * 0.65;
       this.queue.clear();
-    } else if (
-      (this.phase === "preview" || this.phase === "active") &&
-      this.time >= this.until
-    )
+    } else if (this.phase === "active" && this.time >= this.until) {
+      // Pause cleanly on an empty board between consecutive decoys/objects.
+      this.current = -1;
+      this.phase = "preview";
+      this.until = this.time + 0.55 + this.random() * 0.45;
+    } else if (this.phase === "preview" && this.time >= this.until) {
       this.reveal();
+    }
   }
 }

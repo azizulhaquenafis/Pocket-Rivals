@@ -1,25 +1,32 @@
 import { it, expect } from "vitest";
 import { HandMotion } from "../../src/games/light-fingers/HandMotion";
-import { LightMatch } from "../../src/games/light-fingers/Rules";
+import {
+  LightMatch,
+  WRONG_TAP_COOLDOWN,
+} from "../../src/games/light-fingers/Rules";
 
 it("failed hands reach, recoil and regain color exactly when the legal cooldown ends", () => {
   const match = new LightMatch(() => 0),
     hand = new HandMotion();
   match.tap(0);
   hand.recover(match.time, match.blockedUntil[0]);
+  expect(match.blockedUntil[0]).toBe(WRONG_TAP_COOLDOWN);
   expect(hand.pose(0).reach).toBe(0);
-  expect(hand.pose(0.15).reach).toBeCloseTo(1);
-  expect(hand.pose(0.2).gray).toBe(1);
-  expect(hand.pose(0.5).reach).toBeLessThan(0);
-  expect(hand.pose(1).gray).toBeLessThan(hand.pose(0.5).gray);
-  expect(hand.pose(1.25)).toEqual({
+  expect(hand.pose(WRONG_TAP_COOLDOWN * 0.08).reach).toBeCloseTo(1);
+  expect(hand.pose(WRONG_TAP_COOLDOWN * 0.1).gray).toBe(1);
+  expect(hand.pose(WRONG_TAP_COOLDOWN * 0.24).reach).toBeLessThan(0);
+  expect(hand.pose(WRONG_TAP_COOLDOWN * 0.7).gray).toBeLessThan(
+    hand.pose(WRONG_TAP_COOLDOWN * 0.3).gray,
+  );
+  expect(hand.pose(WRONG_TAP_COOLDOWN * 0.6).phase).toBe("recovery");
+  expect(hand.pose(WRONG_TAP_COOLDOWN)).toEqual({
     reach: 0,
     gray: 0,
     grip: 0,
     carrying: false,
     phase: "ready",
   });
-  match.update(1.25);
+  match.update(WRONG_TAP_COOLDOWN);
   expect(match.canTap(0)).toBe(true);
   expect(match.scores).toEqual([0, 0]);
 });

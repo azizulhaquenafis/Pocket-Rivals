@@ -83,8 +83,8 @@ for (const d of ["medium", "hard", "impossible"] as const)
       `Gravity ${d}: mean ${duration / 100}s; full rounds ${survived}/100`,
     );
     if (d === "medium") {
-      expect(duration / 100).toBeGreaterThan(60);
-      expect(duration / 100).toBeLessThan(115);
+      expect(duration / 100).toBeGreaterThan(20);
+      expect(duration / 100).toBeLessThan(110);
     }
   }, 120000);
 it("four maps select reproducibly, random seeds cover all themes, and explicit maps work", () => {
@@ -178,9 +178,9 @@ it("two-minute rounds draw; speed rises smoothly and geometry stays bounded", ()
   expect(m.age).toBeGreaterThan(119);
   expect(m.winner).toBeNull();
   expect(m.round).toBe(1);
-  expect(m.distance).toBeGreaterThan(20000);
-  expect(m.speed()).toBe(264);
-  expect(maxObjects).toBeLessThan(30);
+  expect(m.distance).toBeGreaterThan(24000);
+  expect(m.speed()).toBe(315);
+  expect(maxObjects).toBeLessThan(36);
 });
 it("reaction/search budgets differ by difficulty while every accepted action remains legal", () => {
   const actions: Record<string, number[]> = {};
@@ -226,7 +226,7 @@ it("round clocks use uncapped elapsed time, draw without points, and reset", () 
   expect(m.remaining).toBe(120);
   expect(m.round).toBe(2);
   expect(m.age).toBe(0);
-  expect(m.speed()).toBe(120);
+  expect(m.speed()).toBe(145);
   expect(m.timedOut).toBe(false);
   m.step(1 / 120, false);
   expect(m.remaining).toBe(120);

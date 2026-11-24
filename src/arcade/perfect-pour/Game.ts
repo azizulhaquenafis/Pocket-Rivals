@@ -116,7 +116,9 @@ export class Game extends ArcadeGame {
     return {
       score: this.w.score,
       done: this.w.done,
-      detail: `${this.w.lives} CHANCES`,
+      detail: "",
+      lives: this.w.lives,
+      maxLives: 3,
       result: this.w.lives
         ? "Ten vessels filled."
         : `Reached pour ${this.w.round}.`,
