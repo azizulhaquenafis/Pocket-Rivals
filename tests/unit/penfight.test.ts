@@ -13,6 +13,7 @@ import {
   deskForShots,
   PenMatch,
   powerLimit,
+  previewFlick,
   shotFromPull,
   simulateShot,
 } from "../../src/games/penfight/PenRules";
@@ -318,4 +319,25 @@ it("the AI on each difficulty uses the opening cap and makes a useful attack whe
       expect(after[1].out).toBe(false);
     }
   }
+});
+
+it("aim preview starts from the pen point of contact and stays compact", () => {
+  const bodies = pens();
+  const pen = bodies[0];
+  const offset = 28;
+  const contactX = pen.x + offset * Math.cos(pen.a);
+  const contactY = pen.y + offset * Math.sin(pen.a);
+  const path = previewFlick(
+    bodies,
+    0,
+    { angle: -Math.PI / 2, power: 1, offset },
+    2,
+  );
+  expect(path.length).toBeGreaterThanOrEqual(4);
+  expect(path[0].x).toBeCloseTo(contactX, 1);
+  expect(Math.hypot(path[0].x - contactX, path[0].y - contactY)).toBeLessThan(12);
+  const last = path.at(-1)!;
+  expect(Math.hypot(last.x - contactX, last.y - contactY)).toBeLessThanOrEqual(
+    93,
+  );
 });

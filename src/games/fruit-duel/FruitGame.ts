@@ -96,7 +96,7 @@ export class FruitGame implements MiniGame {
         this.seen[p] = this.m.attemptSerial[p];
         this.swing[p] = 0;
         this.decoyClankSound[p] = false;
-        this.ctx.audio.play(this.m.missed[p] ? "thud" : "shoot");
+        this.ctx.audio.play(this.m.missed[p] ? "fail" : "shoot", this.m.missed[p] ? 0.6 : 0.85);
       }
       const age = this.m.time - this.m.swingStartedAt[p];
       this.swing[p] = Math.min(1, age / this.m.recoveryDuration[p]);
@@ -107,7 +107,7 @@ export class FruitGame implements MiniGame {
         age < 0.4
       ) {
         this.decoyClankSound[p] = true;
-        this.ctx.audio.play("hit", 0.7);
+        this.ctx.audio.play("metal", 0.85);
       }
     }
     if (this.round !== this.m.round) {
@@ -151,7 +151,7 @@ export class FruitGame implements MiniGame {
     }
     if (tieClash && !this.tieSound && this.m.time - this.m.tieAt >= SWING_IMPACT - 0.01) {
       this.tieSound = true;
-      this.ctx.audio.play("hit", 0.9);
+      this.ctx.audio.play("metal", 0.95);
     }
 
     if (slicing && this.cutAge < SWING_IMPACT) {

@@ -50,12 +50,21 @@ export class TicTacToe implements MiniGame {
       const cell = Math.floor((y - 219) / 108) * 3 + Math.floor((x - 48) / 108);
       this.place(cell);
     });
+    ctx.audio.play("start", 0.65);
   }
   private place(cell: number) {
-    if (!this.board.play(cell)) return;
+    const mover = this.board.turn;
+    if (!this.board.play(cell)) {
+      this.ctx.audio.play("soft", 0.35);
+      return;
+    }
     this.ages[cell] = 0.001;
     this.thinkFor = 0;
-    this.ctx.audio.play("tap");
+    if (this.board.winner === 1 || this.board.winner === 2)
+      this.ctx.audio.play("perfect", 0.85);
+    else if (this.board.winner === "draw")
+      this.ctx.audio.play("draw", 0.7);
+    else this.ctx.audio.play(mover === 1 ? "tap" : "wood", 0.85);
     this.ctx.saveState({ ...this.board.save(), ai: this.ai?.snapshot() });
     this.refreshTurn();
   }

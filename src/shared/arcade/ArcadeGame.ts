@@ -19,6 +19,7 @@ export abstract class ArcadeGame implements MiniGame {
   private reported = false;
   protected ending = 0;
   protected endDelay = 0.7;
+  protected autoScoreSound = true;
   private fixed = new FixedStep();
   private labels = new Map<string, Phaser.GameObjects.Text>();
   private lastHUD = "";
@@ -142,7 +143,8 @@ export abstract class ArcadeGame implements MiniGame {
       }
     });
     const s = this.state();
-    if (s.score > this.lastScore) this.ctx.audio.play("capture", 0.35);
+    if (this.autoScoreSound && s.score > this.lastScore)
+      this.ctx.audio.play("capture", 0.35);
     this.lastScore = s.score;
     this.render();
     if (s.done && this.ending > this.endDelay) {

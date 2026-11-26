@@ -19,6 +19,8 @@ export class LumberGame implements MiniGame {
   private scroll = [0, 0];
   private swing = [0, 0];
   private sides = [-1, 1];
+  private wasStunned = [false, false];
+  private milestone = [0, 0];
   private round = 1;
   private flipped = false;
   initialize(ctx: GameContext) {
@@ -50,7 +52,18 @@ export class LumberGame implements MiniGame {
     if (this.paused || (p === 1 && this.ai && !ai)) return;
     const result = this.m.chop(p, side);
     if (result !== null) {
-      this.ctx.audio.play(result ? "wood" : "fail");
+      if (result) {
+        const tier = Math.floor(this.m.players[p].score / 25);
+        if (tier > this.milestone[p]) {
+          this.milestone[p] = tier;
+          this.ctx.audio.play("capture", 0.85);
+        } else {
+          this.ctx.audio.play("wood", 0.85);
+        }
+      } else {
+        this.ctx.audio.play("thud", 0.85);
+        this.ctx.audio.play("fail", 0.75);
+      }
       this.swing[p] = 1;
       if (result || this.m.players[p].hitNext)
         this.scroll[p] = Math.min(28, this.scroll[p] + 28);
@@ -59,6 +72,11 @@ export class LumberGame implements MiniGame {
   update(dt: number) {
     if (this.paused) return;
     this.m.update(dt);
+    for (const p of [0, 1] as const) {
+      const stunned = this.m.players[p].stun > 0;
+      if (this.wasStunned[p] && !stunned) this.ctx.audio.play("resume", 0.55);
+      this.wasStunned[p] = stunned;
+    }
     const side = this.ai?.update(dt, this.m);
     if (side) this.chop(1, side, true);
     const g = this.g;

@@ -263,7 +263,10 @@ export class WaterGuessGame implements MiniGame {
     this.inputBufferText.setAlpha(1);
     this.updateBufferDisplay();
     this.buttonTexts.forEach((t) => t.setAlpha(1));
-    this.ctx.audio.play("soft");
+    this.ctx.audio.play(
+      isSudden ? "metal" : this.match.round === 1 ? "start" : "soft",
+      isSudden ? 0.75 : 0.7,
+    );
   }
 
   private submitCurrentGuess() {
@@ -377,6 +380,7 @@ export class WaterGuessGame implements MiniGame {
       if (this.fillAnimProgress >= 1) {
         this.state = "GUESSING";
         this.updateBufferDisplay();
+        this.ctx.audio.play("soft", 0.5);
       }
     } else if (this.state === "REVEAL") {
       // Do not consume the readable reveal while turning to its recipient.

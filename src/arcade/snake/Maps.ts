@@ -39,8 +39,8 @@ export const MAPS: readonly SnakeMap[] = [
     blocks: [
       ...line(4, 4, 4, false),
       ...line(12, 4, 4, false),
-      ...line(4, 14, 3, false),
-      ...line(12, 14, 3, false),
+      ...line(4, 17, 4, false),
+      ...line(12, 17, 4, false),
     ],
   },
   {
@@ -57,12 +57,12 @@ export const MAPS: readonly SnakeMap[] = [
       ...line(3, 6, 3),
       ...line(11, 5, 3),
       ...line(11, 6, 3),
-      ...line(7, 15, 3),
-      ...line(7, 16, 3),
+      ...line(7, 18, 3),
+      ...line(7, 19, 3),
     ],
   },
 ];
 export function mapPreview(map: SnakeMap) {
   const hex = (n: number) => "#" + n.toString(16).padStart(6, "0");
-  return `<svg viewBox="0 0 170 200" aria-hidden="true"><rect width="170" height="200" rx="12" fill="${hex(map.floor)}"/>${map.blocks.map((c) => `<rect x="${c.x * 10}" y="${c.y * 10}" width="10" height="10" rx="2" fill="${hex(map.wall)}"/>`).join("")}<path d="M45 125h40v-30h30" stroke="#242b32" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M45 125h40v-30h30" stroke="${hex(map.snake)}" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="130" cy="70" r="7" fill="#f49b58" stroke="#242b32" stroke-width="2"/></svg>`;
+  return `<svg viewBox="0 0 170 250" aria-hidden="true"><rect width="170" height="250" rx="12" fill="${hex(map.floor)}"/>${map.blocks.map((c) => `<rect x="${c.x * 10}" y="${c.y * 10}" width="10" height="10" rx="2" fill="${hex(map.wall)}"/>`).join("")}<path d="M45 150h40v-30h30" stroke="#242b32" stroke-width="13" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M45 150h40v-30h30" stroke="${hex(map.snake)}" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="130" cy="85" r="7" fill="#f49b58" stroke="#242b32" stroke-width="2"/></svg>`;
 }

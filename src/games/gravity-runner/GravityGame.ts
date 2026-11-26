@@ -2,7 +2,8 @@ import type Phaser from "phaser";
 import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { freshSeed } from "../../shared/ai/MatchRandom";
-import { GravityMatch } from "./Rules";
+import { label } from "../../shared/components/drawing";
+import { GravityMatch, TOTAL_ROUNDS } from "./Rules";
 import { GravityView } from "./GravityView";
 import { course, runners } from "./GravityArt";
 import { GravityAI } from "./AI";
@@ -13,6 +14,7 @@ export class GravityGame implements MiniGame {
   private g!: Phaser.GameObjects.Graphics;
   private clip!: Phaser.GameObjects.Graphics;
   private mask!: Phaser.Display.Masks.GeometryMask;
+  private roundText!: Phaser.GameObjects.Text;
   private fixed = new FixedStep();
   private view = new GravityView();
   private renderState?: ReturnType<GravityView["sample"]>;
@@ -20,6 +22,8 @@ export class GravityGame implements MiniGame {
   private done = false;
   private score = "";
   private finishAge = 0;
+  private drawPlayed = false;
+  private lastUrgentSec = -1;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.g = ctx.scene.add.graphics();
@@ -27,6 +31,7 @@ export class GravityGame implements MiniGame {
     this.clip.fillStyle(0xffffff).fillRoundedRect(22, 110, 376, 542, 22);
     this.mask = this.clip.createGeometryMask();
     this.g.setMask(this.mask);
+    this.roundText = label(ctx.scene, 348, 86, `R1/${TOTAL_ROUNDS}`, 14, "#697474");
     if (ctx.options.mode === "ai") {
       this.ai = new GravityAI(ctx.options.difficulty);
     }
@@ -68,6 +73,8 @@ export class GravityGame implements MiniGame {
       this.m.step(h, false);
       if (round !== this.m.round) {
         this.view.reset(this.m);
+        this.drawPlayed = false;
+        this.lastUrgentSec = -1;
         this.ctx.audio.play("start", 0.65);
       }
       for (const i of [0, 1] as const) {
@@ -85,8 +92,24 @@ export class GravityGame implements MiniGame {
       this.ctx.setScore(...this.m.scores);
     }
     const seconds = Math.ceil(this.m.remaining);
+    if ((this.m.timedOut || this.m.roundDraw) && !this.drawPlayed) {
+      this.drawPlayed = true;
+      this.ctx.audio.play("draw", 0.85);
+    } else if (
+      !this.m.timedOut &&
+      !this.m.roundDraw &&
+      !this.m.between &&
+      seconds <= 5 &&
+      seconds > 0 &&
+      seconds !== this.lastUrgentSec
+    ) {
+      this.lastUrgentSec = seconds;
+      this.ctx.audio.play("clockTick", 0.7);
+    }
+    const roundLabel = `R${Math.min(this.m.round, TOTAL_ROUNDS)}/${TOTAL_ROUNDS}`;
+    if (this.roundText.text !== roundLabel) this.roundText.setText(roundLabel);
     this.ctx.setClock(
-      this.m.timedOut
+      this.m.timedOut || this.m.roundDraw
         ? "ROUND DRAW"
         : `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
       seconds <= 10,
@@ -126,6 +149,7 @@ export class GravityGame implements MiniGame {
     this.g.destroy();
     this.mask.destroy();
     this.clip.destroy();
+    this.roundText.destroy();
   }
   snapshot() {
     return {
@@ -138,6 +162,7 @@ export class GravityGame implements MiniGame {
       age: this.m.age,
       remaining: this.m.remaining,
       timedOut: this.m.timedOut,
+      roundDraw: this.m.roundDraw,
       patterns: [...this.m.patterns],
       renderState: this.renderState,
       distance: this.m.distance,

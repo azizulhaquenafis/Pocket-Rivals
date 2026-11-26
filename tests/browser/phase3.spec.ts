@@ -92,7 +92,7 @@ test("Arcade has independent high scores, Snake controls, pause and game over", 
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  await expect(page.locator("[data-game]")).toHaveCount(7);
+  await expect(page.locator("[data-game]")).toHaveCount(8);
   await page.screenshot({ path: "docs/arcade.png" });
   await page
     .getByRole("button", { name: "Play Classic Snake", exact: true })
@@ -103,7 +103,8 @@ test("Arcade has independent high scores, Snake controls, pause and game over", 
     .click();
   await page.locator("[data-start]").click();
   await page.waitForTimeout(250);
-  await tap(page, 210, 574);
+  // Swipe outside the play grid (in the bottom area below the board) to steer up
+  await drag(page, 210, 710, 210, 660);
   await expect
     .poll(async () => (await state(page)).scene.game.direction)
     .toBe("up");

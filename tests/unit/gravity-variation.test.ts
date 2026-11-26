@@ -52,15 +52,15 @@ it("each map generates only its own signature traps and nonperiodic seeded combi
     expect(openings.size).toBeGreaterThan(70);
   }
 });
-it("speed has a brief settle-in, continuous smooth acceleration and a safe endless ceiling", () => {
+it("speed has a brief settle-in, steeper continuous acceleration and a fast ceiling", () => {
   const m = new GravityMatch(7);
   expect(m.speed(0)).toBe(145);
   expect(m.speed(3)).toBe(145);
-  expect(m.speed(15)).toBeGreaterThan(165);
-  expect(m.speed(40)).toBeGreaterThan(m.speed(15) + 40);
-  expect(m.speed(75)).toBeGreaterThan(m.speed(40) + 50);
-  expect(m.speed(105)).toBe(315);
-  expect(m.speed(1000000)).toBe(315);
+  expect(m.speed(15)).toBeGreaterThan(180);
+  expect(m.speed(40)).toBeGreaterThan(m.speed(15) + 90);
+  expect(m.speed(75)).toBeGreaterThan(m.speed(40) + 115);
+  expect(m.speed(105)).toBe(450);
+  expect(m.speed(1000000)).toBe(450);
   for (let age = 2; age < 106; age += 0.1) {
     const delta = m.speed(age + 0.01) - m.speed(age);
     expect(delta).toBeGreaterThanOrEqual(0);

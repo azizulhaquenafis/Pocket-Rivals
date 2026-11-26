@@ -1,4 +1,6 @@
 import type { Difficulty } from "../../shared/contracts/AIController";
+export const MAX_SPRINGS = 3;
+export const SPRING_VY = -590;
 export interface Ledge {
   id: number;
   x: number;
@@ -23,6 +25,11 @@ export class ClimberWorld {
   score = 0;
   highest = 0;
   stars = 0;
+  springs = MAX_SPRINGS;
+  springCooldown = 0;
+  springEffect = 0;
+  springOriginX = 210;
+  springOriginY = 576;
   done = false;
   rockClock = 3;
   rocks: { x: number; y: number; vy: number; warning: number; vx: number }[] =
@@ -74,9 +81,21 @@ export class ClimberWorld {
         p.motion
     );
   }
+  spring() {
+    if (this.done || this.springs <= 0 || this.springCooldown > 0) return false;
+    this.springs--;
+    this.vy = SPRING_VY;
+    this.springCooldown = 0.28;
+    this.springEffect = 0.42;
+    this.springOriginX = this.x;
+    this.springOriginY = this.y + 14;
+    return true;
+  }
   step(dt: number, axis: number) {
     if (this.done) return;
     this.age += dt;
+    this.springCooldown = Math.max(0, this.springCooldown - dt);
+    this.springEffect = Math.max(0, this.springEffect - dt);
     for (const p of this.platforms) if (p.crumble) p.crumble += dt;
     const oldY = this.y;
     const target = Math.max(-1, Math.min(1, axis)) * 200;

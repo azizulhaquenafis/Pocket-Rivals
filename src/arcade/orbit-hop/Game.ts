@@ -29,6 +29,7 @@ interface Drift {
 export class Game extends ArcadeGame {
   private w = new OrbitWorld();
   protected override endDelay = 1.15;
+  protected override autoScoreSound = false;
   protected challenge = {
     title: "Orbit Hop",
     guideTitle: "How to play & planet guide",
@@ -122,11 +123,18 @@ export class Game extends ArcadeGame {
   protected step(dt: number) {
     const lives = this.w.lives;
     const wasOrbiting = this.w.orbit;
+    const highest = this.w.highest;
     this.w.step(dt);
     this.landingAge += dt;
     this.advanceEffects(dt);
-    if (!wasOrbiting && this.w.orbit && this.w.lives === lives)
+    if (!wasOrbiting && this.w.orbit && this.w.lives === lives) {
       this.landingAge = 0;
+      const advanced = this.w.highest > highest;
+      this.ctx.audio.play(
+        advanced ? "perfect" : "capture",
+        advanced ? 0.75 : 0.55,
+      );
+    }
     if (!this.w.orbit && !this.w.done) {
       this.trail.push({ x: this.w.ball.x, y: this.w.ball.y });
       if (this.trail.length > 20) this.trail.shift();

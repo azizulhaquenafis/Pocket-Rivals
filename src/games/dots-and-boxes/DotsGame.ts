@@ -84,9 +84,11 @@ export class DotsGame implements MiniGame {
                   : 0
                 : (i + d + legal.length) % legal.length
             ] ?? -1;
+          if (this.selected >= 0) this.ctx.audio.play("soft", 0.28);
         }
       },
     );
+    ctx.audio.play("start", 0.65);
   }
   private place(edge: number, ai = false) {
     if (
@@ -106,7 +108,15 @@ export class DotsGame implements MiniGame {
       ...this.board.save(),
       ai: this.personality.snapshot(),
     });
-    this.ctx.audio.play(gain > 1 ? "perfect" : gain ? "capture" : "tap");
+    this.ctx.audio.play(
+      gain > 1
+        ? "perfect"
+        : this.board.winner
+          ? "goal"
+          : gain
+            ? "capture"
+            : "tap",
+    );
     this.detail.setText(
       gain
         ? `+${gain} BOX${gain === 1 ? "" : "ES"} · PLAY AGAIN`

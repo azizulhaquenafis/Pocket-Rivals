@@ -15,7 +15,6 @@ export const GLIDER_TIERS = {
     landing: 64,
     landingStep: 3.5,
     minLanding: 42,
-    maxTouchVx: 82,
     steerAccel: 560,
   },
   hard: {
@@ -32,7 +31,6 @@ export const GLIDER_TIERS = {
     landing: 54,
     landingStep: 3,
     minLanding: 38,
-    maxTouchVx: 72,
     steerAccel: 620,
   },
   impossible: {
@@ -49,7 +47,6 @@ export const GLIDER_TIERS = {
     landing: 46,
     landingStep: 2.5,
     minLanding: 34,
-    maxTouchVx: 64,
     steerAccel: 700,
   },
 } as const;
@@ -58,7 +55,7 @@ export interface GliderCrash {
   x: number;
   y: number;
   vx: number;
-  reason: "wall" | "miss" | "fast";
+  reason: "wall" | "miss";
   final: boolean;
 }
 
@@ -286,10 +283,6 @@ export class GliderWorld {
         this.crash("miss");
         return;
       }
-      if (Math.abs(this.vx) >= this.settings.maxTouchVx) {
-        this.crash("fast");
-        return;
-      }
       const centerBonus =
         Math.abs(this.x - this.landing) < this.landingWidth * 0.35 ? 60 : 0;
       this.score += 200 + (this.level - 1) * 25 + this.pending + centerBonus;
@@ -297,7 +290,7 @@ export class GliderWorld {
     }
   }
 
-  crash(reason: "wall" | "miss" | "fast" = "wall") {
+  crash(reason: "wall" | "miss" = "wall") {
     this.lastCrash = {
       x: this.x,
       y: this.y,

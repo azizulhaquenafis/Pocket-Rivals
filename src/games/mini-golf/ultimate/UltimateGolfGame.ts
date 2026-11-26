@@ -188,6 +188,7 @@ export class UltimateGolfGame implements MiniGame {
   private heldKeys: ReadonlySet<string> = new Set();
   private impacts = 0;
   private recoveries = 0;
+  private ufoWarned = false;
   private get world() {
     return this.mode === "casual" ? this.casual.world : this.local?.world;
   }
@@ -273,7 +274,8 @@ export class UltimateGolfGame implements MiniGame {
   }
   private fireShot(v: { x: number; y: number }) {
     if (this.world?.shoot(v.x, v.y)) {
-      this.ctx.audio.play("hit");
+      const power = Math.min(1, Math.hypot(v.x, v.y) / 900);
+      this.ctx.audio.play("shoot", 0.55 + power * 0.45);
       this.cancel();
     }
   }
@@ -464,6 +466,7 @@ export class UltimateGolfGame implements MiniGame {
     this.view.configure(this.ui.bounds());
     this.view.follow(this.world!.ball, 1);
     this.attachWorld();
+    this.ctx.audio.play("start", 0.7);
     this.update(0);
   }
   private attachWorld() {
@@ -471,6 +474,7 @@ export class UltimateGolfGame implements MiniGame {
     this.renderer = new GolfRenderer(this.ctx.scene, this.view);
     this.renderedWorld = this.world;
     this.impacts = this.recoveries = 0;
+    this.ufoWarned = false;
     if (this.world) this.kb.reset(this.world.ball, courses[this.course].hole);
   }
   private casualResult() {
@@ -478,7 +482,9 @@ export class UltimateGolfGame implements MiniGame {
     this.cancel();
     this.casual.record();
     const w = this.world!;
-    this.ctx.audio.play(w.status === "won" ? "win" : "draw");
+    this.ctx.audio.play(
+      w.status === "won" ? (w.strokes <= 2 ? "perfect" : "win") : "fail",
+    );
     this.ui.title(courses[this.casual.course].name);
     this.ui.screen(
       `<h2>${w.status === "won" ? "Beautiful putt!" : "One more try?"}</h2><p>${w.strokes} / ${w.limit} strokes · ${w.score} points</p><div class="golf-actions"><button class="golf-primary" data-action="${w.status === "won" && this.casual.course < 3 ? "next" : "retry"}">${w.status === "won" && this.casual.course < 3 ? "Next course" : "Play again"}</button><button data-action="courses">Courses</button><button data-action="finish">Finish run</button></div>`,
@@ -488,6 +494,7 @@ export class UltimateGolfGame implements MiniGame {
     const competition = this.local!;
     if (competition.phase === "playing") return;
     if (competition.phase !== "complete") {
+      this.ctx.audio.play("goal", 0.75);
       this.ready();
       return;
     }
@@ -539,12 +546,19 @@ export class UltimateGolfGame implements MiniGame {
         : theme.orange;
     this.renderer?.draw(w, this.aim, undefined, playerColor);
     if (w.impacts !== this.impacts) {
-      this.ctx.audio.play("hit");
+      this.ctx.audio.play("wood", 0.85);
       this.impacts = w.impacts;
     }
     if (w.recoveries !== this.recoveries) {
+      this.ctx.audio.play("fall", 0.8);
       this.cancel();
       this.recoveries = w.recoveries;
+    }
+    if (w.dynamics.ufo.warning && !this.ufoWarned) {
+      this.ufoWarned = true;
+      this.ctx.audio.play("countdown", 0.65);
+    } else if (!w.dynamics.ufo.warning) {
+      this.ufoWarned = false;
     }
     const elapsed = this.mode === "local" ? this.local!.elapsed : 0;
     const prefix =

@@ -8,6 +8,12 @@ export const icons = {
     '<path d="m11 4-5 4H3v8h3l5 4V4Z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/>',
   ),
   muted: svg('<path d="m11 4-5 4H3v8h3l5 4V4Z"/><path d="m16 9 6 6m0-6-6 6"/>'),
+  shuffle: svg(
+    '<path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="m4 4 5 5"/>',
+  ),
+  edit: svg(
+    '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+  ),
   arrow: svg('<path d="M5 12h14m-6-6 6 6-6 6"/>'),
   close: svg('<path d="m6 6 12 12m0-12L6 18"/>'),
   cup: svg(

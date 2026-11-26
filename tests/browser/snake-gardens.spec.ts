@@ -11,6 +11,14 @@ test(`${map}: setup, controls, pause and cleanup`,async({page})=>{
  expect((await state(page)).scene.game.map).toBe(id);
  expect((await state(page)).scene.game.difficulty).toBe(tier.toLowerCase());
  await page.keyboard.press('ArrowUp');await expect.poll(async()=>(await state(page)).scene.game.direction).toBe('up');
+ // Verify swiping outside the play grid (and outside the canvas on desktop) steers the snake
+ const box=(await page.locator('canvas').boundingBox())!;
+ const cdp=await page.context().newCDPSession(page);
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{id:3,x:box.x+(210/420)*box.width,y:box.y+(710/760)*box.height}]});
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{id:3,x:box.x+(270/420)*box.width,y:box.y+(710/760)*box.height}]});
+ await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+ await cdp.detach();
+ await expect.poll(async()=>(await state(page)).scene.game.direction).toBe('right');
  await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:/Keep playing/})).toBeVisible();const paused=(await state(page)).scene.game;
  await page.waitForTimeout(150);expect((await state(page)).scene.game).toEqual(paused);
  await page.getByRole('button',{name:/Keep playing/}).click();await page.screenshot({path:`docs/snake-${id}.png`});

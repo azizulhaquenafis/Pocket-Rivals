@@ -78,7 +78,10 @@ export class LightGame implements MiniGame {
   private tap(p: 0 | 1) {
     if (!this.paused && !(p === 1 && this.ai)) {
       const accepted = this.m.tap(p);
-      if (accepted) this.hands[p].grab(this.m.time);
+      if (accepted) {
+        this.hands[p].grab(this.m.time);
+        this.ctx.audio.play("shoot", 0.5);
+      }
     }
   }
   update(dt: number) {
@@ -104,7 +107,13 @@ export class LightGame implements MiniGame {
       this.previousScores = [...this.m.scores];
       if (this.celebration) this.hands[this.celebration - 1].steal(this.m.time);
       this.ctx.setScore(...this.m.scores);
-      this.ctx.audio.play(this.m.message.includes("SOON") ? "fail" : "capture");
+      this.ctx.audio.play(
+        this.m.message.includes("SOON")
+          ? "fail"
+          : this.celebration
+            ? "capture"
+            : "hit",
+      );
     }
     const g = this.g;
     g.clear();
@@ -236,7 +245,7 @@ export class LightGame implements MiniGame {
     if (!winnerTint) spotlightOverlay(g, active, this.m.time, signalAge);
 
     if (this.m.phase === "signal") {
-      this.ctx.audio.play("countdown");
+      this.ctx.audio.play("metal", 0.85);
       this.m.presentSignal();
     }
     if (this.m.winner) {

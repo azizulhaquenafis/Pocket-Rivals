@@ -12,7 +12,7 @@ import { TournamentManager } from "./TournamentManager";
 import { GameHost } from "../scenes/GameHost";
 import { MainMenu } from "../scenes/MainMenu";
 import { GameSetup } from "../scenes/GameSetup";
-import { TournamentScene } from "../tournament/TournamentScene";
+import type { TournamentScene } from "../tournament/TournamentScene";
 import { Modal } from "../shared/components/Modal";
 import { resultsContent } from "../scenes/Results";
 import { getGame } from "./GameRegistry";
@@ -41,7 +41,7 @@ export class GameManager {
   private loadingTimer?: number;
   private transition = document.createElement("div");
   private menu: MainMenu;
-  private tournamentView: TournamentScene;
+  private tournamentView?: TournamentScene;
   private active: MatchSpec | null = null;
   private token: string | null = null;
   private run = 0;
@@ -59,7 +59,6 @@ export class GameManager {
     this.arcade = new ArcadeScoreManager(this.storage);
     this.audio = new AudioManager(this.storage);
     this.tournament = new TournamentManager(this.storage);
-    this.tournamentView = new TournamentScene(this);
     this.host = new GameHost(this);
     this.game = new Phaser.Game({
       type: Phaser.AUTO,
@@ -127,6 +126,7 @@ export class GameManager {
     };
     const visibility = () => {
       if (document.hidden) this.background();
+      else this.audio.resume();
     };
     const blur = () => this.background();
     window.addEventListener("keydown", key);
@@ -299,11 +299,14 @@ export class GameManager {
     this.state = "results";
     this.audio.play(result.winner === "draw" ? "draw" : "win");
     if (this.token) {
-      this.tournamentView.show();
+      this.openTournamentView("show");
       return;
     }
     this.modal.show(
-      resultsContent(result, this.active!.options),
+      resultsContent(result, this.active!.options, [
+        this.storage.playerName(0),
+        this.storage.playerName(1, this.active!.options.mode === "ai"),
+      ]),
       {
         rematch: () =>
           void this.play(this.active!.gameId, this.active!.options),
@@ -368,7 +371,7 @@ export class GameManager {
     this.host.pauseGame();
     this.helpOpen = false;
     this.state = "paused";
-    this.audio.play("tap");
+    this.audio.play("pause", 0.85);
     this.modal.show(
       `<div class="pause-symbol">Ⅱ</div><div class="eyebrow">TAKE YOUR TIME</div><h2 id="dialog-title">${reason === "leave" ? "A little timeout?" : "Rivalry on hold."}</h2><p>${getGame(this.active!.gameId).instructions}</p><button class="primary-button" data-action="resume">Keep playing →</button><button class="secondary-button" data-action="restart">Start a fresh match</button><button class="text-button" data-action="menu">${this.token ? "Save & return to menu" : "Back to all games"}</button>`,
       {
@@ -396,7 +399,8 @@ export class GameManager {
   private resume() {
     this.helpOpen = false;
     this.modal.close();
-    this.audio.unlock();
+    this.audio.resume();
+    this.audio.play("resume", 0.85);
     this.state = this.host.ready ? "playing" : "loading";
     if (this.state === "loading") this.watchLoading();
     this.host.resumeGame();
@@ -430,16 +434,32 @@ export class GameManager {
   refreshMenu() {
     this.menu.render();
   }
+  private openTournamentView(action: "setup" | "show") {
+    if (this.tournamentView) {
+      this.tournamentView[action]();
+      return;
+    }
+    const run = this.run;
+    void import("../tournament/TournamentScene")
+      .then(({ TournamentScene }) => {
+        if (!this.tournamentView)
+          this.tournamentView = new TournamentScene(this);
+        if (run === this.run) this.tournamentView[action]();
+      })
+      .catch((error) => {
+        if (run === this.run) this.showError(error);
+      });
+  }
   openTournament() {
     if (this.tournament.state) this.showTournament();
-    else this.tournamentView.setup();
+    else this.openTournamentView("setup");
   }
   newTournament() {
-    this.tournamentView.setup();
+    this.openTournamentView("setup");
   }
   showTournament() {
     this.goMenu();
-    this.tournamentView.show();
+    this.openTournamentView("show");
   }
   startTournamentRound() {
     const round = this.tournament.startRound();
@@ -463,6 +483,19 @@ export class GameManager {
     this.audio.syncSettings();
     this.storage.save();
     this.audio.play("tap");
+  }
+  editNames() {
+    if (this.state !== "menu" || this.modal.isOpen) return;
+    this.audio.play("tap", 0.7);
+    const run = this.run;
+    void import("../scenes/Settings")
+      .then(({ Settings }) => {
+        if (run === this.run && this.state === "menu" && !this.modal.isOpen)
+          new Settings(this).editNames();
+      })
+      .catch((error) => {
+        if (run === this.run) this.showError(error);
+      });
   }
   settings() {
     const run = this.run;

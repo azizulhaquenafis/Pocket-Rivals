@@ -34,6 +34,10 @@ export class PenGame implements MiniGame {
   private serial = -1;
   private fallAge = 0;
   private endAge = 0;
+  private outState = [false, false];
+  private deskLeft = 0;
+  private prevPhase = "aim";
+  private lastUrgentSec = -1;
   private previous!: [Pen, Pen];
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -103,6 +107,9 @@ export class PenGame implements MiniGame {
     );
     ctx.setHint("");
     ctx.setScore(0, 0);
+    this.deskLeft = this.match.desk.left;
+    this.prevPhase = this.match.phase;
+    ctx.audio.play("start", 0.7);
     this.draw();
   }
   private shoot(shot: Shot) {
@@ -162,10 +169,28 @@ export class PenGame implements MiniGame {
       `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
       seconds <= 10,
     );
+    if (m.phase !== "done" && seconds <= 5 && seconds > 0 && seconds !== this.lastUrgentSec) {
+      this.lastUrgentSec = seconds;
+      this.ctx.audio.play("clockTick", 0.7);
+    }
     this.fixed.advance(dt, (h) => {
       this.previous = m.bodies.map((p) => ({ ...p })) as [Pen, Pen];
       m.step(h);
     });
+    for (const i of [0, 1] as const) {
+      if (m.bodies[i].out && !this.outState[i]) {
+        this.ctx.audio.play("fall", 0.85);
+      }
+      this.outState[i] = m.bodies[i].out;
+    }
+    if (m.desk.left > this.deskLeft) {
+      this.ctx.audio.play("countdown", 0.7);
+    }
+    this.deskLeft = m.desk.left;
+    if (m.phase === "between" && this.prevPhase !== "between") {
+      this.ctx.audio.play(m.roundWinner === "draw" ? "draw" : "goal", 0.85);
+    }
+    this.prevPhase = m.phase;
     if (m.serial !== this.serial) {
       this.serial = m.serial;
       this.wait = 0;
@@ -200,7 +225,6 @@ export class PenGame implements MiniGame {
       this.endAge += Math.min(dt, 0.1);
       if (this.endAge > 0.9) {
         this.reported = true;
-        this.ctx.audio.play("win");
         this.ctx.finish({ winner: m.winner, scores: m.scores });
       }
     }

@@ -1,6 +1,12 @@
 import type Phaser from "phaser";
 import { theme } from "../../core/ThemeManager";
-import type { Cell, SnakeWorld } from "./SnakeRules";
+import {
+  CELL_SIZE,
+  GRID_ORIGIN_X,
+  GRID_ORIGIN_Y,
+  type Cell,
+  type SnakeWorld,
+} from "./SnakeRules";
 
 type Piece = {
   joint: Phaser.GameObjects.Image;
@@ -34,8 +40,8 @@ export class SnakeView {
     let count = 0;
     const append = (x: number, y: number) => {
       const p = this.points[count] ?? (this.points[count] = { x: 0, y: 0 });
-      p.x = 50 + x * 20;
-      p.y = 150 + y * 20;
+      p.x = GRID_ORIGIN_X + x * CELL_SIZE;
+      p.y = GRID_ORIGIN_Y + y * CELL_SIZE;
       count++;
     };
     for (let i = 0; i < w.body.length; i++) {
@@ -47,8 +53,8 @@ export class SnakeView {
       if (i) {
         const last = this.points[count - 1];
         if (
-          Math.abs(last.x - (50 + x * 20)) > 1e-6 &&
-          Math.abs(last.y - (150 + y * 20)) > 1e-6
+          Math.abs(last.x - (GRID_ORIGIN_X + x * CELL_SIZE)) > 1e-6 &&
+          Math.abs(last.y - (GRID_ORIGIN_Y + y * CELL_SIZE)) > 1e-6
         ) {
           const corner = w.previous[i - 1] ?? c;
           append(corner.x, corner.y);
@@ -104,8 +110,8 @@ export class SnakeView {
       this.dots[dot++]
         .setVisible(true)
         .setPosition(
-          50 + (old.x + (c.x - old.x) * t) * 20,
-          150 + (old.y + (c.y - old.y) * t) * 20,
+          GRID_ORIGIN_X + (old.x + (c.x - old.x) * t) * CELL_SIZE,
+          GRID_ORIGIN_Y + (old.y + (c.y - old.y) * t) * CELL_SIZE,
         )
         .setTint(w.map.light);
     }

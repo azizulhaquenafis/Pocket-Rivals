@@ -14,14 +14,18 @@ const runner = (y = 160, gravity: -1 | 1 = 1): Runner => ({
   alive: true,
   cooldown: 0,
 });
-it("simultaneous falls replay; legal survival points finish at three", () => {
+it("plays exactly three rounds with no replacement round on draws", () => {
   const m = new GravityMatch(1);
+  // Round 1 simultaneous fall: draw (0-0), counts as round 1 (no replacement round).
   m.players.forEach((p) => (p.y = 193));
   m.gaps = [{ x: 0, width: 1000, side: 1 }];
   m.step(1 / 120);
   expect(m.scores).toEqual([0, 0]);
+  expect(m.roundDraw).toBe(true);
   expect(m.between).toBeGreaterThan(0);
-  for (let i = 0; i < 3; i++) {
+  expect(m.winner).toBeNull();
+  // Round 2 and Round 3 won by Blue -> finishes after round 3 with 0-2.
+  for (let i = 0; i < 2; i++) {
     m.step(1.2);
     m.players[0].y = 193;
     m.gaps = [{ x: 0, width: 1000, side: 1 }];
@@ -29,8 +33,23 @@ it("simultaneous falls replay; legal survival points finish at three", () => {
     m.players[1].gravity = -1;
     m.step(1 / 120);
   }
+  expect(m.round).toBe(3);
+  expect(m.scores).toEqual([0, 2]);
   expect(m.winner).toBe(2);
   expect(m.flip(1)).toBe(false);
+
+  // Three timeout draws end the match as a draw after round 3 with no replacement round.
+  const tied = new GravityMatch(2);
+  for (let r = 1; r <= 3; r++) {
+    tied.advanceClock(120);
+    if (r < 3) {
+      expect(tied.winner).toBeNull();
+      tied.step(1.2, false);
+    }
+  }
+  expect(tied.round).toBe(3);
+  expect(tied.scores).toEqual([0, 0]);
+  expect(tied.winner).toBe("draw");
 });
 for (const d of ["medium", "hard", "impossible"] as const)
   it(`${d}: 100 seeded opponents beat idle players using legal flips`, async () => {
@@ -178,8 +197,8 @@ it("two-minute rounds draw; speed rises smoothly and geometry stays bounded", ()
   expect(m.age).toBeGreaterThan(119);
   expect(m.winner).toBeNull();
   expect(m.round).toBe(1);
-  expect(m.distance).toBeGreaterThan(24000);
-  expect(m.speed()).toBe(315);
+  expect(m.distance).toBeGreaterThan(34000);
+  expect(m.speed()).toBe(450);
   expect(maxObjects).toBeLessThan(36);
 });
 it("reaction/search budgets differ by difficulty while every accepted action remains legal", () => {
@@ -234,10 +253,10 @@ it("round clocks use uncapped elapsed time, draw without points, and reset", () 
 
 it("every round changes map with reproducible, balanced random selection", () => {
   const counts: Record<string, number> = {};
-  for (let seed = 0; seed < 100; seed++) {
+  for (let seed = 0; seed < 1200; seed++) {
     const a = new GravityMatch(seed),
       b = new GravityMatch(seed);
-    for (let round = 0; round < 30; round++) {
+    for (let round = 0; round < 2; round++) {
       const previous = a.map.id;
       for (const m of [a, b]) {
         m.advanceClock(120);
@@ -252,5 +271,5 @@ it("every round changes map with reproducible, balanced random selection", () =>
     }
   }
   expect(Object.keys(counts)).toHaveLength(4);
-  for (const count of Object.values(counts)) expect(count).toBeGreaterThan(600);
+  for (const count of Object.values(counts)) expect(count).toBeGreaterThan(500);
 });

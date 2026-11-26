@@ -8,10 +8,11 @@ import {
 import { MAPS, type RunnerMap } from "./Maps";
 import { CourseStream } from "./CourseStream";
 export type { Gap, Obstacle, Runner } from "./RunnerPhysics";
+export const TOTAL_ROUNDS = 3;
 export const WIN_SCORE = 3;
 export const ROUND_SECONDS = 120;
 export const BASE_SPEED = 145;
-export const MAX_SPEED = 315;
+export const MAX_SPEED = 450;
 export class GravityMatch {
   players: [Runner, Runner] = [this.runner(), this.runner()];
   scores: [number, number] = [0, 0];
@@ -24,6 +25,7 @@ export class GravityMatch {
   between = 0;
   remaining = ROUND_SECONDS;
   timedOut = false;
+  roundDraw = false;
   winner: 1 | 2 | "draw" | null = null;
   map: RunnerMap;
   private stream!: CourseStream;
@@ -65,11 +67,11 @@ export class GravityMatch {
     return this.stream.history;
   }
   speed(age = this.age) {
-    // Brief 3s warm-up, then smooth continuous acceleration from 145 toward 315.
+    // Brief 3s warm-up, then steeper continuous acceleration from 145 toward 450.
     if (age <= 3) return BASE_SPEED;
     const t = Math.min(1, (age - 3) / 102);
     const s = t * t * (3 - 2 * t);
-    const curve = 0.55 * s + 0.45 * (1 - Math.pow(1 - t, 2.2));
+    const curve = 0.45 * s + 0.55 * (1 - Math.pow(1 - t, 1.85));
     return BASE_SPEED + (MAX_SPEED - BASE_SPEED) * curve;
   }
   flip(i: 0 | 1) {
@@ -79,13 +81,30 @@ export class GravityMatch {
     p.cooldown = 0.16;
     return true;
   }
+  private finishRound(survivor: 0 | 1 | null) {
+    if (survivor !== null) {
+      this.scores[survivor]++;
+      this.roundDraw = false;
+    } else {
+      this.roundDraw = true;
+    }
+    this.between = 1.1;
+    if (this.round >= TOTAL_ROUNDS) {
+      this.winner =
+        this.scores[0] === this.scores[1]
+          ? "draw"
+          : this.scores[0] > this.scores[1]
+            ? 1
+            : 2;
+    }
+  }
   advanceClock(dt: number) {
     if (this.winner || this.between || !Number.isFinite(dt) || dt <= 0) return;
     this.remaining = Math.max(0, this.remaining - dt);
     if (this.remaining <= 1e-8) {
       this.remaining = 0;
       this.timedOut = true;
-      this.between = 1.1; // Both survived: replay without awarding a point.
+      this.finishRound(null); // Draw counts as a round with no replacement round.
     }
   }
   step(dt: number, tickClock = true) {
@@ -98,6 +117,7 @@ export class GravityMatch {
         this.age = 0;
         this.remaining = ROUND_SECONDS;
         this.timedOut = false;
+        this.roundDraw = false;
         this.distance = 0;
         this.round++;
         const choices = MAPS.filter((map) => map.id !== this.map.id);
@@ -108,18 +128,20 @@ export class GravityMatch {
       return;
     }
     if (tickClock) this.advanceClock(dt);
-    if (this.between) return;
+    if (this.between || this.winner) return;
     this.age += dt;
     this.distance += this.speed() * dt;
     this.extend();
     for (const p of this.players)
       advanceRunner(p, this.distance, dt, this.gaps, this.obstacles, this.age);
     if (this.players.some((p) => !p.alive)) {
-      if (this.players[0].alive !== this.players[1].alive)
-        this.scores[this.players[0].alive ? 0 : 1]++;
-      this.between = 1.1;
-      if (this.scores.some((s) => s >= WIN_SCORE))
-        this.winner = this.scores[0] >= WIN_SCORE ? 1 : 2;
+      const survivor =
+        this.players[0].alive !== this.players[1].alive
+          ? this.players[0].alive
+            ? 0
+            : 1
+          : null;
+      this.finishRound(survivor);
     }
   }
 }

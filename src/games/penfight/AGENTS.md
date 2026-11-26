@@ -12,4 +12,4 @@ Checks: `tests/unit/penfight.test.ts`, `tests/browser/penfight.spec.ts`, `test:m
 
 Flick energy is bounded at a 410-unit centre speed. Offset shots distribute that budget between translation and angular velocity. The aim preview and AI use the same impulse and desk rules. At the 120-second foreground deadline, let an accepted flick settle, then take the score leader or draw an even match. Pass uncapped host elapsed time to advanceClock.
 
-Aiming opts into InputManager pointer capture (`outside: true`). Drag deltas start at the actual finger position, independently of the projected contact offset, preventing a power jump on padded hit targets. Outside releases shoot once; pause, lost capture and canceled touches never shoot.
+Aiming opts into InputManager pointer capture (`outside: true`). Drag deltas start at the actual finger position, independently of the projected contact offset, preventing a power jump on padded hit targets. Outside releases shoot once; pause, lost capture and canceled touches never shoot. The dotted aim guide is compact (<= ~92 units, tapering small dots) and starts directly from the projected point of contact on the pen.

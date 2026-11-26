@@ -28,6 +28,8 @@ export class SpaceShooterGame implements MiniGame {
   private reported = false;
   private age = 0;
   private soundAge = 0;
+  private wasTransitioning = false;
+  private wasDead = false;
   private clock = new FixedStep();
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -89,6 +91,8 @@ export class SpaceShooterGame implements MiniGame {
         this.world = new ShooterWorld(new MatchRandom(freshSeed()).next, tier);
         this.started = true;
         this.age = 0;
+        this.wasTransitioning = false;
+        this.wasDead = false;
         this.keys.clear();
         this.clock.reset();
         ctx.audio.play("start", 0.5);
@@ -145,6 +149,13 @@ export class SpaceShooterGame implements MiniGame {
         0.65,
       );
     if (w.wave > before.wave) this.ctx.audio.play("start", 0.5);
+    if (!this.wasTransitioning && w.transitioning)
+      this.ctx.audio.play("perfect", 0.8);
+    this.wasTransitioning = w.transitioning;
+    if (!this.wasDead && w.dead) {
+      this.wasDead = true;
+      this.ctx.audio.play("fail", 0.9);
+    }
     if (w.shotSerial > before.shot && this.age - this.soundAge > 0.18) {
       this.ctx.audio.play("shoot", 0.12);
       this.soundAge = this.age;

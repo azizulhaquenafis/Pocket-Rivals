@@ -184,6 +184,17 @@ it("Glider failure loses hearts without farming unbanked ring points, and air re
   miss.step(1 / 120, 0, false);
   expect(miss.lives).toBe(2);
   expect(miss.lastCrash?.reason).toBe("miss");
+
+  // Landing inside the runway succeeds regardless of horizontal touchdown speed.
+  const fastLand = new GliderWorld("impossible");
+  fastLand.walls = [];
+  fastLand.x = fastLand.landing;
+  fastLand.vx = 250;
+  fastLand.y = fastLand.length - 0.2;
+  fastLand.step(1 / 120, 0, false);
+  expect(fastLand.lives).toBe(3);
+  expect(fastLand.transition).toBeGreaterThan(0);
+  expect(fastLand.score).toBeGreaterThanOrEqual(200);
 });
 it("Foundry cannot award a cast before drops settle; pause release stops pouring", () => {
   const w = new FoundryWorld();

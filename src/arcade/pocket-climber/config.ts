@@ -7,7 +7,7 @@ export default {
     name: "Pocket Climber",
     description: "The next ledge awaits.",
     instructions:
-      "Auto-bounce; drag or hold arrows/A/D to steer. Collect stars and avoid warned falling rocks. Do not fall behind.",
+      "Auto-bounce; drag or hold arrows/A/D to steer. You have 3 rescue springs per game (Space/↑/W or tap Spring) that launch you 2 ledges high — save them for crumbling ledges. Collect stars and avoid warned falling rocks.",
     color: "#dce8cf",
     accent: "#b5d19d",
     order: 37,

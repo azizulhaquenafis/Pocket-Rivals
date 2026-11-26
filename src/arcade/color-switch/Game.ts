@@ -23,6 +23,7 @@ import { CONTOURS, edgeAt, pointAt, type Contour } from "./Contours";
 const OBSTACLE_SLOTS = 5;
 
 export class Game extends ArcadeGame {
+  protected override autoScoreSound = false;
   private backdrop!: Phaser.GameObjects.Graphics;
   private track!: Phaser.GameObjects.Graphics;
   private obstacles: {
@@ -83,6 +84,11 @@ export class Game extends ArcadeGame {
     super.dispose();
   }
 
+  private hop() {
+    this.w.hop();
+    this.ctx.audio.play("shoot", 0.3);
+  }
+
   protected bind() {
     this.keys = this.ctx.input.keys([
       "ArrowLeft",
@@ -90,7 +96,7 @@ export class Game extends ArcadeGame {
       "KeyA",
       "KeyD",
     ]);
-    this.press(["Space", "ArrowUp", "KeyW"], () => this.w.hop());
+    this.press(["Space", "ArrowUp", "KeyW"], () => this.hop());
 
     const release = () => {
       this.dragOrigin = null;
@@ -100,7 +106,7 @@ export class Game extends ArcadeGame {
         if (!this.active || x < 24 || x > 396 || y < 112 || y > 650)
           return false;
         this.dragOrigin = { pointerX: x, ballX: this.w.x, moved: false };
-        this.w.hop();
+        this.hop();
         return true;
       },
       (x) => {
@@ -133,6 +139,7 @@ export class Game extends ArcadeGame {
 
   protected step(dt: number) {
     const lives = this.w.lives;
+    const cleared = this.w.cleared;
     let axis = 0;
     if (this.keys.has("ArrowLeft") || this.keys.has("KeyA")) axis--;
     if (this.keys.has("ArrowRight") || this.keys.has("KeyD")) axis++;
@@ -140,10 +147,13 @@ export class Game extends ArcadeGame {
     else if (this.target !== null)
       axis = clamp((this.target - this.w.x) / 22, -1, 1);
     this.w.step(dt, axis);
+    if (this.w.cleared > cleared) {
+      this.ctx.audio.play("metal", 0.75);
+    }
     if (this.w.lives < lives) {
       this.target = null;
       this.dragOrigin = null;
-      this.ctx.audio.play("fail", 0.4);
+      this.ctx.audio.play(this.w.done ? "fail" : "damage", 0.75);
     }
   }
 

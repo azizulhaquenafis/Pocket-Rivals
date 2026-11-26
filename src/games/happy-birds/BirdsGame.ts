@@ -22,6 +22,7 @@ export class BirdsGame implements MiniGame {
   private paused = false;
   private done = false;
   private scores = "";
+  private lastWalls = "";
   private finishAge = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -55,6 +56,7 @@ export class BirdsGame implements MiniGame {
     ];
     if (!this.ai && oppositeSideLayout()) this.goalLabels[0].setRotation(Math.PI);
     this.view.reset(this.m);
+    this.lastWalls = `${this.m.walls[0].version}:${this.m.walls[1].version}`;
     this.renderState = this.view.sample(this.m, 1, 0);
     this.draw();
     ctx.audio.play("start");
@@ -106,9 +108,15 @@ export class BirdsGame implements MiniGame {
       Math.min(0.1, dt),
     );
     if (this.m.scores.join() !== this.scores) {
-      if (this.scores) this.ctx.audio.play("capture", 0.55);
+      if (this.scores)
+        this.ctx.audio.play(this.m.winner ? "perfect" : "capture", 0.65);
       this.scores = this.m.scores.join();
       this.ctx.setScore(...this.m.scores);
+    }
+    const wallKey = `${this.m.walls[0].version}:${this.m.walls[1].version}`;
+    if (wallKey !== this.lastWalls) {
+      this.lastWalls = wallKey;
+      this.ctx.audio.play("metal", 0.38);
     }
     this.draw();
     if (this.m.winner) {

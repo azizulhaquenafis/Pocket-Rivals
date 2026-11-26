@@ -106,6 +106,15 @@ for (const [name, id] of entries)
       await page.waitForTimeout(100);
       await page.keyboard.up("ArrowRight");
       expect((await snap(page)).scene.game.x).toBeGreaterThan(210);
+      expect((await snap(page)).scene.game.springs).toBe(3);
+      // Keyboard spring boost
+      await page.keyboard.press("Space");
+      expect((await snap(page)).scene.game.springs).toBe(2);
+      expect((await snap(page)).scene.game.vy).toBeLessThan(-450);
+      await page.waitForTimeout(320);
+      // Touch/mouse tap on dedicated Spring button below the board
+      await tap(page, 210, 694);
+      expect((await snap(page)).scene.game.springs).toBe(1);
     }
     await page.keyboard.press("Escape");
     await expect(
@@ -140,7 +149,7 @@ test("all new cards are visible, load local vector previews and keep engines laz
   await page
     .getByRole("button", { name: "1 Player Arcade", exact: true })
     .click();
-  await expect(page.locator("[data-game]")).toHaveCount(7);
+  await expect(page.locator("[data-game]")).toHaveCount(8);
   for (const [name, id] of entries) {
     const card = page.getByRole("button", {
       name: `Play ${name}`,

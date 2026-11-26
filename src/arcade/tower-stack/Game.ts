@@ -4,6 +4,7 @@ import { rounded } from "../../shared/components/drawing";
 import { TowerWorld } from "./Rules";
 export class Game extends ArcadeGame {
   private w = new TowerWorld();
+  protected override autoScoreSound = false;
   protected challenge = {
     title: "Tower Stack",
     tiers: [
@@ -18,10 +19,14 @@ export class Game extends ArcadeGame {
   protected bind() {
     const drop = () => {
       const ok = this.w.drop();
-      this.ctx.audio.play(
-        ok ? (this.w.flash ? "perfect" : "wood") : "fall",
-        0.6,
-      );
+      if (!ok) {
+        this.ctx.audio.play("fall", 0.85);
+      } else if (this.w.flash) {
+        this.ctx.audio.play("perfect", Math.min(1, 0.72 + this.w.combo * 0.06));
+      } else {
+        this.ctx.audio.play("wood", 0.8);
+        this.ctx.audio.play("slice", 0.55);
+      }
     };
     this.tap(drop);
     this.press(["Space", "Enter"], drop);

@@ -88,18 +88,21 @@ export class GameHost extends Phaser.Scene {
         .setInteractive({ useHandCursor: true })
         .on("pointerup", () => this.app.pause());
       if (meta.category !== "arcade") {
-        rounded(g, 141, 70, 138, 32, 12, theme.blue, 2);
-        rounded(g, 141, 674, 138, 32, 12, theme.orange, 2);
+        const p1 = this.app.storage.playerName(0).toUpperCase();
+        const p2 = this.app.storage
+          .playerName(1, this.options.mode === "ai")
+          .toUpperCase();
+        rounded(g, 132, 70, 156, 32, 12, theme.blue, 2);
+        rounded(g, 132, 674, 156, 32, 12, theme.orange, 2);
         this.texts = [
-          label(this, 210, 690, "ORANGE   0", 18),
-          label(
-            this,
-            210,
-            86,
-            this.options.mode === "ai" ? "BLUE AI   0" : "BLUE   0",
-            18,
-          ).setRotation(
-            this.options.mode === "local" && oppositeSideLayout() ? Math.PI : 0,
+          this.fitText(label(this, 210, 690, `${p1}   0`, 18), 140),
+          this.fitText(
+            label(this, 210, 86, `${p2}   0`, 18).setRotation(
+              this.options.mode === "local" && oppositeSideLayout()
+                ? Math.PI
+                : 0,
+            ),
+            140,
           ),
         ];
       } else {
@@ -149,10 +152,15 @@ export class GameHost extends Phaser.Scene {
           input: this.controls!,
           audio: this.app.audio,
           setClock: (text, urgent) => {
-            this.clockText?.setText(text);
-            const color = urgent ? "#b2462c" : "#697474";
-            if (this.clockText && this.clockText.style.color !== color)
-              this.clockText.setColor(color);
+            if (this.clockText) {
+              if (this.clockText.text !== text) {
+                this.clockText.setText(text);
+                this.fitText(this.clockText, 102);
+              }
+              const color = urgent ? "#b2462c" : "#697474";
+              if (this.clockText.style.color !== color)
+                this.clockText.setColor(color);
+            }
           },
           setScore: (a, b) => this.setScore(a, b),
           setHint: (text) => this.hint?.setText(text),
@@ -178,16 +186,32 @@ export class GameHost extends Phaser.Scene {
           this.app.showError(error);
       });
   }
+  private fitText(text: Phaser.GameObjects.Text, maxWidth: number) {
+    text.setScale(1);
+    const width = text.width;
+    const scale = width > maxWidth && width > 0 ? maxWidth / width : 1;
+    text.setData("baseScale", scale);
+    text.setScale(scale);
+    return text;
+  }
   private setScore(a: number, b: number) {
+    const names = [
+      this.app.storage.playerName(0).toUpperCase(),
+      this.app.storage.playerName(1, this.options.mode === "ai").toUpperCase(),
+    ];
     [a, b].forEach((value, i) => {
       const text = this.texts[i];
-      const next = `${i === 0 ? "ORANGE" : this.options.mode === "ai" ? "BLUE AI" : "BLUE"}   ${value}`;
+      const next = `${names[i]}   ${value}`;
       if (text.text !== next) {
         text.setText(next);
+        this.fitText(text, 140);
+        const base = (text.getData("baseScale") as number) ?? 1;
+        this.tweens.killTweensOf(text);
+        text.setScale(base);
         this.tweens.add({
           targets: text,
-          scaleX: 1.16,
-          scaleY: 1.16,
+          scaleX: base * 1.14,
+          scaleY: base * 1.14,
           duration: 100,
           yoyo: true,
         });

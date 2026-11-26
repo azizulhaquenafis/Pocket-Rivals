@@ -5,14 +5,14 @@ import { SnakeView } from "../../src/arcade/snake/SnakeView";
 it("a stalled frame cannot fast-forward several cells, and invalid deltas stay safe", () => {
   const w = new SnakeWorld(() => 0);
   w.update(10);
-  expect(w.body[0]).toEqual({ x: 8, y: 11 });
+  expect(w.body[0]).toEqual({ x: 8, y: 12 });
   expect(w.accumulator).toBe(0.05);
   for (const dt of [NaN, Infinity, -1]) w.update(dt);
   expect(w.accumulator).toBe(0.05);
   w.update(0.05);
   w.update(0.05);
   w.update(0.03);
-  expect(w.body[0]).toEqual({ x: 9, y: 11 });
+  expect(w.body[0]).toEqual({ x: 9, y: 12 });
 });
 it("retained sprites are reused, interpolate movement and keep corners axis-aligned", () => {
   let allocations = 0,
@@ -92,7 +92,7 @@ it("retained sprites are reused, interpolate movement and keep corners axis-alig
   w.steer("up");
   w.tick();
   w.accumulator = w.interval / 2;
-  expect(v.update(w)).toEqual({ x: 210, y: 360 });
+  expect(v.update(w)).toEqual({ x: 210, y: 371 });
   const count = allocations;
   for (let i = 0; i < 120; i++) {
     w.accumulator = w.interval * (0.01 + (0.98 * i) / 120);

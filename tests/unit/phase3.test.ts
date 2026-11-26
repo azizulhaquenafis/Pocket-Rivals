@@ -330,7 +330,7 @@ describe("Mini Golf physics, turns and planning", () => {
 describe("Solo Arcade", () => {
   it("Snake food grows score/body and reversal is rejected", () => {
     const s = new SnakeWorld(() => 0.5);
-    s.food = { x: 9, y: 11 };
+    s.food = { x: 9, y: 12 };
     expect(s.steer("left")).toBe(false);
     s.tick();
     expect(s.score).toBe(10);

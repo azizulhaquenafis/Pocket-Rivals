@@ -1,11 +1,18 @@
+import type Phaser from "phaser";
 import type { Difficulty } from "../../shared/contracts/AIController";
+import type { GameContext } from "../../shared/contracts/GameModule";
 import { ArcadeGame } from "../../shared/arcade/ArcadeGame";
-import { rounded, circle } from "../../shared/components/drawing";
-import { ClimberWorld } from "./Rules";
+import { rounded, circle, label } from "../../shared/components/drawing";
+import { ClimberWorld, MAX_SPRINGS } from "./Rules";
 export class Game extends ArcadeGame {
+  protected override autoScoreSound = false;
   private w = new ClimberWorld();
+  private wasDone = false;
   private keys = new Set<string>();
   private target: number | null = null;
+  private springHud?: Phaser.GameObjects.Graphics;
+  private springLabel?: Phaser.GameObjects.Text;
+  private lastSpringHud = "";
   protected challenge = {
     title: "Pocket Climber",
     tiers: [
@@ -14,8 +21,16 @@ export class Game extends ArcadeGame {
       "Fast moving ledges and frequent hazards. Keep climbing.",
     ] as const,
   };
+  override initialize(ctx: GameContext) {
+    super.initialize(ctx);
+    this.springHud = ctx.scene.add.graphics();
+    this.springLabel = label(ctx.scene, 196, 694, "SPRING", 13, "#242b32");
+    this.springLabel.setVisible(false);
+  }
   protected configure(tier: Difficulty) {
     this.w = new ClimberWorld(Math.random, tier);
+    this.wasDone = false;
+    this.lastSpringHud = "";
   }
   protected bind() {
     this.keys = this.ctx.input.keys([
@@ -24,6 +39,12 @@ export class Game extends ArcadeGame {
       "KeyA",
       "KeyD",
     ]);
+    this.press(["Space", "ArrowUp", "KeyW"], () => this.useSpring());
+    this.ctx.input.tap((x, y) => {
+      if (this.active && x >= 112 && x <= 308 && y >= 660 && y <= 736) {
+        this.useSpring();
+      }
+    });
     this.ctx.input.drag(
       (x, y) => {
         if (!this.active || y < 112 || y > 650) return false;
@@ -36,16 +57,51 @@ export class Game extends ArcadeGame {
       { outside: true },
     );
   }
+  private useSpring() {
+    if (this.w.spring()) {
+      this.ctx.audio.play("perfect", 0.7);
+    }
+  }
   protected clearInput() {
     this.target = null;
   }
   protected step(dt: number) {
+    const prevVy = this.w.vy;
+    const prevStars = this.w.stars;
+    const prevCrumbles = this.w.platforms.reduce(
+      (n, p) => n + ((p.crumble ?? 0) > 0 ? 1 : 0),
+      0,
+    );
+    const prevWarnings = this.w.rocks.reduce(
+      (n, r) => n + (r.warning > 0 ? 1 : 0),
+      0,
+    );
     let axis = 0;
     if (this.keys.has("ArrowLeft") || this.keys.has("KeyA")) axis--;
     if (this.keys.has("ArrowRight") || this.keys.has("KeyD")) axis++;
     if (this.target !== null)
       axis = Math.max(-1, Math.min(1, (this.target - this.w.x) / 30));
     this.w.step(dt, axis);
+    const crumbles = this.w.platforms.reduce(
+      (n, p) => n + ((p.crumble ?? 0) > 0 ? 1 : 0),
+      0,
+    );
+    const warnings = this.w.rocks.reduce(
+      (n, r) => n + (r.warning > 0 ? 1 : 0),
+      0,
+    );
+    if (this.w.stars > prevStars) this.ctx.audio.play("goal", 0.85);
+    if (crumbles > prevCrumbles) this.ctx.audio.play("slice", 0.65);
+    else if (prevVy > 0 && this.w.vy < 0 && this.w.springEffect < 0.38)
+      this.ctx.audio.play("wood", 0.42);
+    if (warnings > prevWarnings) this.ctx.audio.play("countdown", 0.42);
+    if (!this.wasDone && this.w.done) {
+      this.wasDone = true;
+      this.ctx.audio.play(
+        this.w.y + this.w.camera < 640 ? "damage" : "fall",
+        0.85,
+      );
+    }
   }
   protected draw() {
     const w = this.w,
@@ -162,6 +218,46 @@ export class Game extends ArcadeGame {
       }
     }
     const bodyY = w.y + w.camera;
+    if (w.springEffect > 0) {
+      const p = 1 - w.springEffect / 0.42;
+      const alpha = Math.max(0, 1 - p);
+      const sx = w.springOriginX;
+      const sy = w.springOriginY + w.camera;
+      const coilH = 12 + p * 26;
+      g.lineStyle(2.5, 0xf49b58, 0.55 * alpha).strokeEllipse(
+        sx,
+        sy + 2,
+        24 + p * 34,
+        9 + p * 8,
+      );
+      g.lineStyle(3, 0x242b32, 0.85 * alpha)
+        .beginPath()
+        .moveTo(sx - 9, sy)
+        .lineTo(sx + 9, sy - coilH * 0.28)
+        .lineTo(sx - 9, sy - coilH * 0.56)
+        .lineTo(sx + 9, sy - coilH * 0.84)
+        .lineTo(sx, sy - coilH)
+        .strokePath();
+      g.fillStyle(0xf49b58, 0.9 * alpha).fillRoundedRect(
+        sx - 12,
+        sy - coilH - 4,
+        24,
+        6,
+        3,
+      );
+      g.lineStyle(2, 0x242b32, 0.9 * alpha).strokeRoundedRect(
+        sx - 12,
+        sy - coilH - 4,
+        24,
+        6,
+        3,
+      );
+    }
+    if (w.vy < -435) {
+      g.lineStyle(2.5, 0xf49b58, 0.5)
+        .lineBetween(w.x - 10, bodyY + 14, w.x - 10, bodyY + 32)
+        .lineBetween(w.x + 10, bodyY + 14, w.x + 10, bodyY + 32);
+    }
     rounded(g, w.x - 14, bodyY - 5, 9, 17, 3, 0xb77a4f, 2);
     g.lineStyle(4, 0x242b32)
       .lineBetween(w.x - 5, bodyY + 9, w.x - 7, bodyY + 15)
@@ -186,13 +282,92 @@ export class Game extends ArcadeGame {
     g.fillStyle(0x242b32)
       .fillCircle(w.x - 4, w.y + w.camera - 4, 2)
       .fillCircle(w.x + 4, w.y + w.camera - 4, 2);
-    this.text("height", 210, 135, `${w.highest} LEDGES`, 15);
+    this.text("height", 84, 134, `${w.highest} LEDGES`, 14);
+    this.text("stars", 342, 134, `★ ${w.stars}`, 14, "#b87412");
+    this.drawSpringButton();
+  }
+  private drawSpringButton() {
+    if (!this.springHud || !this.springLabel) return;
+    const pressed = this.w.springCooldown > 0.14 ? 1 : 0;
+    const key = `${this.started ? 1 : 0}:${this.w.springs}:${pressed}`;
+    if (key === this.lastSpringHud) return;
+    this.lastSpringHud = key;
+    const g = this.springHud;
+    g.clear();
+    if (!this.started) {
+      this.springLabel.setVisible(false);
+      return;
+    }
+    const available = this.w.springs > 0;
+    const dy = pressed * 2;
+    const x = 118,
+      y = 672 + dy,
+      w = 184,
+      h = 44;
+    if (!pressed) {
+      g.fillStyle(0x242b32, 0.16).fillRoundedRect(x, y + 4, w, h, 16);
+    }
+    rounded(
+      g,
+      x,
+      y,
+      w,
+      h,
+      16,
+      available ? 0xfffdf5 : 0xe9e5da,
+      available ? 3 : 2,
+    );
+    // Compact coiled spring emblem on the left of the pill
+    const cx = x + 28,
+      cy = y + h / 2;
+    const inkAlpha = available ? 1 : 0.4;
+    g.lineStyle(2.4, 0x242b32, inkAlpha)
+      .beginPath()
+      .moveTo(cx - 8, cy + 9)
+      .lineTo(cx + 8, cy + 4)
+      .lineTo(cx - 8, cy - 1)
+      .lineTo(cx + 8, cy - 6)
+      .strokePath();
+    g.fillStyle(available ? 0xf49b58 : 0xb8b4a8).fillRoundedRect(
+      cx - 10,
+      cy - 11,
+      20,
+      5,
+      2.5,
+    );
+    g.lineStyle(1.8, 0x242b32, inkAlpha).strokeRoundedRect(
+      cx - 10,
+      cy - 11,
+      20,
+      5,
+      2.5,
+    );
+    this.springLabel
+      .setVisible(true)
+      .setPosition(x + 82, y + h / 2)
+      .setAlpha(available ? 1 : 0.45);
+    for (let i = 0; i < MAX_SPRINGS; i++) {
+      const px = x + 128 + i * 18;
+      const py = y + h / 2;
+      if (i < this.w.springs) {
+        circle(g, px, py, 6, 0xf49b58, 2);
+        g.fillStyle(0xfff5d6, 0.85).fillCircle(px - 1.8, py - 1.8, 1.8);
+      } else {
+        g.fillStyle(0xd8d4c8, 0.7).fillCircle(px, py, 5.5);
+        g.lineStyle(1.6, 0x7e8588, 0.65).strokeCircle(px, py, 5.5);
+      }
+    }
+  }
+  override dispose() {
+    this.springHud?.destroy();
+    this.springLabel?.destroy();
+    super.dispose();
   }
   protected state() {
     return {
       score: this.w.score,
       done: this.w.done,
-      detail: `${this.w.stars} STARS`,
+      detail: "",
       result: `Climbed ${this.w.highest} ledges.`,
     };
   }
@@ -207,6 +382,8 @@ export class Game extends ArcadeGame {
       camera: this.w.camera,
       platforms: this.w.platforms,
       highest: this.w.highest,
+      springs: this.w.springs,
+      maxSprings: MAX_SPRINGS,
       rocks: this.w.rocks,
     };
   }

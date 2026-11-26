@@ -86,16 +86,30 @@ export class UltimateGame implements MiniGame {
         (by * 3 + bx) * 9 + Math.floor(ly / 38) * 3 + Math.floor(lx / 38),
       );
     });
+    ctx.audio.play("start", 0.65);
   }
   private place(move: number) {
+    const mover = this.board.turn;
     const before = [...this.board.boards];
-    if (!this.board.play(move)) return;
+    if (!this.board.play(move)) {
+      this.ctx.audio.play("soft", 0.35);
+      return;
+    }
+    let claimed = false;
     this.board.boards.forEach((v, i) => {
-      if (v && !before[i]) this.claimedAges[i] = 0;
+      if (v && !before[i]) {
+        this.claimedAges[i] = 0;
+        claimed = true;
+      }
     });
     this.ages[move] = 0.001;
     this.thinking = 0;
-    this.ctx.audio.play("tap");
+    if (this.board.winner === 1 || this.board.winner === 2)
+      this.ctx.audio.play("perfect", 0.85);
+    else if (this.board.winner === "draw")
+      this.ctx.audio.play("draw", 0.7);
+    else if (claimed) this.ctx.audio.play("capture", 0.9);
+    else this.ctx.audio.play(mover === 1 ? "tap" : "wood", 0.85);
     this.ctx.saveState({ ...this.board.save(), ai: this.ai?.snapshot() });
     if (this.board.forced === null) this.focused = false;
   }

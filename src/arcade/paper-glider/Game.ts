@@ -26,7 +26,7 @@ const GLIDER_GUIDE: readonly ArcadeGuideItem[] = [
   {
     label: "Landing Pad & Red Dotted Line",
     detail:
-      "Touch down smoothly on the green runway strip at the bottom. Crossing the red dotted line outside the pad—or crashing into a barrier—costs a heart.",
+      "Touch down on the green runway strip at the bottom. Crossing the red dotted line outside the pad—or crashing into a barrier—costs a heart.",
     swatch: "#e0554f",
   },
   {
@@ -44,11 +44,13 @@ const GLIDER_GUIDE: readonly ArcadeGuideItem[] = [
 ];
 
 export class Game extends ArcadeGame {
+  protected override autoScoreSound = false;
   private w = new GliderWorld();
   protected override endDelay = 1.15;
   private keys = new Set<string>();
   private target: number | null = null;
   private brake = false;
+  private wasBraking = false;
   private breezePhase = 0;
   private windDisplay = 0;
   private shake = 0;
@@ -71,6 +73,7 @@ export class Game extends ArcadeGame {
 
   protected configure(t: Difficulty) {
     this.w = new GliderWorld(t);
+    this.wasBraking = false;
     this.breezePhase = 0;
     this.windDisplay = this.w.windRatio;
     this.shake = 0;
@@ -114,6 +117,7 @@ export class Game extends ArcadeGame {
 
   protected clearInput() {
     this.clearTouch();
+    this.wasBraking = false;
     this.keys.clear();
   }
 
@@ -129,11 +133,7 @@ export class Game extends ArcadeGame {
     this.shake = final ? 0.28 : 0.2;
     this.crashAge = 0;
     this.crashBanner =
-      c.reason === "miss"
-        ? "CROSSED RED LINE!"
-        : c.reason === "fast"
-          ? "LANDED TOO FAST!"
-          : "CLIPPED BARRIER!";
+      c.reason === "miss" ? "CROSSED RED LINE!" : "CLIPPED BARRIER!";
     if (final) {
       this.tumble = {
         x: c.x,
@@ -198,14 +198,25 @@ export class Game extends ArcadeGame {
           ? +(k.has("ArrowRight") || k.has("KeyD")) -
             +(k.has("ArrowLeft") || k.has("KeyA"))
           : Math.max(-1, Math.min(1, (this.target - this.w.x) / 36));
-    this.w.step(dt, steer, this.brake || k.has("Space") || k.has("ArrowDown"));
+    const braking = this.brake || k.has("Space") || k.has("ArrowDown");
+    if (braking && !this.wasBraking && !this.w.transition && !this.w.recovery)
+      this.ctx.audio.play("slide", 0.45);
+    this.wasBraking = braking;
+    this.w.step(dt, steer, braking);
     this.advanceEffects(dt);
-    if (this.w.rings > rings) this.ctx.audio.play("capture", 0.35);
+    if (this.w.rings > rings) this.ctx.audio.play("capture", 0.65);
     if (!wasTransition && this.w.transition > 0)
-      this.ctx.audio.play("capture", 0.55);
+      this.ctx.audio.play("perfect", 0.85);
     if (this.w.lives < lives) {
       this.spawnCrash(this.w.done);
-      this.ctx.audio.play("fail", 0.45);
+      this.ctx.audio.play(
+        this.w.done
+          ? "fail"
+          : this.w.lastCrash?.reason === "miss"
+            ? "fall"
+            : "thud",
+        this.w.done ? 0.9 : 0.72,
+      );
     }
   }
 

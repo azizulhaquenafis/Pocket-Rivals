@@ -2,6 +2,7 @@ import {
   checkEdge,
   DESK,
   edgeDistance,
+  HALF,
   pens,
   physicsStep,
   stopped,
@@ -244,7 +245,7 @@ export function simulateShot(
   return pair;
 }
 
-/** Draw the same physical flight up to the first meaningful contact or stop. */
+/** Draw a compact physical aim guide starting right from the pen's point of contact. */
 export function previewFlick(
   bodies: [Pen, Pen],
   player: 0 | 1,
@@ -255,19 +256,37 @@ export function previewFlick(
   const points: { x: number; y: number }[] = [];
   const pen = pair[player];
   const desk = deskForShots(completed);
+  const startX = pen.x;
+  const startY = pen.y;
+  const offset = Math.max(-HALF, Math.min(HALF, shot.offset));
+  const contactX = startX + offset * Math.cos(pen.a);
+  const contactY = startY + offset * Math.sin(pen.a);
   if (!flick(pen, shot, completed)) return points;
 
-  let previousX = pen.x;
-  let previousY = pen.y;
-  for (let i = 0; i < 600; i++) {
+  const effectivePower = Math.min(Math.max(0, shot.power), powerLimit(completed));
+  const maxTravel = 18 + 74 * effectivePower;
+  const spacing = 9.5;
+  let lastDist = 0;
+
+  for (let i = 0; i < 400; i++) {
     const impact = physicsStep(pair, STEP, desk) > 3;
-    const travel = Math.hypot(pen.x - previousX, pen.y - previousY);
-    if (travel >= 16 || (travel > 6 && (impact || stopped(pen)))) {
-      points.push({ x: pen.x, y: pen.y });
-      previousX = pen.x;
-      previousY = pen.y;
+    const dx = pen.x - startX;
+    const dy = pen.y - startY;
+    const dist = Math.hypot(dx, dy);
+    const capped = dist >= maxTravel;
+    const clampedDist = capped ? maxTravel : dist;
+    if (
+      clampedDist - lastDist >= spacing ||
+      (clampedDist - lastDist >= 4 && (impact || stopped(pen) || capped))
+    ) {
+      const scale = dist > 1e-6 ? clampedDist / dist : 0;
+      points.push({
+        x: contactX + dx * scale,
+        y: contactY + dy * scale,
+      });
+      lastDist = clampedDist;
     }
-    if (impact || stopped(pen)) break;
+    if (impact || stopped(pen) || capped) break;
   }
   return points;
 }

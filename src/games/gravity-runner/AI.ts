@@ -18,15 +18,15 @@ export class GravityAI {
     this.wait -= dt;
     if (this.wait > 0) return false;
     this.wait = this.personality.sample(
-      { medium: 0.22, hard: 0.08, impossible: 0.04 }[this.difficulty],
-      { medium: 0.035, hard: 0.015, impossible: 0.008 }[this.difficulty],
+      { medium: 0.22, hard: 0.055, impossible: 0.04 }[this.difficulty],
+      { medium: 0.035, hard: 0.01, impossible: 0.008 }[this.difficulty],
       0.025,
     );
     if (m.players[1].cooldown > 0) return false;
-    const sight = { medium: 175, hard: 520, impossible: 540 }[this.difficulty];
+    const sight = { medium: 185, hard: 680, impossible: 700 }[this.difficulty];
     const horizon = Math.min(
       sight / m.speed(),
-      { medium: 0.72, hard: 1.38, impossible: 1.65 }[this.difficulty] +
+      { medium: 0.72, hard: 1.55, impossible: 1.72 }[this.difficulty] +
         this.personality.tempo * 0.025,
     );
     const h = 1 / 120,
@@ -109,7 +109,7 @@ export class GravityAI {
       this.difficulty === "impossible"
         ? [0.1, 0.2, 0.34, 0.52, 0.76, 1.05]
         : this.difficulty === "hard"
-          ? [0.14, 0.28, 0.48, 0.76]
+          ? [0.1, 0.22, 0.38, 0.58, 0.85]
           : [];
     const deep = this.difficulty !== "medium";
     const flip = probe(true, delays, deep);

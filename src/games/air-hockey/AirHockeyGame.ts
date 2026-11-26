@@ -30,6 +30,10 @@ export class AirHockey implements MiniGame {
   private paused = false;
   private ai?: AirHockeyAI;
   private keys = new Set<string>();
+  private serveReady = true;
+  private lastPossWarn = -1;
+  private lastUrgentSec = -1;
+  private announcedOvertime = false;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     if (ctx.options.mode === "ai")
@@ -76,14 +80,18 @@ export class AirHockey implements MiniGame {
       this.possession,
       ctx.restoredState,
     );
+    this.serveReady = this.world.cooldown > 0.5;
+    this.announcedOvertime = this.matchClock.overtime;
     ctx.setScore(...this.world.scores);
+    ctx.audio.play("start", 0.75);
     this.save();
   }
   private goal(p: Player) {
     this.possession.reset();
+    this.lastPossWarn = -1;
     this.ai?.reset();
     this.ctx.setScore(...this.world.scores);
-    this.ctx.audio.play("goal");
+    this.ctx.audio.play(this.violation ? "fail" : "goal");
     const winner = this.matchClock.score(this.world.scores);
     if (winner !== null) {
       this.world.done = true;
@@ -95,8 +103,19 @@ export class AirHockey implements MiniGame {
     const w = this.world;
     const winner = this.matchClock.advance(dt, w.scores);
     this.ctx.setClock(this.matchClock.text, this.matchClock.remaining <= 10);
-    if (this.matchClock.overtime)
+    if (this.matchClock.overtime) {
       this.ctx.setHint("SUDDEN DEATH · NEXT POINT WINS");
+      if (!this.announcedOvertime) {
+        this.announcedOvertime = true;
+        this.ctx.audio.play("metal", 0.85);
+      }
+    } else if (this.matchClock.remaining <= 5 && this.matchClock.remaining > 0) {
+      const sec = Math.ceil(this.matchClock.remaining);
+      if (sec !== this.lastUrgentSec) {
+        this.lastUrgentSec = sec;
+        this.ctx.audio.play("clockTick", 0.75);
+      }
+    }
     if (winner !== null) {
       w.done = true;
       this.ctx.finish({ winner, scores: [...w.scores] });
@@ -115,6 +134,25 @@ export class AirHockey implements MiniGame {
         }
       }
     });
+    if (w.cooldown > 0.5) this.serveReady = true;
+    else if (this.serveReady && w.cooldown > 0) {
+      this.serveReady = false;
+      this.ctx.audio.play("shoot", 0.55);
+    }
+    if (
+      w.cooldown <= 0 &&
+      this.possession.side &&
+      this.possession.remaining <= 3 &&
+      this.possession.remaining > 0
+    ) {
+      const psec = Math.ceil(this.possession.remaining);
+      if (psec !== this.lastPossWarn) {
+        this.lastPossWarn = psec;
+        this.ctx.audio.play("countdown", 0.55);
+      }
+    } else {
+      this.lastPossWarn = -1;
+    }
     if (w.cooldown <= 0) this.violation = false;
     this.possessionLabel
       .setText(

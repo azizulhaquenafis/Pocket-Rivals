@@ -176,7 +176,16 @@ it("all ten vessels reward accurate timed pours including residual drops", () =>
   spill.hold(true);
   for (let i = 0; i < 1000 && !spill.between; i++) spill.step(1 / 120);
   expect(spill.rating).toBe(0);
+  expect(spill.spilled).toBe(true);
   expect(spill.lives).toBe(2);
+  // Single-commit pour: releasing after meaningful flow locks the valve during settle
+  const commit = new PourWorld();
+  commit.hold(true);
+  for (let i = 0; i < 60; i++) commit.step(1 / 120);
+  commit.hold(false);
+  expect(commit.locked).toBe(true);
+  commit.hold(true);
+  expect(commit.holding).toBe(false);
 });
 it("Climber generated ledges are physically reachable and data stays bounded", () => {
   for (let seed = 0; seed < 20; seed++) {
@@ -193,6 +202,32 @@ it("Climber generated ledges are physically reachable and data stays bounded", (
     expect(w.highest, `seed ${seed}`).toBeGreaterThanOrEqual(20);
     expect(w.platforms.length).toBeLessThan(15);
   }
+  // 3-use rescue spring boosts ~2 ledges in height (usable while falling from a crumbling ledge)
+  const rescue = new ClimberWorld(rng(1), "hard");
+  expect(rescue.springs).toBe(3);
+  rescue.platforms = [
+    { id: 0, x: -500, y: -500, width: 10, motion: 0, phase: 0, star: false },
+  ]; // Open sky so we measure pure spring rise height
+  rescue.y = 500;
+  rescue.vy = 260; // Falling downward
+  expect(rescue.spring()).toBe(true);
+  expect(rescue.springs).toBe(2);
+  expect(rescue.spring()).toBe(false); // Cooldown prevents accidental double-spend
+  let minY = rescue.y;
+  for (let i = 0; i < 120; i++) {
+    rescue.step(1 / 120, 0);
+    minY = Math.min(minY, rescue.y);
+  }
+  const rise = 500 - minY;
+  expect(rise).toBeGreaterThanOrEqual(180);
+  expect(rise).toBeLessThanOrEqual(205);
+  // Remaining 2 uses work after cooldown; 4th attempt fails
+  expect(rescue.spring()).toBe(true);
+  for (let i = 0; i < 40; i++) rescue.step(1 / 120, 0);
+  expect(rescue.spring()).toBe(true);
+  for (let i = 0; i < 40; i++) rescue.step(1 / 120, 0);
+  expect(rescue.springs).toBe(0);
+  expect(rescue.spring()).toBe(false);
 });
 it("continuous physics behaves consistently at 30/60/144 render Hz using fixed steps", () => {
   for (const create of [

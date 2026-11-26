@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-DmyyDE4m.js",
-      "bytes": 71985,
-      "gzip": 22589
+      "file": "assets/index-Bfs5torF.js",
+      "bytes": 36454,
+      "gzip": 11832
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -19,16 +19,28 @@
       "gzip": 715
     },
     {
-      "module": "_config-CiCLKyGj.js",
-      "file": "assets/config-CiCLKyGj.js",
-      "bytes": 787,
-      "gzip": 549
+      "module": "_GameSetup-D3UW8cOY.js",
+      "file": "assets/GameSetup-D3UW8cOY.js",
+      "bytes": 34634,
+      "gzip": 10997
+    },
+    {
+      "module": "_config-CySwZSkk.js",
+      "file": "assets/config-CySwZSkk.js",
+      "bytes": 778,
+      "gzip": 543
     },
     {
       "module": "_phaser-DXXWZowi.js",
       "file": "assets/phaser-DXXWZowi.js",
       "bytes": 1208050,
       "gzip": 330072
+    },
+    {
+      "module": "_icons-C5cWZyiW.js",
+      "file": "assets/icons-C5cWZyiW.js",
+      "bytes": 3018,
+      "gzip": 1420
     },
     {
       "module": "_DeviceLayout-g7aSze0z.js",
@@ -47,12 +59,6 @@
       "file": "assets/drawing-Dz1znLUz.js",
       "bytes": 812,
       "gzip": 425
-    },
-    {
-      "module": "_icons-BYBCPnF9.js",
-      "file": "assets/icons-BYBCPnF9.js",
-      "bytes": 1180,
-      "gzip": 591
     }
   ],
   "lazyGames": [
@@ -81,5 +87,5 @@
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 358572
+  "totalInitialGzip": 359635
 }

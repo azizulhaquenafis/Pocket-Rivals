@@ -2,27 +2,32 @@ import type Phaser from "phaser";
 import { theme } from "../../core/ThemeManager";
 import { rounded, circle } from "../../shared/components/drawing";
 import { SnakeView } from "./SnakeView";
-import type { SnakeWorld } from "./SnakeRules";
+import {
+  CELL_SIZE,
+  GRID_COLS,
+  GRID_ORIGIN_X,
+  GRID_ORIGIN_Y,
+  GRID_ROWS,
+  type SnakeWorld,
+} from "./SnakeRules";
 export function garden(g: Phaser.GameObjects.Graphics, w: SnakeWorld) {
   g.clear();
   rounded(g, 24, 112, 372, 538, 20, w.map.background, 4);
-  rounded(g, 38, 138, 344, 404, 10, w.map.floor, 3);
+  rounded(g, 38, 129, 344, 504, 12, w.map.floor, 3);
   g.fillStyle(theme.ink, 0.08);
-  for (let y = 0; y < 20; y++)
-    for (let x = 0; x < 17; x++) g.fillCircle(50 + x * 20, 150 + y * 20, 1);
+  for (let y = 0; y < GRID_ROWS; y++)
+    for (let x = 0; x < GRID_COLS; x++)
+      g.fillCircle(
+        GRID_ORIGIN_X + x * CELL_SIZE,
+        GRID_ORIGIN_Y + y * CELL_SIZE,
+        1,
+      );
   for (const c of w.map.blocks) {
-    const x = 50 + c.x * 20,
-      y = 150 + c.y * 20;
+    const x = GRID_ORIGIN_X + c.x * CELL_SIZE,
+      y = GRID_ORIGIN_Y + c.y * CELL_SIZE;
     rounded(g, x - 9, y - 8, 18, 18, 4, w.map.wall, 2);
     g.lineStyle(2, 0xffffff, 0.35).lineBetween(x - 5, y - 4, x + 3, y - 4);
   }
-  for (const [x, y] of [
-    [210, 574],
-    [152, 620],
-    [210, 620],
-    [268, 620],
-  ])
-    rounded(g, x - 24, y - 22, 48, 44, 12, theme.white, 2);
 }
 export function snake(
   g: Phaser.GameObjects.Graphics,
@@ -45,16 +50,16 @@ export function snake(
     );
   }
   if (w.food) {
-    const x = 50 + w.food.x * 20,
-      y = 150 + w.food.y * 20;
+    const x = GRID_ORIGIN_X + w.food.x * CELL_SIZE,
+      y = GRID_ORIGIN_Y + w.food.y * CELL_SIZE;
     circle(g, x, y, 6.5, 0xf49b58, 2);
     g.fillStyle(0xffffff, 0.45).fillCircle(x - 2, y - 2, 2);
     g.lineStyle(2, theme.ink).lineBetween(x, y - 6, x + 2, y - 10);
     g.fillStyle(0x528d69).fillEllipse(x + 4, y - 9, 6, 3);
   }
   if (w.bonus) {
-    const x = 50 + w.bonus.x * 20,
-      y = 150 + w.bonus.y * 20,
+    const x = GRID_ORIGIN_X + w.bonus.x * CELL_SIZE,
+      y = GRID_ORIGIN_Y + w.bonus.y * CELL_SIZE,
       r = 7 + Math.sin(age * 5) * 0.5;
     circle(g, x, y, r, 0xf4cc60, 2);
     g.lineStyle(2, 0xb47d2a)

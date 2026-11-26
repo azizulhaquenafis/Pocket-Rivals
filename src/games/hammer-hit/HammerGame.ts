@@ -175,6 +175,7 @@ export class HammerGame implements MiniGame {
 
     const score = this.model.hit(p);
     if (score !== null) {
+      this.ctx.audio.play("shoot", 0.55);
       // Trigger hammer swing & rising puck animation
       const targetPeakY = 602 - (score / 100) * (602 - 212);
       this.strikeAnim = {
@@ -267,7 +268,7 @@ export class HammerGame implements MiniGame {
     else {
       if (!anim.hitTriggered) {
         anim.hitTriggered = true;
-        this.ctx.audio.play("wood", 0.8);
+        this.ctx.audio.play("wood", 0.55 + (anim.score / 100) * 0.45);
         this.cameraShake = 3;
       }
       this.hammerAngle =
@@ -282,7 +283,9 @@ export class HammerGame implements MiniGame {
           this.ctx.audio.play("perfect");
           this.bellFlashAge = 0.6;
           this.spawnSparks(210, 244, 0xffea00, 8);
-        } else this.ctx.audio.play("metal", 0.4);
+        } else if (anim.score >= 70) this.ctx.audio.play("metal", 0.75);
+        else if (anim.score >= 35) this.ctx.audio.play("metal", 0.4);
+        else this.ctx.audio.play("thud", 0.65);
         this.popupText
           .setText(String(anim.score))
           .setColor(anim.player === 0 ? "#b85e20" : "#22789e");
@@ -318,6 +321,7 @@ export class HammerGame implements MiniGame {
         this.model.clocks[this.currentTurn] = 0;
         this.model.cooldowns[this.currentTurn] = 0;
         this.view.set(!this.ai && this.currentTurn === 1);
+        this.ctx.audio.play("soft", 0.45);
       }
     }
   }

@@ -30,6 +30,8 @@ export class SpikeGame implements MiniGame {
   private paused = false;
   private done = false;
   private scores = "";
+  private drawPlayed = false;
+  private lastUrgentSec = -1;
   private finishAge = 0;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
@@ -132,7 +134,16 @@ export class SpikeGame implements MiniGame {
       }
       if (round !== this.m.round) {
         this.view.reset(this.m);
+        this.drawPlayed = false;
         this.ctx.audio.play("start", 0.5);
+      }
+      if (
+        !this.m.players[0].alive &&
+        !this.m.players[1].alive &&
+        !this.drawPlayed
+      ) {
+        this.drawPlayed = true;
+        this.ctx.audio.play("draw", 0.8);
       }
       for (const i of [0, 1] as const)
         if (alive[i] && !this.m.players[i].alive)
@@ -144,6 +155,10 @@ export class SpikeGame implements MiniGame {
       this.ctx.setScore(...this.m.scores);
     }
     const seconds = Math.ceil(this.m.remaining);
+    if (!this.m.winner && seconds <= 5 && seconds > 0 && seconds !== this.lastUrgentSec) {
+      this.lastUrgentSec = seconds;
+      this.ctx.audio.play("clockTick", 0.7);
+    }
     this.ctx.setClock(
       `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`,
       seconds <= 10,

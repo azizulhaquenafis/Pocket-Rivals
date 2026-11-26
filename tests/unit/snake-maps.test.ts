@@ -6,17 +6,17 @@ import {obstacleBounds,touchesTrap,obstacleOutline} from '../../src/games/gravit
 import type {Obstacle} from '../../src/games/gravity-runner/RunnerPhysics';
 it('Golf labels are Medium Hard Impossible without changing original tuning',()=>{expect(difficulties.map(d=>d.name)).toEqual(['Medium','Hard','Impossible']);expect(difficulties.map(d=>d.factor)).toEqual([1.5,1.1,.75]);});
 it('each snake garden is connected, has a clear spawn and never spawns food inside walls/body',()=>{
- for(const map of MAPS){const w=new SnakeWorld(()=>.5,map);const blocked=new Set(map.blocks.map(c=>`${c.x},${c.y}`)),seen=new Set(['8,11']),queue=[{x:8,y:11}];
-  while(queue.length){const c=queue.shift()!;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=c.x+dx,y=c.y+dy,key=`${x},${y}`;if(x<0||x>=17||y<0||y>=20||seen.has(key)||blocked.has(key))continue;seen.add(key);queue.push({x,y});}}
-  expect(seen.size).toBe(340-blocked.size);expect(w.body.every(c=>!blocked.has(`${c.x},${c.y}`))).toBe(true);
+ for(const map of MAPS){const w=new SnakeWorld(()=>.5,map);const blocked=new Set(map.blocks.map(c=>`${c.x},${c.y}`)),seen=new Set(['8,12']),queue=[{x:8,y:12}];
+  while(queue.length){const c=queue.shift()!;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const x=c.x+dx,y=c.y+dy,key=`${x},${y}`;if(x<0||x>=17||y<0||y>=25||seen.has(key)||blocked.has(key))continue;seen.add(key);queue.push({x,y});}}
+  expect(seen.size).toBe(425-blocked.size);expect(w.body.every(c=>!blocked.has(`${c.x},${c.y}`))).toBe(true);
   for(let i=0;i<100;i++){w.spawnFood();expect(blocked.has(`${w.food!.x},${w.food!.y}`)).toBe(false);expect(w.body.some(c=>c.x===w.food!.x&&c.y===w.food!.y)).toBe(false);}
   if(map.blocks.length){const c=map.blocks[0];w.body=[{x:c.x-1,y:c.y}];w.direction='right';w.tick();expect(w.dead).toBe(true);}
  }
 });
 it('golden fruit and harvest rewards use legal cells and do not change speed from bonus points',()=>{
- const w=new SnakeWorld(()=>.5);w.eaten=3;w.food={x:9,y:11};w.tick();expect(w.eaten).toBe(4);expect(w.bonus).not.toBeNull();expect(w.bonus).not.toEqual(w.food);
- const interval=w.interval;w.bonus={x:10,y:11};w.tick();expect(w.score).toBe(40);expect(w.interval).toBe(interval);expect(w.bonus).toBeNull();
- w.eaten=7;w.food={x:11,y:11};w.tick();expect(w.score).toBe(90);expect(w.challenges).toBe(1);expect(w.target).toBe(16);
+ const w=new SnakeWorld(()=>.5);w.eaten=3;w.food={x:9,y:12};w.tick();expect(w.eaten).toBe(4);expect(w.bonus).not.toBeNull();expect(w.bonus).not.toEqual(w.food);
+ const interval=w.interval;w.food={x:0,y:0};w.bonus={x:10,y:12};w.tick();expect(w.score).toBe(40);expect(w.interval).toBe(interval);expect(w.bonus).toBeNull();
+ w.eaten=7;w.food={x:11,y:12};w.tick();expect(w.score).toBe(90);expect(w.challenges).toBe(1);expect(w.target).toBe(16);
  w.bonus={x:0,y:0};w.bonusMoves=1;w.tick();expect(w.bonus).toBeNull();
 });
 it('all three snake speeds are distinct, deterministic at 30/60/144Hz and bounded',()=>{
@@ -38,9 +38,9 @@ it('100 seeded harvest routes per garden can complete the eight-fruit challenge 
    let queue=[{...head,path:[] as ('up'|'right'|'down'|'left')[]}],seen=new Set([`${head.x},${head.y}`]);let path:('up'|'right'|'down'|'left')[]|undefined;
    for(const target of [w.food!,w.body.at(-1)!]){
     queue=[{...head,path:[]}];seen.clear();seen.add(`${head.x},${head.y}`);
-   while(queue.length){const c=queue.shift()!;if(c.x===target.x&&c.y===target.y){path=c.path;break;}
-    for(const [dir,dx,dy] of [['up',0,-1],['right',1,0],['down',0,1],['left',-1,0]] as const){const x=c.x+dx,y=c.y+dy,key=`${x},${y}`;if(x<0||x>=17||y<0||y>=20||blocked.has(key)||seen.has(key))continue;seen.add(key);queue.push({x,y,path:[...c.path,dir]});}}
-   if(path?.length)break;
+    while(queue.length){const c=queue.shift()!;if(c.x===target.x&&c.y===target.y){path=c.path;break;}
+     for(const [dir,dx,dy] of [['up',0,-1],['right',1,0],['down',0,1],['left',-1,0]] as const){const x=c.x+dx,y=c.y+dy,key=`${x},${y}`;if(x<0||x>=17||y<0||y>=25||blocked.has(key)||seen.has(key))continue;seen.add(key);queue.push({x,y,path:[...c.path,dir]});}}
+    if(path?.length){if(target===w.food){const d=path[0],nx=head.x+({up:0,right:1,down:0,left:-1}[d]),ny=head.y+({up:-1,right:0,down:1,left:0}[d]);const nextBlocked=new Set([...map.blocks,...w.body.slice(0,-1),{x:nx,y:ny}].map(c=>`${c.x},${c.y}`));const q2=[{x:nx,y:ny}],s2=new Set([`${nx},${ny}`]);while(q2.length&&s2.size<w.body.length+4){const c=q2.shift()!;for(const [dx,dy] of [[0,-1],[1,0],[0,1],[-1,0]]){const x=c.x+dx,y=c.y+dy,k=`${x},${y}`;if(x<0||x>=17||y<0||y>=25||s2.has(k)||nextBlocked.has(k))continue;s2.add(k);q2.push({x,y});}}if(s2.size<w.body.length+2){path=undefined;continue;}}break;}
    }
    expect(path?.length??0,`${map.id} seed ${seed}`).toBeGreaterThan(0);w.steer(path![0]);w.tick();expect(w.dead).toBe(false);
   }

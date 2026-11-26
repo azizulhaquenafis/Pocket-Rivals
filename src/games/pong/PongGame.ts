@@ -28,6 +28,9 @@ export class PingPong implements MiniGame {
   private keys = new Set<string>();
   private trail = Array.from({ length: 8 }, () => ({ x: 210, y: 381 }));
   private trailAt = 0;
+  private serveReady = true;
+  private lastUrgentSec = -1;
+  private announcedOvertime = false;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     if (ctx.options.mode === "ai")
@@ -57,7 +60,10 @@ export class PingPong implements MiniGame {
       (p) => this.goal(p),
     );
     restorePong(this.world, this.matchClock, ctx.restoredState);
+    this.serveReady = this.world.cooldown > 0.5;
+    this.announcedOvertime = this.matchClock.overtime;
     ctx.setScore(...this.world.scores);
+    ctx.audio.play("start", 0.75);
     this.save();
   }
   private goal(p: Player) {
@@ -78,8 +84,19 @@ export class PingPong implements MiniGame {
     const w = this.world;
     const winner = this.matchClock.advance(dt, w.scores);
     this.ctx.setClock(this.matchClock.text, this.matchClock.remaining <= 10);
-    if (this.matchClock.overtime)
+    if (this.matchClock.overtime) {
       this.ctx.setHint("SUDDEN DEATH · NEXT POINT WINS");
+      if (!this.announcedOvertime) {
+        this.announcedOvertime = true;
+        this.ctx.audio.play("metal", 0.85);
+      }
+    } else if (this.matchClock.remaining <= 5 && this.matchClock.remaining > 0) {
+      const sec = Math.ceil(this.matchClock.remaining);
+      if (sec !== this.lastUrgentSec) {
+        this.lastUrgentSec = sec;
+        this.ctx.audio.play("clockTick", 0.75);
+      }
+    }
     if (winner !== null) {
       w.done = true;
       this.ctx.finish({ winner, scores: [...w.scores] });
@@ -91,6 +108,11 @@ export class PingPong implements MiniGame {
         this.ai ? this.ai.update(step, w) : this.paddleTarget(1, step),
       ]);
     });
+    if (w.cooldown > 0.5) this.serveReady = true;
+    else if (this.serveReady && w.cooldown > 0) {
+      this.serveReady = false;
+      this.ctx.audio.play("shoot", 0.55);
+    }
     this.sinceSave += dt;
     if (this.sinceSave >= 1) {
       this.sinceSave = 0;

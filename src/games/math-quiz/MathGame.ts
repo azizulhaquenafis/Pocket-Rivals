@@ -30,6 +30,7 @@ export class MathGame implements MiniGame {
   private ui!: MathUI;
   private paused = false;
   private round = 0;
+  private streaks = [0, 0];
   private finished = 0;
   private reported = false;
   initialize(ctx: GameContext) {
@@ -38,19 +39,19 @@ export class MathGame implements MiniGame {
     this.m = new QuizMatch(next);
     if (ctx.options.mode === "ai") this.ai = new QuizAI(ctx.options.difficulty);
     this.ui = new MathUI(!this.ai, (p, i) => {
-      if (!this.paused && !(p === 1 && this.ai)) this.m.answer(p, i);
+      if (!this.paused && !(p === 1 && this.ai)) this.answer(p, i);
     });
     ctx.input.press([...P1_KEYS.keys(), ...P2_KEYS.keys()], (code) => {
       if (this.paused) return;
       const p1 = P1_KEYS.get(code);
       if (p1 !== undefined) {
-        this.m.answer(0, p1);
+        this.answer(0, p1);
         return;
       }
       const p2 = P2_KEYS.get(code);
       if (p2 !== undefined) {
-        if (this.ai && code.startsWith("Key")) this.m.answer(0, p2);
-        else if (!this.ai) this.m.answer(1, p2);
+        if (this.ai && code.startsWith("Key")) this.answer(0, p2);
+        else if (!this.ai) this.answer(1, p2);
       }
     });
     ctx.setScore(0, 0);
@@ -59,6 +60,10 @@ export class MathGame implements MiniGame {
     this.ui.render(this.m, !!this.ai);
     this.m.present();
   }
+  private answer(p: 0 | 1, index: number) {
+    if (this.m.phase === "active") this.ctx.audio.play("tap", 0.45);
+    this.m.answer(p, index);
+  }
   update(dt: number) {
     if (this.paused) return;
     this.m.update(dt);
@@ -66,7 +71,19 @@ export class MathGame implements MiniGame {
     if (this.round !== this.m.round) {
       this.round = this.m.round;
       this.ctx.setScore(...this.m.scores);
-      this.ctx.audio.play(this.m.message === "CORRECT!" ? "capture" : "fail");
+      if (this.m.message.includes("SAME INSTANT")) {
+        this.ctx.audio.play("draw", 0.85);
+      } else if (this.m.message === "CORRECT!") {
+        const w = this.m.roundWinner === 1 ? 0 : 1;
+        this.streaks[w]++;
+        this.streaks[1 - w] = 0;
+        this.ctx.audio.play(
+          this.m.winner || this.streaks[w] >= 3 ? "perfect" : "capture",
+        );
+      } else {
+        this.streaks = [0, 0];
+        this.ctx.audio.play("fail");
+      }
     }
     this.ui.render(this.m, !!this.ai);
     this.m.present();

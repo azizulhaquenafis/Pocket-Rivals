@@ -3,7 +3,6 @@ import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { SnakeView } from "./SnakeView";
 import { SnakeSetup } from "./SnakeSetup";
 import { garden, snake } from "./SnakeArt";
-import { label } from "../../shared/components/drawing";
 import { SnakeWorld, type Direction } from "./SnakeRules";
 export class SnakeGame implements MiniGame {
   private ctx!: GameContext;
@@ -15,11 +14,16 @@ export class SnakeGame implements MiniGame {
   private hud = "";
   private view!: SnakeView;
   private g!: Phaser.GameObjects.Graphics;
-  private labels: Phaser.GameObjects.Text[] = [];
   private paused = false;
   private reported = false;
   private age = 0;
+  private lastDir: Direction | null = null;
+  private hadBonus = false;
+  private wasDead = false;
   private start: { x: number; y: number } | null = null;
+  private outsidePointerId: number | null = null;
+  private outsideStart: { x: number; y: number } | null = null;
+  private cleanupOutside?: () => void;
   initialize(ctx: GameContext) {
     this.ctx = ctx;
     this.background = ctx.scene.add.graphics();
@@ -40,36 +44,11 @@ export class SnakeGame implements MiniGame {
     ctx.input.press(Object.keys(directions), (key) => {
       if (!this.paused && this.started) this.world.steer(directions[key]);
     });
-    for (const [x, y, text] of [
-      [210, 574, "↑"],
-      [152, 620, "←"],
-      [210, 620, "↓"],
-      [268, 620, "→"],
-    ] as const)
-      this.labels.push(label(ctx.scene, x, y, text, 25));
-    ctx.input.tap((x, y) => {
-      if (this.paused || !this.started) return;
-      let dir: Direction | undefined;
-      if (Math.abs(x - 210) < 24 && Math.abs(y - 574) < 23) dir = "up";
-      else if (Math.abs(y - 620) < 24) {
-        if (Math.abs(x - 152) < 24) dir = "left";
-        if (Math.abs(x - 210) < 24) dir = "down";
-        if (Math.abs(x - 268) < 24) dir = "right";
-      }
-      if (dir) this.world.steer(dir);
-    });
+    // Allow swiping anywhere on the canvas below the top nav bar (inside AND outside the play grid)
     ctx.input.drag(
-      (x, y) => {
-        if (
-          !this.started ||
-          this.paused ||
-          y < 138 ||
-          y > 542 ||
-          x < 38 ||
-          x > 382
-        )
-          return false;
-        this.start = { x, y };
+      (_x, y) => {
+        if (!this.started || this.paused || y < 62) return false;
+        this.start = { x: _x, y };
         return true;
       },
       (x, y) => this.swipe(x, y),
@@ -80,20 +59,102 @@ export class SnakeGame implements MiniGame {
       () => {
         this.start = null;
       },
+      { outside: true },
     );
+    // Also allow starting swipes in the letterbox/outer stage area outside the canvas itself
+    this.bindOutsideCanvasSwipe(ctx.scene.game.canvas);
     this.setup = new SnakeSetup((map, difficulty) => {
       this.world = new SnakeWorld(Math.random, map, difficulty);
       this.started = true;
       this.age = 0;
+      this.lastDir = this.world.direction;
+      this.hadBonus = !!this.world.bonus;
+      this.wasDead = false;
       garden(this.background, this.world);
       ctx.audio.play("start");
     });
   }
-  private swipe(x: number, y: number) {
-    if (!this.start || this.paused) return;
-    const dx = x - this.start.x,
-      dy = y - this.start.y;
-    if (Math.hypot(dx, dy) < 15) return;
+  private bindOutsideCanvasSwipe(canvas: HTMLCanvasElement) {
+    const toLogical = (e: PointerEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      const scale = rect.width > 0 ? 420 / rect.width : 1;
+      return {
+        x: (e.clientX - rect.left) * scale,
+        y: (e.clientY - rect.top) * scale,
+      };
+    };
+    const clear = () => {
+      this.outsidePointerId = null;
+      this.outsideStart = null;
+    };
+    const down = (ev: Event) => {
+      const e = ev as PointerEvent;
+      if (
+        !this.started ||
+        this.paused ||
+        this.outsidePointerId !== null ||
+        e.button !== 0 ||
+        e.target === canvas
+      )
+        return;
+      if (
+        e.target instanceof Element &&
+        e.target.closest(
+          "button, a, input, [role='dialog'], .snake-setup, #overlays",
+        )
+      )
+        return;
+      this.outsidePointerId = e.pointerId;
+      this.outsideStart = toLogical(e);
+      e.preventDefault();
+    };
+    const move = (ev: Event) => {
+      const e = ev as PointerEvent;
+      if (
+        !this.started ||
+        this.paused ||
+        e.pointerId !== this.outsidePointerId ||
+        !this.outsideStart
+      )
+        return;
+      e.preventDefault();
+      const p = toLogical(e);
+      if (this.swipePoint(this.outsideStart, p.x, p.y)) this.outsideStart = p;
+    };
+    const up = (ev: Event) => {
+      const e = ev as PointerEvent;
+      if (e.pointerId !== this.outsidePointerId) return;
+      if (this.started && !this.paused && this.outsideStart) {
+        const p = toLogical(e);
+        this.swipePoint(this.outsideStart, p.x, p.y);
+      }
+      clear();
+    };
+    const cancel = (ev: Event) => {
+      const e = ev as PointerEvent;
+      if (e.pointerId === this.outsidePointerId) clear();
+    };
+    window.addEventListener("pointerdown", down, { passive: false });
+    window.addEventListener("pointermove", move, {
+      capture: true,
+      passive: false,
+    });
+    window.addEventListener("pointerup", up, { capture: true, passive: false });
+    window.addEventListener("pointercancel", cancel, true);
+    window.addEventListener("blur", clear);
+    this.cleanupOutside = () => {
+      clear();
+      window.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", move, true);
+      window.removeEventListener("pointerup", up, true);
+      window.removeEventListener("pointercancel", cancel, true);
+      window.removeEventListener("blur", clear);
+    };
+  }
+  private swipePoint(origin: { x: number; y: number }, x: number, y: number) {
+    const dx = x - origin.x,
+      dy = y - origin.y;
+    if (Math.hypot(dx, dy) < 15) return false;
     this.world.steer(
       Math.abs(dx) > Math.abs(dy)
         ? dx > 0
@@ -103,15 +164,28 @@ export class SnakeGame implements MiniGame {
           ? "down"
           : "up",
     );
-    this.start = { x, y };
+    return true;
+  }
+  private swipe(x: number, y: number) {
+    if (!this.start || this.paused) return;
+    if (this.swipePoint(this.start, x, y)) this.start = { x, y };
   }
   update(dt: number) {
     if (this.paused || !this.started) return;
     this.age += dt;
     const before = this.world.score;
     if (this.age > 0.6) this.world.update(dt);
-    if (this.world.score > before) this.ctx.audio.play("goal");
     const w = this.world;
+    if (this.lastDir && w.direction !== this.lastDir && !w.dead)
+      this.ctx.audio.play("soft", 0.25);
+    if (!this.hadBonus && !!w.bonus) this.ctx.audio.play("metal", 0.75);
+    if (w.score > before)
+      this.ctx.audio.play(w.score - before > 1 ? "perfect" : "goal", 0.8);
+    if (!this.wasDead && w.dead)
+      this.ctx.audio.play(w.won ? "perfect" : "thud", 0.85);
+    this.lastDir = w.direction;
+    this.hadBonus = !!w.bonus;
+    this.wasDead = w.dead;
     snake(this.g, w, this.age, this.view);
     const hud = `${w.map.name.toUpperCase()} · ${w.eaten}/${w.target} FRUIT`;
     if (this.hud !== `${w.score}:${hud}`) {
@@ -121,7 +195,6 @@ export class SnakeGame implements MiniGame {
     if (w.dead) this.defeat += dt;
     if (w.dead && this.defeat > 0.25 && !this.reported) {
       this.reported = true;
-      this.ctx.audio.play("draw");
       this.ctx.finishArcade(
         w.score,
         w.won ? "You filled the whole garden." : "A little longer next time.",
@@ -132,16 +205,19 @@ export class SnakeGame implements MiniGame {
     this.paused = true;
     this.world.clearInput();
     this.start = null;
+    this.outsidePointerId = null;
+    this.outsideStart = null;
   }
   resume() {
     this.paused = false;
   }
   dispose() {
+    this.cleanupOutside?.();
+    this.cleanupOutside = undefined;
     this.setup?.destroy();
     this.background.destroy();
     this.g.destroy();
     this.view.destroy();
-    this.labels.forEach((l) => l.destroy());
   }
   snapshot() {
     return {

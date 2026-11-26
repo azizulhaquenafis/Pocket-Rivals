@@ -1,5 +1,10 @@
 import type { Difficulty } from "../../shared/contracts/AIController";
 import { MAPS, type SnakeMap } from "./Maps";
+export const GRID_COLS = 17;
+export const GRID_ROWS = 25;
+export const CELL_SIZE = 20;
+export const GRID_ORIGIN_X = 50;
+export const GRID_ORIGIN_Y = 141;
 export type Direction = "up" | "right" | "down" | "left";
 export interface Cell {
   x: number;
@@ -12,12 +17,12 @@ const vectors: Record<Direction, Cell> = {
   left: { x: -1, y: 0 },
 };
 export class SnakeWorld {
-  readonly width = 17;
-  readonly height = 20;
+  readonly width = GRID_COLS;
+  readonly height = GRID_ROWS;
   body: Cell[] = [
-    { x: 8, y: 11 },
-    { x: 7, y: 11 },
-    { x: 6, y: 11 },
+    { x: 8, y: 12 },
+    { x: 7, y: 12 },
+    { x: 6, y: 12 },
   ];
   previous: Cell[] = this.body.map((c) => ({ ...c }));
   direction: Direction = "right";

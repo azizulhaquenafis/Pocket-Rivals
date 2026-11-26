@@ -50,6 +50,7 @@ export class ConnectFourGame implements MiniGame {
   private disposed = false;
   private generation = 0;
   private age = 1;
+  private landed = true;
   private last = -1;
   private thinking = 0;
   private reported = false;
@@ -94,22 +95,35 @@ export class ConnectFourGame implements MiniGame {
       if (!canHumanDrop()) return;
       this.place(Number(code.slice(-1)) - 1);
     });
+    ctx.audio.play("start", 0.65);
   }
   private place(c: number) {
     const at = this.board.drop(c);
-    if (at < 0) return;
+    if (at < 0) {
+      this.ctx.audio.play("soft", 0.4);
+      return;
+    }
     this.last = at;
     this.age = 0;
+    this.landed = false;
     this.thinking = 0;
     this.ctx.saveState({
       ...this.board.save(),
       ai: this.personality.snapshot(),
     });
-    this.ctx.audio.play("tap");
+    this.ctx.audio.play("shoot", 0.4);
   }
   update(dt: number) {
     if (this.paused) return;
     this.age += dt;
+    if (!this.landed && this.age >= 0.3) {
+      this.landed = true;
+      if (this.board.winner === 1 || this.board.winner === 2)
+        this.ctx.audio.play("perfect", 0.85);
+      else if (this.board.winner === "draw")
+        this.ctx.audio.play("draw", 0.7);
+      else this.ctx.audio.play("wood", 0.85);
+    }
     if (
       this.ai &&
       !this.board.winner &&

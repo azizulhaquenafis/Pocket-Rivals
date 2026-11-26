@@ -106,6 +106,10 @@ button:active {
 .wordmark img {
   width: 36px;
   height: 36px;
+  transition: transform 0.2s ease;
+}
+.wordmark:hover img {
+  transform: rotate(-6deg) scale(1.06);
 }
 .wordmark span {
   font-size: 8px;
@@ -150,6 +154,7 @@ button:active {
   line-height: 0.83;
   margin: 13px 0 17px;
   transform: rotate(-3deg);
+  animation: hero-float 5.6s ease-in-out infinite;
 }
 .pocket {
   display: block;
@@ -187,6 +192,7 @@ button:active {
   color: var(--orange);
   transform: rotate(16deg);
   -webkit-text-stroke: 1px var(--ink);
+  animation: spark-float 7.2s ease-in-out infinite;
 }
 .spark-two {
   right: 25px;
@@ -194,6 +200,7 @@ button:active {
   color: var(--blue);
   -webkit-text-stroke: 1px var(--ink);
   font-size: 28px;
+  animation: spark-twinkle 4.8s ease-in-out infinite;
 }
 .hero-badges {
   display: flex;
@@ -223,7 +230,14 @@ button:active {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
   margin: 0 1px 12px;
+}
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
 }
 .section-label h2 {
   font-family: "Fredoka";
@@ -231,34 +245,77 @@ button:active {
   letter-spacing: -0.5px;
   margin: 0;
 }
-.section-label > span {
-  font-size: 8px;
-  letter-spacing: 0.75px;
+.section-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #e8e6d7;
+  border: 1.5px solid var(--ink);
+  font-size: 10px;
   font-weight: 900;
-  color: #778074;
-}
-.section-label b {
-  font-size: 17px;
-  margin-left: 5px;
+  font-variant-numeric: tabular-nums;
   color: var(--ink);
+}
+.shuffle-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  background: #fffdf5;
+  box-shadow: 0 2px 0 var(--ink);
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--ink);
+  flex-shrink: 0;
+  transition:
+    transform 0.12s,
+    background 0.12s;
+}
+.shuffle-button:hover {
+  background: #f6e1a8;
+}
+.shuffle-button svg {
+  width: 14px;
+  height: 14px;
+  transition: transform 0.2s ease;
+}
+.shuffle-button:hover svg {
+  transform: rotate(12deg);
+}
+.shuffle-button.spun svg {
+  animation: shuffle-spin 0.34s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+.game-list.shuffling .game-card {
+  animation: card-shuffle 0.32s cubic-bezier(0.2, 0.9, 0.3, 1.12)
+    var(--delay, 0ms) backwards;
 }
 .game-list {
   display: flex;
   flex-direction: column;
-  gap: 17px;
+  gap: 15px;
 }
 .game-card {
   isolation: isolate;
+  container-type: inline-size;
   text-align: left;
   position: relative;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
   width: 100%;
-  height: 181px;
+  height: 146px;
   border: 3px solid var(--ink);
   border-radius: 24px;
   background: var(--card);
   box-shadow: 0 5px 0 var(--ink);
-  padding: 18px 20px;
+  padding: 15px 12px 15px 18px;
   overflow: hidden;
   transition:
     transform 0.13s,
@@ -276,102 +333,71 @@ button:active {
 .game-card:after {
   content: "";
   position: absolute;
-  width: 230px;
-  height: 230px;
+  width: 210px;
+  height: 210px;
   border-radius: 50%;
-  right: -70px;
-  top: -13px;
+  right: -64px;
+  top: -26px;
   background: var(--accent);
-  opacity: 0.45;
+  opacity: 0.42;
   z-index: -1;
 }
 .card-copy {
   position: relative;
   z-index: 2;
-  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
   pointer-events: none;
 }
-.card-tag {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 7px;
-  letter-spacing: 1px;
+.card-number {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 9.5px;
   font-weight: 900;
-  margin-bottom: 11px;
-}
-.tiny-dot {
-  height: 4px;
-  width: 4px;
-  background: var(--ink);
-  border-radius: 50%;
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--ink);
+  opacity: 0.5;
 }
 .card-copy strong {
   display: block;
   font-family: "Fredoka";
   font-weight: 700;
-  font-size: 34px;
-  line-height: 0.94;
-  letter-spacing: -0.7px;
+  font-size: clamp(18px, 6.5cqi, 27px);
+  line-height: 1.02;
+  letter-spacing: -0.5px;
   text-shadow: 0 1px 0 #ffffff38;
+  overflow-wrap: break-word;
 }
 .card-description {
   display: block;
-  font-size: 9px;
-  max-width: 128px;
-  line-height: 1.3;
-  margin-top: 12px;
+  font-size: clamp(9.5px, 3.1cqi, 11px);
+  line-height: 1.32;
   font-weight: 700;
+  color: #364047;
+  max-width: 175px;
 }
 .card-art {
-  position: absolute;
-  right: -10px;
-  top: 0;
-  width: 66%;
+  position: relative;
+  flex: 0 0 42%;
   height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   pointer-events: none;
   z-index: 1;
+  overflow: hidden;
 }
 .card-art svg,
 .card-art img {
   width: 100%;
   height: 100%;
-}
-.play-circle {
-  position: absolute;
-  right: 14px;
-  bottom: 14px;
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--ink);
-  border-radius: 50%;
-  background: #fffdf5;
-  z-index: 3;
-  box-shadow: 0 2px 0 var(--ink);
-}
-.play-circle svg {
-  width: 18px;
-  height: 18px;
-}
-.card-number {
-  position: absolute;
-  right: 13px;
-  top: 12px;
-  font-size: 8px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  opacity: 0.5;
-  z-index: 4;
-}
-.game-card:last-child .card-copy strong {
-  font-size: 30px;
-  line-height: 0.95;
-}
-.game-card:last-child .card-description {
-  margin-top: 8px;
-  max-width: 100px;
+  object-fit: contain;
 }
 .menu-note {
   text-align: center;
@@ -392,58 +418,58 @@ button:active {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 11px 22px
-    calc(14px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
+  padding: 10px 14px
+    calc(12px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px)));
   background: #fffdf5;
   border-top: 2px solid var(--ink);
   box-shadow: 0 -8px 18px #f8f5ebbd;
   z-index: 10;
 }
-.dock-caption {
-  font-size: 7px;
-  letter-spacing: 1px;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 11px;
-  color: #788172;
-}
-.live-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #85ac72;
-}
-.match-count {
-  margin-left: auto;
-  font-size: 7px;
-  letter-spacing: 0.6px;
-}
 .match-scores {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 9px;
+  gap: 6px;
 }
 .player-block {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 3px 2px;
+  border-radius: 12px;
+  text-align: left;
+  color: inherit;
+  transition: background 0.12s;
+}
+.player-block:hover {
+  background: #f0eee4;
 }
 .player-block.blue {
   justify-content: flex-end;
   text-align: right;
 }
+.player-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.player-block.blue .player-meta {
+  justify-content: flex-end;
+}
 .avatar {
   border: 2px solid var(--ink);
-  border-radius: 13px;
+  border-radius: 11px;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 37px;
-  font-size: 30px;
+  width: 30px;
+  height: 32px;
+  font-size: 24px;
   font-weight: 900;
   line-height: 1;
   font-family: Arial;
@@ -455,32 +481,50 @@ button:active {
 .blue .avatar {
   background: var(--blue);
 }
-.player-block div strong {
+.player-block .player-meta strong {
   display: block;
-  font-size: 8px;
-  letter-spacing: 1px;
+  min-width: 0;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.25px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.player-block div span {
-  font-size: 9px;
-  color: #929283;
-  display: block;
-  margin-top: 2px;
+.player-block .edit-hint {
+  display: inline-flex;
+  align-items: center;
+  color: #888f84;
+  flex-shrink: 0;
+}
+.player-block .edit-hint svg {
+  width: 10px;
+  height: 10px;
+  opacity: 0.7;
 }
 .player-block b {
   font-family: "Fredoka";
-  font-size: 29px;
+  font-size: 26px;
   font-weight: 600;
-  margin-left: auto;
-}
-.player-block.blue b {
-  margin-right: auto;
-  margin-left: 0;
+  line-height: 1;
+  flex-shrink: 0;
 }
 .versus {
-  font-size: 8px;
-  color: #979b8e;
-  padding: 0 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 8.5px;
+  color: #8f9588;
+  padding: 0 2px;
   font-weight: 900;
+  flex-shrink: 0;
+}
+.versus small {
+  font-size: 7.5px;
+  font-weight: 800;
+  margin-top: 1px;
+  color: #9ba094;
 }
 .modal-backdrop {
   position: absolute;
@@ -756,6 +800,55 @@ button:active {
     translate: 0 0;
   }
 }
+@keyframes card-shuffle {
+  0% {
+    transform: scale(0.95) rotate(-1.2deg) translateY(7px);
+  }
+  55% {
+    transform: scale(1.015) rotate(0.5deg) translateY(-2px);
+  }
+  100% {
+    transform: scale(1) rotate(0deg) translateY(0);
+  }
+}
+@keyframes shuffle-spin {
+  0% {
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    transform: rotate(190deg) scale(1.18);
+  }
+  100% {
+    transform: rotate(360deg) scale(1);
+  }
+}
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: rotate(-3deg) translateY(0);
+  }
+  50% {
+    transform: rotate(-2.3deg) translateY(-3px);
+  }
+}
+@keyframes spark-float {
+  0%,
+  100% {
+    transform: rotate(16deg) translateY(0) scale(1);
+  }
+  50% {
+    transform: rotate(34deg) translateY(-5px) scale(1.06);
+  }
+}
+@keyframes spark-twinkle {
+  0%,
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.16) rotate(12deg);
+  }
+}
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -821,21 +914,38 @@ button:active {
     gap: 7px;
     font-size: 9px;
   }
-  .card-art {
-    right: -24px;
+  .toolbar-actions {
+    gap: 6px;
   }
-  .card-copy strong {
-    font-size: 31px;
+  .icon-button {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+  .card-art {
+    flex: 0 0 40%;
   }
   .match-dock {
-    padding-left: 15px;
-    padding-right: 15px;
+    padding-left: 10px;
+    padding-right: 10px;
   }
   .player-block {
     gap: 5px;
   }
+  .avatar {
+    width: 26px;
+    height: 28px;
+    font-size: 20px;
+    border-radius: 9px;
+  }
+  .player-block b {
+    font-size: 22px;
+  }
+  .player-block .player-meta strong {
+    font-size: 10px;
+  }
   .versus {
-    padding: 0 4px;
+    padding: 0 2px;
   }
   .spark-one {
     left: 7px;
@@ -887,6 +997,7 @@ button:active {
   *:before,
   *:after {
     animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
 }
@@ -1081,23 +1192,116 @@ button:active {
   font: inherit;
   color: inherit;
 }
-.game-picks {
+.name-inputs {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px;
+  gap: 10px;
+  margin: 16px 0 8px;
+  text-align: left;
+}
+.name-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.name-field span {
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  color: #5c6763;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.name-field span:before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1.5px solid var(--ink);
+  background: var(--orange);
+  flex-shrink: 0;
+}
+.name-field.blue span:before {
+  background: var(--blue);
+}
+.name-field input {
+  width: 100%;
+  min-width: 0;
+  border: 2px solid var(--ink);
+  border-radius: 11px;
+  background: #fffdf5;
+  padding: 9px 10px;
+  font: 800 13px/1.2 inherit;
+  color: var(--ink);
+  outline: none;
+}
+.name-field input:focus {
+  box-shadow: 0 0 0 3px #f49b5845;
+}
+.name-field.blue input:focus {
+  box-shadow: 0 0 0 3px #58addb45;
+}
+.names-modal .name-inputs {
+  margin: 18px 0 20px;
+}
+.game-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  max-height: 224px;
+  overflow-y: auto;
+  margin: 12px 0 18px;
+  padding: 2px 3px 2px 2px;
+  overscroll-behavior: contain;
 }
 .game-picks button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
   border: 2px solid #b4bdac;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #fffdf5;
   text-align: left;
-  font-size: 10px;
-  min-height: 43px;
-  padding: 7px;
+  font-size: 11.5px;
+  font-weight: 800;
+  line-height: 1.25;
+  min-height: 44px;
+  padding: 6px 10px;
+  flex-shrink: 0;
 }
 .game-picks button.selected {
   border-color: var(--ink);
   background: #cfe3b7;
+}
+.pick-label {
+  flex: 1;
+  min-width: 0;
+}
+.pick-icon {
+  width: 30px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1.5px solid var(--ink);
+  background: var(--card, #f8f5eb);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+.pick-icon svg,
+.pick-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.tournament-actions {
+  margin-top: 14px;
+  padding-top: 2px;
 }
 .tournament-cup {
   display: grid;
@@ -1119,13 +1323,20 @@ button:active {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 25px;
+  gap: 16px;
   margin: 20px 0;
+}
+.tournament-score > div {
+  flex: 1;
+  min-width: 0;
 }
 .tournament-score div small {
   display: block;
   font-size: 9px;
-  letter-spacing: 1px;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .tournament-score b {
   font: 600 47px Fredoka;

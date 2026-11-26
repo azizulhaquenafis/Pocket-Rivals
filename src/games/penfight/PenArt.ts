@@ -104,13 +104,17 @@ export function drawDesk(
     }
   }
   if (aim) {
-    circle(g, aim.x, aim.y, 5, theme.white, 2);
+    circle(g, aim.x, aim.y, 4, theme.white, 1.8);
     const shot = shotFromPull(aim.dx, aim.dy, aim.offset);
     if (!shot) return;
     const color = match.turn === 0 ? theme.orange : theme.blue;
     const power = Math.min(shot.power, powerLimit(match.shots));
-    for (const point of aim.path ?? [])
-      circle(g, point.x, point.y, 2.5, theme.white, 1.2);
+    const path = aim.path ?? [];
+    for (let i = 0; i < path.length; i++) {
+      const point = path[i];
+      const t = path.length > 1 ? i / (path.length - 1) : 0;
+      circle(g, point.x, point.y, 1.85 - t * 0.6, theme.white, 1);
+    }
     rounded(g, 158, 613, 104, 9, 4, theme.white, 1.5);
     g.fillStyle(color).fillRoundedRect(160, 615, 100 * power, 5, 2);
     const limit = powerLimit(match.shots);
