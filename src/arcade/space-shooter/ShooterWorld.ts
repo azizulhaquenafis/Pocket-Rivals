@@ -1,8 +1,9 @@
 import type { Difficulty } from "../../shared/contracts/AIController";
 import {
   POWERUPS,
-  ORDINARY_LOOT_INTERVAL,
+  UNMARKED_DROP_CHANCE,
   canDropLife,
+  pickRandomPowerup,
   type Pickup,
   type PowerupKind,
 } from "./Powerups";
@@ -17,6 +18,7 @@ export interface Enemy {
   phase?: number;
   charge?: number;
   drop?: PowerupKind;
+  marked?: boolean;
   hit?: number;
 }
 export interface Projectile {
@@ -82,6 +84,7 @@ export class ShooterWorld {
     id,
     x: 0,
     y: 0,
+    vx: 0,
     kind: "spread",
     active: false,
     age: 0,
@@ -117,7 +120,7 @@ export class ShooterWorld {
     this.spawnWave();
   }
   spawnWave() {
-    this.enemies = formation(this.wave);
+    this.enemies = formation(this.wave, this.random);
     this.direction = this.wave % 2 ? 1 : -1;
     this.enemyClock = 1.1;
     this.projectiles.forEach((p) => {
@@ -217,22 +220,14 @@ export class ShooterWorld {
   }
   private drop(e: Enemy) {
     let kind = e.drop;
-    if (
-      e.kind === 4 &&
-      canDropLife(this.wave, this.elapsed, this.lastLife, this.lives)
-    )
-      kind = "life";
-    if (!kind && this.kills % ORDINARY_LOOT_INTERVAL === 0) {
-      const choices: PowerupKind[] = [
-        "spread",
-        "rapid",
-        "shield",
-        "drone",
-        "laser",
-      ];
-      kind = choices[Math.min(4, Math.floor(this.random() * 5))];
+    if (!kind) {
+      const guaranteed = !!e.marked || e.kind === 4 || e.kind === 5;
+      if (!guaranteed && this.random() >= UNMARKED_DROP_CHANCE) return;
+      kind = pickRandomPowerup(
+        this.random,
+        canDropLife(this.elapsed, this.lastLife, this.lives),
+      );
     }
-    if (!kind) return;
     if (kind === "life") this.lastLife = this.elapsed;
     const p =
       this.pickups.find((p) => !p.active) ??
@@ -245,6 +240,7 @@ export class ShooterWorld {
         kind,
         x: e.x,
         y: e.y,
+        vx: (this.random() * 2 - 1) * 18,
         age: 0,
         active: true,
       });
@@ -320,9 +316,12 @@ export class ShooterWorld {
     for (const p of this.pickups)
       if (p.active) {
         p.age += dt;
-        p.y += 86 * dt;
-        if (p.y > 450 && Math.abs(p.x - this.player.x) < 85)
-          p.x += Math.max(-110 * dt, Math.min(110 * dt, this.player.x - p.x));
+        p.y += 88 * dt;
+        p.x += p.vx * dt;
+        if (p.x < 44 || p.x > 376) {
+          p.x = Math.max(44, Math.min(376, p.x));
+          p.vx *= -0.7;
+        }
         if (
           Math.abs(p.x - this.player.x) < 24 &&
           Math.abs(p.y - this.player.y) < 25

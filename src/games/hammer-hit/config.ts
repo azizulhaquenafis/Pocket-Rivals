@@ -5,7 +5,11 @@ export default {
   name: "Hammer Hit",
   description: "Three swings. Find your rhythm.",
   instructions:
-    "Take turns tapping when the needle reaches the center. The playfield faces the active local player. Each player gets exactly three strikes. The arithmetic average of all three scores decides the winner. Orange: Space. Blue: Enter.",
+    "Take turns striking when the swinging needle hits the center. Three strikes each; highest average score wins.",
+  desktopControls: {
+    ai: ["Space / Arrows / W A S D|Strike"],
+    local: ["p1|Space / Arrows|Strike", "p2|Enter / W A S D|Strike"],
+  },
   color: "#f7d6ad",
   accent: "#d9a975",
   preview,

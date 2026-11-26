@@ -63,6 +63,17 @@ test("golf responsive touch, focus, pause and four courses", async ({
     await page.waitForTimeout(200);
     expect((await state(page)).scene.game).toEqual(paused);
     await page.getByRole("button", { name: /Keep playing/ }).click();
+    if (name === "Foundry") {
+      await page.getByRole("button", { name: "Golf back", exact: true }).click();
+      await expect(
+        page.getByRole("heading", { name: "A little timeout?" }),
+      ).toBeVisible();
+      const onTimeout = (await state(page)).scene.game;
+      await page.waitForTimeout(150);
+      expect((await state(page)).scene.game).toEqual(onTimeout);
+      await page.getByRole("button", { name: /Keep playing/ }).click();
+      expect((await state(page)).scene.game.phase).toBe("playing");
+    }
     await page.getByRole("button", { name: "Focus", exact: true }).click();
     await expect
       .poll(async () => (await state(page)).scene.game.view.zoom)

@@ -7,7 +7,10 @@ export default {
     name: "Tower Stack",
     description: "One block higher.",
     instructions:
-      "Tap/Space to drop. Overhang falls; perfect stacks earn combos. A miss ends the run.",
+      "Tap to drop each sliding block cleanly on top. Overhang trims away; exact alignments glow and build combo bonuses.",
+    desktopControls: {
+      ai: ["Space / Enter|Drop block", "Click|Drop block"],
+    },
     color: "#d8cde8",
     accent: "#d8cde8",
     order: 30,

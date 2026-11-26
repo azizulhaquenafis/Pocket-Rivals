@@ -5,7 +5,11 @@ export default {
   name: "Light Fingers",
   description: "Hold your nerve. Grab the gem.",
   instructions:
-    "Wait until the diamond appears, then tap your side. First response steals the gem. Early or unsuccessful grabs impose a short cooldown, never a score penalty. Simultaneous grabs leave the gem available after both cooldowns. First to five. Orange: Space. Blue: Enter.",
+    "Wait for the diamond to appear, then grab first. Early grabs trigger a brief cooldown. First to 5 steals wins.",
+  desktopControls: {
+    ai: ["Space / Arrows / W A S D|Grab gem"],
+    local: ["p1|Space / Arrows|Grab gem", "p2|Enter / W A S D|Grab gem"],
+  },
   color: "#d4e7d8",
   accent: "#9dbbaa",
   preview,

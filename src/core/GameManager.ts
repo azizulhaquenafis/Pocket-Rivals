@@ -14,6 +14,8 @@ import { MainMenu } from "../scenes/MainMenu";
 import { GameSetup } from "../scenes/GameSetup";
 import type { TournamentScene } from "../tournament/TournamentScene";
 import { Modal } from "../shared/components/Modal";
+import { renderControlsList } from "../shared/components/GuidePanel";
+import { oppositeSideLayout } from "../shared/utilities/DeviceLayout";
 import { resultsContent } from "../scenes/Results";
 import { getGame } from "./GameRegistry";
 import {
@@ -350,6 +352,17 @@ export class GameManager {
     if (this.host.module?.toggleHelp?.()) return;
     this.showHelp();
   }
+  private activeControlsHtml() {
+    if (!this.active || oppositeSideLayout()) return "";
+    const meta = getGame(this.active.gameId);
+    const list =
+      this.active.options.mode === "ai" || meta.category === "arcade"
+        ? (meta.desktopControls?.ai ?? meta.desktopControls?.local)
+        : (meta.desktopControls?.local ?? meta.desktopControls?.ai);
+    return list?.length
+      ? `<div class="modal-controls"><div class="modal-controls-title">CONTROLS</div>${renderControlsList(list, false)}</div>`
+      : "";
+  }
   showHelp() {
     if (this.state !== "playing" || !this.active) return;
     const meta = getGame(this.active.gameId);
@@ -359,7 +372,7 @@ export class GameManager {
     this.helpOpen = true;
     this.audio.play("tap");
     this.modal.show(
-      `<div class="eyebrow">HOW TO PLAY</div><h2 id="dialog-title">${meta.name}</h2><p>${meta.instructions}</p><button class="primary-button" data-action="resume">Back to game →</button>`,
+      `<div class="eyebrow">HOW TO PLAY</div><h2 id="dialog-title">${meta.name}</h2><p>${meta.instructions}</p>${this.activeControlsHtml()}<button class="primary-button" data-action="resume">Back to game →</button>`,
       { resume: () => this.resume() },
       "help-modal",
       () => this.resume(),
@@ -373,7 +386,7 @@ export class GameManager {
     this.state = "paused";
     this.audio.play("pause", 0.85);
     this.modal.show(
-      `<div class="pause-symbol">Ⅱ</div><div class="eyebrow">TAKE YOUR TIME</div><h2 id="dialog-title">${reason === "leave" ? "A little timeout?" : "Rivalry on hold."}</h2><p>${getGame(this.active!.gameId).instructions}</p><button class="primary-button" data-action="resume">Keep playing →</button><button class="secondary-button" data-action="restart">Start a fresh match</button><button class="text-button" data-action="menu">${this.token ? "Save & return to menu" : "Back to all games"}</button>`,
+      `<div class="pause-symbol">Ⅱ</div><div class="eyebrow">TAKE YOUR TIME</div><h2 id="dialog-title">${reason === "leave" ? "A little timeout?" : "Rivalry on hold."}</h2><p>${getGame(this.active!.gameId).instructions}</p>${this.activeControlsHtml()}<button class="primary-button" data-action="resume">Keep playing →</button><button class="secondary-button" data-action="restart">Start a fresh match</button><button class="text-button" data-action="menu">${this.token ? "Save & return to menu" : "Back to all games"}</button>`,
       {
         resume: () => this.resume(),
         restart: () => this.restart(),

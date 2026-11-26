@@ -5,7 +5,10 @@ export default {
   name: "Paper Glider",
   description: "Catch a little breeze.",
   instructions:
-    "Steer with arrows/A/D or drag. Hold Space/Down, or drag in the bottom strip, to slow descent. Watch the moving wind bar: steering with the wind glides faster, while fighting headwinds slows you down. Land on the green runway and avoid the red dotted line. Three hearts across endless narrowing levels.",
+    "Steer with the moving wind through narrowing gates, collect golden rings, and land inside the green runway while avoiding the red dotted line. Three hearts.",
+  desktopControls: {
+    ai: ["← → / A D|Steer glide", "Space / ↓|Hold air brake"],
+  },
   color: "#d5e9ed",
   accent: "#d5e9ed",
   order: 42,

@@ -5,7 +5,11 @@ export default {
   name: "Math Quiz",
   description: "Quick minds. Friendly competition.",
   instructions:
-    "Both players see the same question and three answers. First correct answer earns a point; a wrong answer gives your rival a point. Same-frame answers replay. First to ten. Orange: ←/↓/→ (or 1/2/3). Blue: A/S/D. University answers use a validated question bank, not a symbolic AI.",
+    "Answer faster than your rival. Correct answers score a point; wrong answers gift your rival a point. First to 10 wins.",
+  desktopControls: {
+    ai: ["← ↓ → / 1 2 3 / A S D|Choose answer"],
+    local: ["p1|← ↓ → / 1 2 3|Choose answer", "p2|A S D / 7 8 9|Choose answer"],
+  },
   color: "#dce7f2",
   accent: "#a4bad3",
   preview,

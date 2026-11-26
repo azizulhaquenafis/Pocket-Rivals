@@ -6,7 +6,11 @@ export default {
   name: "Air Hockey",
   description: "Slide. Strike. Settle the score.",
   instructions:
-    "Drag your half to move your mallet. Keyboard: Orange arrow keys, Blue WASD. Stay on your side and shoot the puck into the opposite goal. First to 5 or the lead after 2 minutes wins; a nonzero tie gets sudden death. Keep the puck moving: 15 seconds on your half gives your rival a point.",
+    "Drag your mallet on your half to shoot the puck into the opposite goal. First to 5 or the lead after 2 minutes wins. Don’t stall: 15s on your side gives a rival point.",
+  desktopControls: {
+    ai: ["← → ↑ ↓ / W A S D|Move mallet"],
+    local: ["p1|← → ↑ ↓|Move mallet", "p2|W A S D|Move mallet"],
+  },
   color: "#a8d6e1",
   accent: "#e0f0f2",
   tag: "FAST & FURIOUS",

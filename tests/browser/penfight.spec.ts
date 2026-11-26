@@ -10,9 +10,6 @@ async function open(page: Page, difficulty?: string) {
   if (difficulty) {
     await page.getByRole("radio", { name: /1 Player/ }).click();
     await expect(
-      page.getByRole("radio", { name: "Easy", exact: true }),
-    ).toBeVisible();
-    await expect(
       page.getByRole("radio", { name: "Medium", exact: true }),
     ).toBeVisible();
     await expect(
@@ -20,6 +17,9 @@ async function open(page: Page, difficulty?: string) {
     ).toBeVisible();
     await expect(
       page.getByRole("radio", { name: "Impossible", exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("radio", { name: "Easy", exact: true }),
     ).toHaveCount(0);
     await page.getByRole("radio", { name: difficulty, exact: true }).click();
   } else
@@ -119,7 +119,7 @@ test("Penfight an ordinary opening makes contact and the warned edge moves after
   expect(narrowed.turn).toBe(0);
 });
 
-for (const difficulty of ["Easy", "Medium", "Hard"])
+for (const difficulty of ["Medium", "Hard", "Impossible"])
   test(`Penfight ${difficulty} AI waits, shoots legally in a worker and stops on pause`, async ({
     page,
   }) => {

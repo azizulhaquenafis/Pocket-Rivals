@@ -5,7 +5,11 @@ export default {
   name: "Pong",
   description: "A little spin. A lot of rivalry.",
   instructions:
-    "Drag anywhere on your half to move your paddle, or use Left/Right arrows for orange and A/D for blue. In solo mode, either key pair moves your paddle. Orange plays from the bottom, blue from the top. First to 5 or the lead after 2 minutes wins. A nonzero tie gets 1 minute of sudden death.",
+    "Slide your paddle on your half to rally the ball past your rival. First to 5 or the lead after 2 minutes wins; a nonzero tie goes to sudden death.",
+  desktopControls: {
+    ai: ["← → / A D|Move paddle"],
+    local: ["p1|← →|Move paddle", "p2|A D|Move paddle"],
+  },
   color: "#b8d998",
   accent: "#e5f1da",
   tag: "QUICK REFLEXES",

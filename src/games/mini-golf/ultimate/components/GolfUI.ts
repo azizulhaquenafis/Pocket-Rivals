@@ -1,5 +1,8 @@
 import "./golf.css";
 import type { Rect } from "../courses";
+import { renderControlsList } from "../../../../shared/components/GuidePanel";
+import { oppositeSideLayout } from "../../../../shared/utilities/DeviceLayout";
+import golfConfig from "../../config";
 export class GolfUI {
   readonly root = document.createElement("div");
   readonly field: HTMLDivElement;
@@ -36,8 +39,8 @@ export class GolfUI {
     if (this.stat.textContent !== stat) this.stat.textContent = stat;
     this.stat.hidden = !stat;
   }
-  screen(html: string) {
-    this.field.innerHTML = `<section class="golf-panel">${html}</section>`;
+  screen(html: string, className = "") {
+    this.field.innerHTML = `<section class="golf-panel${className ? ` ${className}` : ""}">${html}</section>`;
     this.footer.innerHTML = "";
   }
   playing(competitive = false) {
@@ -84,7 +87,11 @@ export class GolfUI {
           )
           .join("")}</div>`
       : "";
-    panel.innerHTML = `<h2>How to play</h2><p>${text}</p>${items}<p>Drag back anywhere and release to putt, or use Arrow keys to aim and hold Space for power.</p><button data-action="close-help">${closeLabel}</button>`;
+    const controls =
+      !oppositeSideLayout() && golfConfig.desktopControls?.ai?.length
+        ? `<div class="modal-controls"><div class="modal-controls-title">CONTROLS</div>${renderControlsList(golfConfig.desktopControls.ai, true)}</div>`
+        : "";
+    panel.innerHTML = `<h2>How to play</h2><p>${text}</p>${items}${controls}<button data-action="close-help">${closeLabel}</button>`;
     this.field.append(panel);
   }
   confirm(

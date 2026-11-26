@@ -7,7 +7,10 @@ export default {
     name: "Perfect Pour",
     description: "Just enough.",
     instructions:
-      "Hold touch/Space to pour; release at the line. Drops keep falling briefly. Ten vessels, three misses.",
+      "Hold to pour water and release right before the dashed target line—falling droplets still settle into the glass. Ten vessels, three misses.",
+    desktopControls: {
+      ai: ["Space / Enter / ↓ / S|Hold to pour, release to stop"],
+    },
     color: "#cbe8f6",
     accent: "#cbe8f6",
     order: 36,

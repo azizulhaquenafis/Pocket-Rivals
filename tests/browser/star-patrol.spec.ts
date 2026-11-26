@@ -88,7 +88,7 @@ test("Star Patrol earns real loot, advances levels and freezes gear on pause", a
     const loot = [...w.pickups].sort((a: any, b: any) => b.y - a.y)[0];
     // Exercise normal touch input; no game state or scoring is modified.
     const enemy =
-      w.enemies.find((e: any) => e.kind === 4) ??
+      w.enemies.find((e: any) => e.marked || e.kind === 4) ??
       [...w.enemies].sort((a: any, b: any) => b.y - a.y)[0];
     const desired = loot ? loot.x : enemy ? enemy.x : 210;
     // Dodge projected enemy fire using the same legal touch steering as a player.

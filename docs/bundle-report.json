@@ -2,9 +2,9 @@
   "initial": [
     {
       "module": "index.html",
-      "file": "assets/index-Bfs5torF.js",
-      "bytes": 36454,
-      "gzip": 11832
+      "file": "assets/index-CQH9FUlD.js",
+      "bytes": 37490,
+      "gzip": 12131
     },
     {
       "module": "_index-D1ZBgHxV.js",
@@ -19,34 +19,88 @@
       "gzip": 715
     },
     {
-      "module": "_GameSetup-D3UW8cOY.js",
-      "file": "assets/GameSetup-D3UW8cOY.js",
-      "bytes": 34634,
-      "gzip": 10997
+      "module": "_GameSetup-DiGYmPc7.js",
+      "file": "assets/GameSetup-DiGYmPc7.js",
+      "bytes": 28527,
+      "gzip": 8757
     },
     {
-      "module": "_config-CySwZSkk.js",
-      "file": "assets/config-CySwZSkk.js",
-      "bytes": 778,
-      "gzip": 543
+      "module": "_config-BWQg9HIz.js",
+      "file": "assets/config-BWQg9HIz.js",
+      "bytes": 728,
+      "gzip": 537
     },
     {
-      "module": "_phaser-DXXWZowi.js",
-      "file": "assets/phaser-DXXWZowi.js",
-      "bytes": 1208050,
-      "gzip": 330072
+      "module": "_config-CeUOcLTD.js",
+      "file": "assets/config-CeUOcLTD.js",
+      "bytes": 713,
+      "gzip": 514
     },
     {
-      "module": "_icons-C5cWZyiW.js",
-      "file": "assets/icons-C5cWZyiW.js",
-      "bytes": 3018,
-      "gzip": 1420
+      "module": "_config-isBp8CQu.js",
+      "file": "assets/config-isBp8CQu.js",
+      "bytes": 713,
+      "gzip": 524
+    },
+    {
+      "module": "_config-DIjNUeAk.js",
+      "file": "assets/config-DIjNUeAk.js",
+      "bytes": 691,
+      "gzip": 508
+    },
+    {
+      "module": "_config-ByG89eZi.js",
+      "file": "assets/config-ByG89eZi.js",
+      "bytes": 734,
+      "gzip": 540
+    },
+    {
+      "module": "_config-DzBRDNZt.js",
+      "file": "assets/config-DzBRDNZt.js",
+      "bytes": 3265,
+      "gzip": 1381
+    },
+    {
+      "module": "_config-UA47Lgnj.js",
+      "file": "assets/config-UA47Lgnj.js",
+      "bytes": 771,
+      "gzip": 569
+    },
+    {
+      "module": "_config-nMSJv3ba.js",
+      "file": "assets/config-nMSJv3ba.js",
+      "bytes": 657,
+      "gzip": 482
+    },
+    {
+      "module": "_config-VanS5GV3.js",
+      "file": "assets/config-VanS5GV3.js",
+      "bytes": 1553,
+      "gzip": 917
+    },
+    {
+      "module": "_GuidePanel-IPw2aci_.js",
+      "file": "assets/GuidePanel-IPw2aci_.js",
+      "bytes": 3713,
+      "gzip": 1522
+    },
+    {
+      "module": "_StorageManager-C36G426m.js",
+      "file": "assets/StorageManager-C36G426m.js",
+      "bytes": 1640,
+      "gzip": 794
     },
     {
       "module": "_DeviceLayout-g7aSze0z.js",
       "file": "assets/DeviceLayout-g7aSze0z.js",
       "bytes": 138,
       "gzip": 121
+    },
+    {
+      "module": "_phaser-DXXWZowi.js",
+      "file": "assets/phaser-DXXWZowi.js",
+      "bytes": 1208050,
+      "gzip": 330072
     },
     {
       "module": "_ThemeManager-DRa-1XQR.js",
@@ -59,6 +113,12 @@
       "file": "assets/drawing-Dz1znLUz.js",
       "bytes": 812,
       "gzip": 425
+    },
+    {
+      "module": "_icons-Duvi8vXI.js",
+      "file": "assets/icons-Duvi8vXI.js",
+      "bytes": 1387,
+      "gzip": 668
     }
   ],
   "lazyGames": [
@@ -87,5 +147,5 @@
     "src/games/tic-tac-toe/index.ts",
     "src/games/water-guess/index.ts"
   ],
-  "totalInitialGzip": 359635
+  "totalInitialGzip": 364687
 }

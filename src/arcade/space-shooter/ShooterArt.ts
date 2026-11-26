@@ -169,6 +169,12 @@ export function drawShooter(
         (e.hit ?? 0) > 0 ? theme.white : (ENEMY_COLORS[e.kind] ?? theme.orange);
       g.save();
       g.translateCanvas(e.x, e.y);
+      if (e.marked) {
+        const pulse = Math.sin(age * 5.5 + (e.phase ?? 0)) * 2;
+        const r = (e.kind === 5 ? 31 : 20) + pulse;
+        g.lineStyle(4, 0xe5594c, 0.24).strokeCircle(0, 0, r + 3);
+        g.lineStyle(2.4, 0xe5594c, 0.92).strokeCircle(0, 0, r);
+      }
       if ((e.charge ?? 0) > 0) {
         const t = 1 - Math.min(1, e.charge! / (e.kind === 5 ? 0.55 : 0.38));
         g.lineStyle(2, 0xc7745b, 0.5 + t * 0.5).strokeCircle(0, 5, 17 + t * 5);

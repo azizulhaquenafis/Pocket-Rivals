@@ -35,10 +35,10 @@ test('Gravity has no map picker, warms only its selected module and starts smoot
  await page.waitForTimeout(500);expect((await state(page)).scene.game.distance).toBeGreaterThan(20);
  expect((await state(page)).diagnostics.initializations['gravity-runner']).toBeLessThan(500);
 });
-test('shared tiers and casual Golf agree while Penfight keeps its exception',async({page})=>{
+test('shared tiers, Penfight and casual Golf all use Medium/Hard/Impossible symmetrically',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Play Penfight',exact:true}).click();await page.getByRole('radio',{name:/1 Player/}).click();
- for(const name of ['Easy','Medium','Hard'])await expect(page.getByRole('radio',{name,exact:true})).toBeVisible();
- await expect(page.getByRole('radio',{name:'Impossible',exact:true})).toHaveCount(0);
+ for(const name of ['Medium','Hard','Impossible'])await expect(page.getByRole('radio',{name,exact:true})).toBeVisible();
+ await expect(page.getByRole('radio',{name:'Easy',exact:true})).toHaveCount(0);
  await page.goto('/');await page.getByRole('button',{name:'Play Ultimate Golf',exact:true}).click();await page.getByRole('button',{name:/1 Player Casual/}).click();
  for(const name of ['Medium','Hard','Impossible'])await expect(page.getByRole('button',{name,exact:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Easy',exact:true})).toHaveCount(0);

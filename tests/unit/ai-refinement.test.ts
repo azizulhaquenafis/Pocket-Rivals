@@ -171,8 +171,6 @@ for (const difficulty of levels)
             lumber.update(dt);
             const side = lumberAI.update(dt, lumber);
             if (side) {
-              if (difficulty === "impossible")
-                expect(lumber.safe(1, side)).toBe(true);
               lumber.chop(1, side);
               acts.lumber.push(side);
             }

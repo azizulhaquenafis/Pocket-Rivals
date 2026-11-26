@@ -7,7 +7,10 @@ export default {
     name: "Color Switch",
     description: "A colorful climb. A new shape around every corner.",
     instructions:
-      "Tap the screen or press Space to hop. Drag or use the arrow keys to steer through matching colors. Keep bouncing inside shapes until your color comes around, then hop out. Cross the dashed line to switch colors. Three hearts.",
+      "Tap to hop and drag sideways to pass only through bands matching your ball’s color. Cross each dashed line to switch colors. Three hearts.",
+    desktopControls: {
+      ai: ["Space / ↑ / W|Hop up", "← → / A D|Steer sideways"],
+    },
     color: "#e2d8ec",
     accent: "#e2d8ec",
     order: 34,

@@ -155,6 +155,16 @@ export function touchesWrongColor(
   return false;
 }
 
+export interface ColorBreak {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  color: number;
+  reason: "color" | "fall";
+  final: boolean;
+}
+
 /** Obstacle positions and the ball share world coordinates throughout the climb. */
 export class ColorWorld {
   x = COURSE_X;
@@ -167,6 +177,7 @@ export class ColorWorld {
   grace = 0;
   time = 0;
   switchFlash = 0;
+  lastBreak: ColorBreak | null = null;
   private cameraTarget = 0;
   private flying = false;
   private bufferedHop = false;
@@ -261,11 +272,12 @@ export class ColorWorld {
     }
 
     const obstacle = this.obstacle();
+    const fell = this.cleared > 0 && this.y + this.camera > FALL_Y;
     if (
-      (this.cleared > 0 && this.y + this.camera > FALL_Y) ||
+      fell ||
       touchesWrongColor(obstacle, this.x, this.y, this.settings.thickness)
     ) {
-      this.recover(obstacle);
+      this.recover(obstacle, fell ? "fall" : "color");
       return;
     }
 
@@ -286,7 +298,16 @@ export class ColorWorld {
     this.camera += (target - this.camera) * (1 - Math.exp(-16 * dt));
   }
 
-  private recover(obstacle: ColorObstacle) {
+  private recover(obstacle: ColorObstacle, reason: "color" | "fall") {
+    this.lastBreak = {
+      x: this.x,
+      y: this.y,
+      vx: this.vx,
+      vy: this.vy,
+      color: this.color,
+      reason,
+      final: this.lives <= 1,
+    };
     this.lives--;
     this.switchFlash = 0;
     if (this.done) return;

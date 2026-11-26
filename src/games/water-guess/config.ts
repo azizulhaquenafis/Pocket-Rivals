@@ -7,7 +7,11 @@ export default {
   name: "Water Guess",
   description: "Trust your eye. Guess the water level.",
   instructions:
-    "Observe the vertical water tube and enter a whole percentage from 0 to 100. You cannot choose a percentage already taken by your opponent. The colored reveal shows only the correct percentage; tap to continue. The player whose guess is closest to the actual water level wins the round. Five rounds per match.",
+    "Estimate the water level from 0 to 100% without duplicating your rival’s guess. Closest guess wins each round across 5 rounds.",
+  desktopControls: {
+    ai: ["0–9|Type percentage", "Backspace|Delete", "Enter / Space|Confirm"],
+    local: ["0–9|Type percentage", "Backspace|Delete", "Enter / Space|Confirm"],
+  },
   color: "#d9eaf7",
   accent: "#8bc2ea",
   preview,

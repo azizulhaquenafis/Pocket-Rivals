@@ -6,7 +6,11 @@ export default {
   name: "Lumberjack",
   description: "Chop quickly. Mind the branches.",
   instructions:
-    "Tap left or right to chop from that side. Avoid branches at your feet and the next falling segment. First to 100 chops wins. Hitting a branch stuns you for 3 seconds instead of ending the match. There is no time limit. Orange: ←/→. Blue: A/D.",
+    "Tap left or right to chop away from falling branches. Hitting a branch stuns you for 3 seconds. First to 100 chops wins.",
+  desktopControls: {
+    ai: ["← → / A D|Chop left or right"],
+    local: ["p1|← →|Chop left or right", "p2|A D|Chop left or right"],
+  },
   color: "#dbe4c2",
   accent: "#a4b389",
   preview,

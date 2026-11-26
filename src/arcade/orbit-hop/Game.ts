@@ -2,6 +2,7 @@ import type { Difficulty } from "../../shared/contracts/AIController";
 import { ArcadeGame } from "../../shared/arcade/ArcadeGame";
 import { circle } from "../../shared/components/drawing";
 import { OrbitWorld } from "./Rules";
+import config from "./config";
 import { PLANET_CLASSES, PLANET_GUIDE, planetSpec } from "./Planets";
 import { drawPlanetBody, drawPlanetHalo } from "./PlanetArt";
 
@@ -32,10 +33,10 @@ export class Game extends ArcadeGame {
   protected override autoScoreSound = false;
   protected challenge = {
     title: "Orbit Hop",
-    guideTitle: "How to play & planet guide",
-    instructions:
-      "Tap, Space or Enter to launch tangentially from orbit. Enter a planet's outer halo so its gravity curves your flight onto the surface. Across 25 planet types, larger volume creates a bigger target and wider halo, while higher density creates stronger pull. Three hearts.",
+    guideTitle: "How to play",
+    instructions: config.instructions,
     guide: PLANET_GUIDE,
+    desktopControls: config.desktopControls?.ai,
     tiers: [
       "Wide gravity fields, relaxed orbits and a smooth curved flight guide.",
       "Smaller planets, longer leaps and a short launch arrow.",

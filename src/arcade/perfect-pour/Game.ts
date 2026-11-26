@@ -1,6 +1,7 @@
 import type { Difficulty } from "../../shared/contracts/AIController";
 import { ArcadeGame } from "../../shared/arcade/ArcadeGame";
 import { circle, rounded } from "../../shared/components/drawing";
+import config from "./config";
 import { PourWorld } from "./Rules";
 
 const BASE_Y = 560;
@@ -21,6 +22,8 @@ export class Game extends ArcadeGame {
 
   protected challenge = {
     title: "Perfect Pour",
+    instructions: config.instructions,
+    desktopControls: config.desktopControls?.ai,
     tiers: [
       "Gentle flow and a preview of water still falling.",
       "Faster flow with more water arriving after release.",

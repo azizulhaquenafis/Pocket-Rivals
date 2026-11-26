@@ -6,7 +6,11 @@ export default {
   name: "Tic-Tac-Toe",
   description: "The classic battle of wits.",
   instructions:
-    "Take turns tapping an empty square. Orange is × and goes first. Blue is ○. Make a row of three to win.",
+    "Take turns tapping an empty square (Orange is ×, Blue is ○). Make three in a row to win—or claim three mini-boards in a row in Ultimate.",
+  desktopControls: {
+    ai: ["Click|Place your mark"],
+    local: ["Click|Take turns placing × and ○"],
+  },
   color: "#f1b49f",
   accent: "#fae2d8",
   tag: "THINK AHEAD",

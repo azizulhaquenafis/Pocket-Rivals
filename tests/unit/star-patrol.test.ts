@@ -10,7 +10,7 @@ import {
 } from "../../src/arcade/space-shooter/Waves";
 import {
   canDropLife,
-  hasSupplyShip,
+  pickRandomPowerup,
   type PowerupKind,
 } from "../../src/arcade/space-shooter/Powerups";
 import { MatchRandom } from "../../src/shared/ai/MatchRandom";
@@ -21,6 +21,7 @@ function pickup(w: ShooterWorld, kind: PowerupKind) {
     kind,
     x: w.player.x,
     y: w.player.y - 1,
+    vx: 0,
     age: 0,
   });
   w.step(1 / 120, w.player.x, false);
@@ -40,12 +41,15 @@ function kill(w: ShooterWorld, e: Enemy) {
   w.projectiles[0].hits.length = 0;
   w.step(0.08, w.player.x, false);
 }
-it("levels introduce armor, aimed gunners and aces, without overlapping their spawn silhouettes", () => {
+it("levels introduce armor, aimed gunners, aces and random red-ringed carriers without overlapping silhouettes", () => {
+  const markedSlots = new Set<string>();
   for (let level = 1; level <= 20; level++) {
-    const enemies = formation(level);
-    expect(enemies.filter((e) => e.kind === 4)).toHaveLength(
-      hasSupplyShip(level) ? 1 : 0,
-    );
+    const rng = new MatchRandom(level * 97 + 13);
+    const enemies = formation(level, rng.next);
+    const marked = enemies.filter((e) => e.marked);
+    if (level === 1) expect(marked.length).toBeGreaterThanOrEqual(1);
+    expect(marked.length).toBeLessThanOrEqual(3);
+    for (const m of marked) markedSlots.add(`${m.kind}:${Math.round(m.x)}:${Math.round(m.y)}`);
     expect(enemies.filter((e) => e.kind === 5)).toHaveLength(
       level % 4 === 0 ? 1 : 0,
     );
@@ -62,40 +66,59 @@ it("levels introduce armor, aimed gunners and aces, without overlapping their sp
         ).toBe(true);
       }
   }
+  expect(markedSlots.size).toBeGreaterThan(6);
   expect(waveSpeed(12)).toBeGreaterThan(waveSpeed(1));
   expect(attackInterval(12)).toBeLessThan(attackInterval(1));
   expect(formation(12).find((e) => e.kind === 5)!.hp).toBeGreaterThan(
     formation(4).find((e) => e.kind === 5)!.hp,
   );
 });
-it("ordinary drops are four times rarer and supply ships skip alternating levels", () => {
-  expect(
-    Array.from({ length: 12 }, (_, i) => hasSupplyShip(i + 1)).filter(Boolean),
-  ).toHaveLength(8);
+it("drops fall naturally without homing toward the player, marked enemies drop reliably, and unmarked enemies drop randomly", () => {
   const w = new ShooterWorld(() => 0.5);
-  kill(w, { x: 210, y: 300, hp: 1, kind: 4, alive: true, drop: "drone" });
-  expect(w.pickups.filter((p) => p.active).map((p) => p.kind)).toEqual([
-    "drone",
-  ]);
-  expect(w.drone).toBe(0); // Falling loot is not awarded until caught.
-  w.kills = 7;
-  kill(w, { x: 210, y: 300, hp: 1, kind: 0, alive: true });
-  expect(w.pickups.filter((p) => p.active)).toHaveLength(1);
-  w.kills = 31;
-  kill(w, { x: 210, y: 300, hp: 1, kind: 0, alive: true });
-  expect(w.pickups.filter((p) => p.active)).toHaveLength(2);
-  expect(w.pickups.some((p) => p.active && p.kind === "life")).toBe(false);
+  kill(w, { x: 160, y: 460, hp: 1, kind: 0, alive: true, marked: true });
+  const dropped = w.pickups.find((p) => p.active)!;
+  expect(dropped).toBeDefined();
+  const startX = dropped.x;
+  dropped.vx = 0;
+  // Move player 60px to the right: pickup must fall straight down, never curve toward player.
+  w.player.x = startX + 60;
+  for (let i = 0; i < 60; i++) w.step(1 / 120, startX + 60, false);
+  expect(dropped.x).toBeCloseTo(startX, 5);
+  expect(dropped.y).toBeGreaterThan(480);
+
+  // Unmarked enemies trigger unpredictable surprise drops on random kills.
+  const surprise = new ShooterWorld(() => 0.02);
+  kill(surprise, { x: 210, y: 300, hp: 1, kind: 1, alive: true });
+  expect(surprise.pickups.filter((p) => p.active)).toHaveLength(1);
+
+  const quiet = new ShooterWorld(() => 0.95);
+  kill(quiet, { x: 210, y: 300, hp: 1, kind: 1, alive: true });
+  expect(quiet.pickups.filter((p) => p.active)).toHaveLength(0);
 });
-it("life drops are rare milestone rewards with a ninety-second cooldown and a four-life cap", () => {
-  for (let wave = 1; wave <= 30; wave++)
-    expect(canDropLife(wave, 100, -Infinity, 3)).toBe(wave % 6 === 0);
-  expect(canDropLife(12, 150, 100, 2)).toBe(false);
-  expect(canDropLife(12, 190, 100, 2)).toBe(true);
-  expect(canDropLife(6, 100, -Infinity, 4)).toBe(false);
-  const w = new ShooterWorld(() => 0);
-  w.wave = 6;
-  kill(w, { x: 210, y: 300, hp: 1, kind: 4, alive: true, drop: "spread" });
-  expect(w.pickups.some((p) => p.active && p.kind === "life")).toBe(true);
+it("weighted random loot makes gun enhancements much more common than extra lives and enforces cooldown/cap", () => {
+  expect(canDropLife(100, -Infinity, 3)).toBe(true);
+  expect(canDropLife(120, 100, 2)).toBe(false);
+  expect(canDropLife(145, 100, 2)).toBe(true);
+  expect(canDropLife(100, -Infinity, 4)).toBe(false);
+
+  const counts: Record<PowerupKind, number> = {
+    spread: 0,
+    rapid: 0,
+    laser: 0,
+    drone: 0,
+    shield: 0,
+    life: 0,
+  };
+  const rng = new MatchRandom(77);
+  for (let i = 0; i < 2000; i++) counts[pickRandomPowerup(rng.next, true)]++;
+  expect(counts.life).toBeGreaterThan(30);
+  expect(counts.spread).toBeGreaterThan(counts.life * 4);
+  expect(counts.rapid).toBeGreaterThan(counts.life * 2);
+
+  // When extra life is disallowed, pool never returns life.
+  for (let i = 0; i < 500; i++)
+    expect(pickRandomPowerup(rng.next, false)).not.toBe("life");
+
   const max = new ShooterWorld();
   max.lives = 4;
   pickup(max, "life");
@@ -214,6 +237,7 @@ it("new levels reset all gear and equipment capsules while preserving lives, sco
     kind: "rapid",
     x: 80,
     y: 300,
+    vx: 0,
     age: 0,
   });
   Object.assign(w.pickups[1], {
@@ -221,6 +245,7 @@ it("new levels reset all gear and equipment capsules while preserving lives, sco
     kind: "life",
     x: 80,
     y: 300,
+    vx: 0,
     age: 0,
   });
   w.enemies = [];
@@ -244,13 +269,20 @@ it("same-level formation retries preserve equipment and missed capsules expire",
     kind: "rapid",
     x: 210,
     y: 350,
+    vx: 0,
     age: 0,
   });
   w.spawnWave();
   expect(w.weaponLevel).toBe(2);
   expect(w.shield).toBe(true);
   expect(w.pickups[0].active).toBe(true);
-  Object.assign(w.pickups[1], { active: true, x: 370, y: 639, age: 8.9 });
+  Object.assign(w.pickups[1], {
+    active: true,
+    x: 370,
+    y: 639,
+    vx: 0,
+    age: 8.9,
+  });
   w.step(0.05, 44, false);
   expect(w.pickups[1].active).toBe(false);
   expect(w.pickups[0].active).toBe(true);

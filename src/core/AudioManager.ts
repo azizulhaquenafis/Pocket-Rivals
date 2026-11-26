@@ -55,7 +55,7 @@ const effects: Record<Sound, EffectSpec> = {
     jitter: 0.03,
   },
   damage: {
-    notes: [340, 225, 130],
+    notes: [360, 230, 130],
     wave: "sawtooth",
     duration: 0.11,
     gain: 0.095,

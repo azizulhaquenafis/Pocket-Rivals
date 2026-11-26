@@ -6,7 +6,10 @@ export default {
   name: "Star Patrol",
   description: "Small ship. Endless courage.",
   instructions:
-    "Drag to steer/fire; arrows/A/D + Space. Rare gear resets each level; extra lives carry over. Ace every 4 levels.",
+    "Steer and fire to clear alien waves while dodging enemy shots. Red-ringed ships guarantee a random power-up drop, and any alien may surprise you—weapon upgrades are common while extra lives are rare.",
+  desktopControls: {
+    ai: ["← → / A D|Move ship", "Space|Fire cannons"],
+  },
   color: "#d8d4e6",
   accent: "#aaa3c6",
   preview,

@@ -1,21 +1,72 @@
-<svg viewBox="0 0 220 210" xmlns="http://www.w3.org/2000/svg">
-  <g stroke="#242b32" stroke-width="4" stroke-linejoin="round">
-    <path
-      d="M53 157h94v-39H91V62h65"
-      fill="none"
-      stroke-width="31"
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 210" fill="none">
+  <!-- Soft grounded shadow beneath the winding snake & apples -->
+  <ellipse cx="106" cy="176" rx="70" ry="11" fill="#242b32" opacity=".12" />
+  <!-- Smooth S-curved emerald snake body -->
+  <path
+    d="M44 162 C68 162, 86 154, 86 134 C86 112, 54 114, 54 88 C54 64, 78 56, 114 64"
+    stroke="#242b32"
+    stroke-width="32"
+    stroke-linecap="round"
+  />
+  <path
+    d="M44 162 C68 162, 86 154, 86 134 C86 112, 54 114, 54 88 C54 64, 78 56, 114 64"
+    stroke="#59a26d"
+    stroke-width="23"
+    stroke-linecap="round"
+  />
+  <!-- Playful lighter belly dashes along the curve -->
+  <path
+    d="M52 160 C72 158, 84 148, 86 134 C86 116, 56 113, 55 88 C55 68, 76 59, 108 63"
+    stroke="#97d48c"
+    stroke-width="7"
+    stroke-linecap="round"
+    stroke-dasharray="10 14"
+  />
+  <!-- Tiny playful forked coral tongue pointing at the apple -->
+  <path
+    d="M144 70 L158 75 M158 75 L165 70 M158 75 L164 81"
+    stroke="#e25d52"
+    stroke-width="3.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+  <!-- Friendly rounded snake head -->
+  <g transform="translate(124 66) rotate(14)">
+    <rect
+      x="-22"
+      y="-18"
+      width="44"
+      height="36"
+      rx="17"
+      fill="#74bc78"
+      stroke="#242b32"
+      stroke-width="4.5"
+    />
+    <!-- Bright expressive eyes looking toward the apple -->
+    <circle cx="4" cy="-9" r="6" fill="#fffdf5" stroke="#242b32" stroke-width="2.5" />
+    <circle cx="6.2" cy="-8.5" r="2.6" fill="#242b32" />
+    <circle cx="4" cy="9" r="6" fill="#fffdf5" stroke="#242b32" stroke-width="2.5" />
+    <circle cx="6.2" cy="8.5" r="2.6" fill="#242b32" />
+  </g>
+  <!-- Glossy main orange-red apple -->
+  <g transform="translate(174 102)">
+    <path d="M0 -15 Q2 -23 7 -26" stroke="#242b32" stroke-width="4" stroke-linecap="round" />
+    <ellipse cx="10" cy="-21" rx="8" ry="4.5" transform="rotate(-24 10 -21)" fill="#6eb469" stroke="#242b32" stroke-width="3" />
+    <circle cx="0" cy="0" r="18" fill="#f49b58" stroke="#242b32" stroke-width="4.5" />
+    <circle cx="-6" cy="-5" r="4.5" fill="#fffdf5" opacity=".55" />
+  </g>
+  <!-- Signature Special Golden Apple with timed ring accent -->
+  <g transform="translate(148 158)">
+    <circle
+      cx="0"
+      cy="0"
+      r="19"
+      stroke="#c78c28"
+      stroke-width="3"
+      stroke-dasharray="26 10"
       stroke-linecap="round"
     />
-    <path
-      d="M53 157h94v-39H91V62h65"
-      fill="none"
-      stroke="#528d69"
-      stroke-width="23"
-      stroke-linecap="round"
-    />
-    <rect x="144" y="46" width="33" height="33" rx="9" fill="#9ccc83" />
-    <path d="M164 55v4m0 8v4" stroke-linecap="round" />
-    <circle cx="174" cy="172" r="12" fill="#f49b58" />
-    <path d="M175 159l8-7" />
+    <circle cx="0" cy="0" r="12.5" fill="#f4cc60" stroke="#242b32" stroke-width="3.8" />
+    <path d="M0 -5 L1.8 -1 L6 0 L1.8 1.5 L0 5.5 L-1.8 1.5 L-6 0 L-1.8 -1 Z" fill="#fffdf5" />
   </g>
 </svg>

@@ -1,4 +1,5 @@
 import type { Difficulty } from "../../shared/contracts/AIController";
+export const PERFECT_FLASH = 0.55;
 export interface Block {
   x: number;
   width: number;
@@ -68,7 +69,7 @@ export class TowerWorld {
     if (perfect) {
       m.x = t.x;
       this.combo++;
-      this.flash = 0.35;
+      this.flash = PERFECT_FLASH;
     } else {
       this.combo = 0;
       const cut =

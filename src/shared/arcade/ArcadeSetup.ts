@@ -1,20 +1,26 @@
 import type { Difficulty } from "../contracts/AIController";
+import { bindGuideRow, renderGuideRow } from "../components/GuidePanel";
 import "./arcade-setup.css";
+
 export interface ArcadeGuideItem {
   label: string;
   detail: string;
   swatch?: string;
 }
+
 export interface ArcadeChallenge {
   title: string;
   instructions?: string;
   guideTitle?: string;
   guide?: readonly ArcadeGuideItem[];
+  desktopControls?: readonly string[];
   tiers: readonly [string, string, string];
 }
+
 /** Lazy, module-owned overlay. No physics or input starts behind the picker. */
 export class ArcadeSetup {
   private root = document.createElement("div");
+  private cleanupGuide?: () => void;
   constructor(info: ArcadeChallenge, start: (tier: Difficulty) => void) {
     this.root.className = "arcade-setup";
     const panel = document.createElement("section");
@@ -22,41 +28,19 @@ export class ArcadeSetup {
     const title = document.createElement("h2");
     title.textContent = "Pick your challenge";
     panel.append(title);
-    if (info.instructions || info.guide?.length) {
-      const details = document.createElement("details");
-      details.className = "arcade-instructions";
-      const summary = document.createElement("summary");
-      summary.textContent = info.guideTitle ?? "How to play";
-      details.append(summary);
-      if (info.instructions) {
-        const body = document.createElement("p");
-        body.textContent = info.instructions;
-        details.append(body);
-      }
-      if (info.guide?.length) {
-        const list = document.createElement("ul");
-        list.className = "arcade-guide";
-        for (const item of info.guide) {
-          const li = document.createElement("li");
-          if (item.swatch) {
-            const dot = document.createElement("span");
-            dot.className = "arcade-guide-swatch";
-            dot.style.background = item.swatch;
-            li.append(dot);
-          }
-          const copy = document.createElement("div");
-          const strong = document.createElement("b");
-          strong.textContent = item.label;
-          const desc = document.createElement("span");
-          desc.textContent = item.detail;
-          copy.append(strong, desc);
-          li.append(copy);
-          list.append(li);
-        }
-        details.append(list);
-      }
-      panel.append(details);
+
+    const guideHtml = renderGuideRow({
+      instructions: info.instructions,
+      guideTitle: info.guideTitle ?? "How to play",
+      guide: info.guide,
+      controls: info.desktopControls,
+    });
+    if (guideHtml) {
+      const holder = document.createElement("div");
+      holder.innerHTML = guideHtml;
+      panel.append(holder.firstElementChild!);
     }
+
     for (const [i, tier] of (
       ["medium", "hard", "impossible"] as const
     ).entries()) {
@@ -75,12 +59,17 @@ export class ArcadeSetup {
       panel.append(button);
     }
     this.root.append(panel);
-    document.querySelector("#game-stage")!.append(this.root);
+    const stage = document.querySelector<HTMLElement>("#game-stage")!;
+    stage.append(this.root);
+    this.cleanupGuide = bindGuideRow(panel, stage);
   }
   setPaused(value: boolean) {
+    if (value) this.cleanupGuide?.();
     this.root.hidden = value;
   }
   destroy() {
+    this.cleanupGuide?.();
+    this.cleanupGuide = undefined;
     this.root.querySelectorAll("button").forEach((b) => (b.onclick = null));
     this.root.remove();
   }

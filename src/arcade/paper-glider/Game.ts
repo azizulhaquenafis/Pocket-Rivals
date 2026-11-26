@@ -61,8 +61,9 @@ export class Game extends ArcadeGame {
 
   protected challenge = {
     instructions: config.instructions,
-    guideTitle: "How to play & wind guide",
+    guideTitle: "How to play",
     guide: GLIDER_GUIDE,
+    desktopControls: config.desktopControls?.ai,
     title: "Paper Glider",
     tiers: [
       "Wide gates, lighter breezes and a landing alignment cue.",

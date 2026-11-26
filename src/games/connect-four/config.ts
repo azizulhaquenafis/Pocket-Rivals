@@ -6,7 +6,11 @@ export default {
   name: "Connect Four",
   description: "Drop a piece. Spot a plan.",
   instructions:
-    "Tap a column or press 1–7 to drop your piece. Connect four horizontally, vertically or diagonally.",
+    "Drop discs into any column to connect four horizontally, vertically, or diagonally.",
+  desktopControls: {
+    ai: ["1–7|Drop piece in column", "Click|Drop piece"],
+    local: ["1–7|Drop piece in column", "Click|Drop piece"],
+  },
   color: "#c8e7eb",
   accent: "#82b4c3",
   preview,

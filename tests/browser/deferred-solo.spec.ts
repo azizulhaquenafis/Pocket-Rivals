@@ -19,11 +19,14 @@ test("five deferred games are absent while Paper Glider remains playable with gu
   await page
     .getByRole("button", { name: "Play Paper Glider", exact: true })
     .click();
-  const guideSummary = page.locator(".arcade-instructions summary");
-  await expect(guideSummary).toContainText(/How to play/i);
-  await guideSummary.click();
+  const guideButton = page.locator(".arcade-instructions");
+  await expect(guideButton).toContainText(/How to play/i);
+  await guideButton.click();
+  await expect(page.locator(".guide-popup")).toBeVisible();
   await expect(page.locator(".arcade-guide li")).toHaveCount(4);
   await expect(page.locator(".arcade-guide")).toContainText("Red Dotted Line");
+  await page.getByRole("button", { name: "Got it", exact: true }).click();
+  await expect(page.locator(".guide-popup")).toHaveCount(0);
   await page.getByRole("button", { name: "Medium", exact: true }).click();
   await expect
     .poll(() =>

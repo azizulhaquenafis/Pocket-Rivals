@@ -6,7 +6,11 @@ export default {
   name: "Fruit Duel",
   description: "Slice the fruit. Dodge the decoys.",
   instructions:
-    "Tap your half to slice real fruit. Gifts, medals, flowers and empty swings cause a 2.4s cooldown. Simultaneous slices replay. First to 10. Orange: Space; Blue: Enter.",
+    "Tap your half to slice real fruit first. Decoys and empty swings cause a short cooldown; ties clash and replay. First to 10 wins.",
+  desktopControls: {
+    ai: ["Space / Arrows / W A S D|Slice"],
+    local: ["p1|Space / Arrows|Slice", "p2|Enter / W A S D|Slice"],
+  },
   color: "#d6bddb",
   accent: "#b693be",
   preview,

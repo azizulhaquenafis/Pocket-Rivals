@@ -13,7 +13,11 @@ export default {
   name: "Dots and Boxes",
   description: "Join the dots. Claim your corner.",
   instructions:
-    "Tap between two neighboring dots to draw a line. Complete a box to claim it and play again. One line can claim two boxes. Most boxes wins. On desktop, use arrows and Enter to select a line.",
+    "Tap between two dots to draw a line. Closing a box claims it and grants another turn. Most boxes wins.",
+  desktopControls: {
+    ai: ["← → ↑ ↓|Select edge", "Enter / Space|Draw line", "Click|Draw line"],
+    local: ["← → ↑ ↓|Select edge", "Enter / Space|Draw line", "Click|Draw line"],
+  },
   color: "#e7ddef",
   accent: "#b6a2c5",
   preview,

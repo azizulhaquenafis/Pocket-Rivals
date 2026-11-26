@@ -290,9 +290,8 @@ export class UltimateGolfGame implements MiniGame {
       return;
     }
     if (action === "back") {
-      if (this.phase === "modes") this.ctx.navigation?.exit();
-      else if (this.phase === "select") this.modes();
-      else this.select();
+      this.cancel();
+      this.ctx.navigation?.exit();
       return;
     }
     if (action === "courses") {
@@ -434,7 +433,8 @@ export class UltimateGolfGame implements MiniGame {
         : "2 Player hot-seat",
     );
     this.ui.screen(
-      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${courseArt(c)}<strong>${c.name}</strong><small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode === "local" ? '<div class="golf-actions"><button class="golf-primary" data-action="all">All four courses</button></div>' : ""}${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "casual" ? '<button data-action="mode:local">2 Players</button>' : '<button data-action="mode:casual">1 Player (Casual)</button>'}</div>`,
+      `<h2>Choose a course</h2><div class="golf-courses">${courses.map((c, i) => `<button class="golf-course" style="background:#${c.color.toString(16)}" data-action="course:${i}">${courseArt(c)}<strong>${c.name}</strong><small>${this.mode === "casual" && this.casual.progress.best[i] ? this.casual.progress.best[i] + " points" : c.subtitle}</small></button>`).join("")}</div>${this.mode === "casual" ? `<div class="golf-choice">${difficulties.map((d, i) => `<button data-action="difficulty:${i}" aria-pressed="${i === this.casual.difficulty}">${d.name}</button>`).join("")}</div>` : ""}<div class="golf-actions">${this.mode === "local" ? '<button class="golf-primary" data-action="all">All four courses</button><button data-action="mode:casual">1 Player (Casual)</button>' : '<button data-action="mode:local">2 Players</button>'}</div>`,
+      "golf-panel-courses",
     );
   }
   private startCompetitionOrCasual(plan: number[]) {

@@ -3,6 +3,7 @@ import type { Difficulty } from "../../shared/contracts/AIController";
 import type { GameContext } from "../../shared/contracts/GameModule";
 import { ArcadeGame } from "../../shared/arcade/ArcadeGame";
 import { rounded, circle, label } from "../../shared/components/drawing";
+import config from "./config";
 import { ClimberWorld, MAX_SPRINGS } from "./Rules";
 export class Game extends ArcadeGame {
   protected override autoScoreSound = false;
@@ -15,6 +16,8 @@ export class Game extends ArcadeGame {
   private lastSpringHud = "";
   protected challenge = {
     title: "Pocket Climber",
+    instructions: config.instructions,
+    desktopControls: config.desktopControls?.ai,
     tiers: [
       "Wide ledges, route hints and telegraphed rocks.",
       "Narrower moving ledges, more rocks and crumbling steps.",

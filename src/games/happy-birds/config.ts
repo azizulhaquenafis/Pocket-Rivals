@@ -6,7 +6,11 @@ export default {
   name: "Happy Birds",
   description: "Tiny wings. Fifteen golden stars.",
   instructions:
-    "Tap to flap in the shared arena. Birds bounce off safe walls. Avoid spikes; outlined spikes warn before changes. Collect the golden stars: first to 15 wins. A spike hit costs no stars: your bird turns gray, glides back to the middle and regains its color over 3 seconds, then flies again. The other bird keeps playing. Orange: Space or arrow keys. Blue: WASD (Enter/L also work). Solo: Space, arrows or WASD.",
+    "Tap to flap, bounce off safe walls, dodge shifting spikes, and grab golden stars. Spike hits pause you for 3s without losing stars. First to 15 wins.",
+  desktopControls: {
+    ai: ["Space / Arrows / W A S D|Flap"],
+    local: ["p1|Space / Arrows|Flap", "p2|W A S D / Enter|Flap"],
+  },
   color: "#c8e7eb",
   accent: "#9ebcc2",
   preview,

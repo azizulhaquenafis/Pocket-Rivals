@@ -5,6 +5,7 @@ import type { GameContext, MiniGame } from "../../shared/contracts/GameModule";
 import { label } from "../../shared/components/drawing";
 import { FixedStep } from "../../shared/physics/FixedStep";
 import { freshSeed, MatchRandom } from "../../shared/ai/MatchRandom";
+import config from "./config";
 import { ShooterWorld } from "./ShooterWorld";
 import { drawShooter } from "./ShooterArt";
 export class SpaceShooterGame implements MiniGame {
@@ -81,6 +82,8 @@ export class SpaceShooterGame implements MiniGame {
     this.setup = new ArcadeSetup(
       {
         title: "Star Patrol",
+        instructions: config.instructions,
+        desktopControls: config.desktopControls?.ai,
         tiers: [
           "Steady formations, slower attacks and generous warning flashes.",
           "Quicker formations and more frequent enemy fire.",

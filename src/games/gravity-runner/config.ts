@@ -6,7 +6,14 @@ export default {
   name: "Gravity Runner",
   description: "The ceiling is your escape route.",
   instructions:
-    "Tap your half to flip between the corridor walls: orange below, blue above. Avoid spikes and gaps. When both walls disappear, land on either face of the middle rail before the gap. A different random landscape is chosen each round. Speed climbs steeply over time. Three rounds total, up to 2 minutes each. Last survivor scores; simultaneous falls or two survivors at the deadline draw that round with no replacement round. Highest score after 3 rounds wins. Orange: Space or arrow keys. Blue: WASD or Enter.",
+    "Tap your half to flip gravity and dodge spikes and gaps as speed climbs. Last survivor scores across 3 rounds; highest score wins.",
+  desktopControls: {
+    ai: ["Space / Arrows / W A S D|Flip gravity"],
+    local: [
+      "p1|Space / Arrows|Flip gravity",
+      "p2|W A S D / Enter|Flip gravity",
+    ],
+  },
   color: "#e3edc6",
   accent: "#92b875",
   preview,
